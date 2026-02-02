@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fast & Slow Pointers Pattern - LeetCode Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
+        .toggle-btn:hover { background-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900">Fast & Slow Pointers Pattern</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="pattern" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Fast & Slow Pointers Pattern (Tortoise and Hare)</h1>
+                <p>The <strong>Fast & Slow Pointers</strong> technique, also known as the "Tortoise and Hare" algorithm, uses two pointers that move through a data structure at different speeds. This pattern is particularly useful for detecting cycles and finding middle elements.</p>
+
+                <h2>When to Use This Pattern</h2>
+                <ul>
+                    <li>Detecting cycles in linked lists</li>
+                    <li>Finding the middle element of a linked list</li>
+                    <li>Finding the k-th element from the end</li>
+                    <li>Detecting cycles in arrays (using indices as pointers)</li>
+                    <li>Problems involving "Happy Number" or similar cycle detection</li>
+                </ul>
+
+                <h2>Key Concepts</h2>
+                <p>The pattern uses two pointers:</p>
+                <ul>
+                    <li><strong>Slow pointer:</strong> Moves one step at a time</li>
+                    <li><strong>Fast pointer:</strong> Moves two steps at a time (or faster)</li>
+                </ul>
+                <p>If there's a cycle, the fast pointer will eventually catch up to the slow pointer. If there's no cycle, the fast pointer will reach the end first.</p>
+
+                <h3>Visual Representation</h3>
+                <div style="background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border: 2px solid #ef4444; border-radius: 1rem; padding: 2.5rem; margin: 2rem 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+                    <h4 style="margin-bottom: 2rem; color: #dc2626; font-weight: 700; font-size: 1.5rem; text-align: center;">Fast & Slow Pointers - Cycle Detection (Floyd's Algorithm)</h4>
+                    <svg width="100%" height="400" viewBox="0 0 900 400" style="max-width: 900px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                        <defs>
+                            <linearGradient id="nodeGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="slowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="fastGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
+                            </linearGradient>
+                            <filter id="nodeGlow">
+                                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                            <filter id="shadow4">
+                                <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.3"/>
+                            </filter>
+                            <marker id="cycleArrow" markerWidth="12" markerHeight="12" refX="6" refY="3" orient="auto">
+                                <polygon points="0 0, 12 3, 0 6" fill="#ef4444"/>
+                            </marker>
+                            <marker id="normalArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0, 10 3, 0 6" fill="#3b82f6"/>
+                            </marker>
+                        </defs>
+                        
+                        <!-- Title -->
+                        <text x="450" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Linked List with Cycle: 3 → 2 → 0 → -4 → (back to 2)</text>
+                        
+                        <!-- Linked List Nodes -->
+                        <g transform="translate(150, 80)">
+                            <circle cx="0" cy="0" r="30" fill="url(#nodeGradient)" stroke="#1e40af" stroke-width="3" filter="url(#shadow4)"/>
+                            <text x="0" y="8" text-anchor="middle" font-size="18" font-weight="700" fill="white">3</text>
+                            <text x="0" y="45" text-anchor="middle" font-size="12" font-weight="600" fill="#1e40af">head</text>
+                        </g>
+                        
+                        <g transform="translate(300, 80)">
+                            <circle cx="0" cy="0" r="30" fill="url(#nodeGradient)" stroke="#1e40af" stroke-width="3" filter="url(#shadow4)"/>
+                            <text x="0" y="8" text-anchor="middle" font-size="18" font-weight="700" fill="white">2</text>
+                        </g>
+                        
+                        <g transform="translate(450, 80)">
+                            <circle cx="0" cy="0" r="30" fill="url(#nodeGradient)" stroke="#1e40af" stroke-width="3" filter="url(#shadow4)"/>
+                            <text x="0" y="8" text-anchor="middle" font-size="18" font-weight="700" fill="white">0</text>
+                        </g>
+                        
+                        <g transform="translate(600, 80)">
+                            <circle cx="0" cy="0" r="30" fill="url(#nodeGradient)" stroke="#1e40af" stroke-width="3" filter="url(#shadow4)"/>
+                            <text x="0" y="8" text-anchor="middle" font-size="18" font-weight="700" fill="white">-4</text>
+                        </g>
+                        
+                        <!-- Normal arrows -->
+                        <path d="M 180 80 L 270 80" stroke="#3b82f6" stroke-width="4" marker-end="url(#normalArrow)"/>
+                        <path d="M 330 80 L 420 80" stroke="#3b82f6" stroke-width="4" marker-end="url(#normalArrow)"/>
+                        <path d="M 480 80 L 570 80" stroke="#3b82f6" stroke-width="4" marker-end="url(#normalArrow)"/>
+                        
+                        <!-- Cycle arrow (curved) -->
+                        <path d="M 630 80 Q 750 20 300 80" stroke="#ef4444" stroke-width="4" fill="none" marker-end="url(#cycleArrow)" stroke-dasharray="5,5" filter="url(#nodeGlow)"/>
+                        <text x="650" y="30" font-size="13" font-weight="700" fill="#ef4444">Cycle back to node 2</text>
+                        
+                        <!-- Slow Pointer with elegant design -->
+                        <g transform="translate(300, 80)">
+                            <circle cx="0" cy="0" r="15" fill="url(#slowGradient)" stroke="#059669" stroke-width="3" filter="url(#nodeGlow)"/>
+                            <circle cx="0" cy="0" r="7" fill="white" opacity="0.9"/>
+                            <text x="0" y="-45" text-anchor="middle" font-size="16" font-weight="700" fill="#059669">slow</text>
+                            <text x="0" y="-30" text-anchor="middle" font-size="12" fill="#059669">(1 step)</text>
+                        </g>
+                        
+                        <!-- Fast Pointer -->
+                        <g transform="translate(600, 80)">
+                            <circle cx="0" cy="0" r="15" fill="url(#fastGradient)" stroke="#dc2626" stroke-width="3" filter="url(#nodeGlow)"/>
+                            <circle cx="0" cy="0" r="7" fill="white" opacity="0.9"/>
+                            <text x="0" y="-45" text-anchor="middle" font-size="16" font-weight="700" fill="#dc2626">fast</text>
+                            <text x="0" y="-30" text-anchor="middle" font-size="12" fill="#dc2626">(2 steps)</text>
+                        </g>
+                        
+                        <!-- Algorithm steps in elegant box -->
+                        <rect x="50" y="180" width="800" height="180" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" rx="12" filter="url(#shadow4)"/>
+                        <text x="450" y="210" text-anchor="middle" font-size="17" font-weight="700" fill="#1e293b">Algorithm Execution Steps</text>
+                        
+                        <g transform="translate(100, 240)">
+                            <rect x="0" y="0" width="12" height="12" fill="#10b981" rx="2"/>
+                            <text x="25" y="12" font-size="14" font-weight="600" fill="#1e293b">Step 1:</text>
+                            <text x="25" y="32" font-size="13" fill="#6b7280">slow at node 2, fast at node -4</text>
+                            
+                            <rect x="0" y="50" width="12" height="12" fill="#f59e0b" rx="2"/>
+                            <text x="25" y="62" font-size="14" font-weight="600" fill="#1e293b">Step 2:</text>
+                            <text x="25" y="82" font-size="13" fill="#6b7280">slow moves to 0, fast moves to 2 (via cycle)</text>
+                            
+                            <rect x="0" y="100" width="12" height="12" fill="#ef4444" rx="2"/>
+                            <text x="25" y="112" font-size="14" font-weight="700" fill="#dc2626">Step 3:</text>
+                            <text x="25" y="132" font-size="13" font-weight="700" fill="#dc2626">slow == fast at node 2 → Cycle detected! ✓</text>
+                        </g>
+                        
+                        <!-- Mathematical proof box -->
+                        <rect x="500" y="240" width="300" height="100" fill="#fef2f2" stroke="#fecaca" stroke-width="2" rx="8"/>
+                        <text x="650" y="265" text-anchor="middle" font-size="14" font-weight="700" fill="#991b1b">Why It Works</text>
+                        <text x="650" y="290" text-anchor="middle" font-size="12" fill="#7f1d1d">Fast gains 1 step per iteration</text>
+                        <text x="650" y="310" text-anchor="middle" font-size="12" fill="#7f1d1d">on slow pointer</text>
+                        <text x="650" y="330" text-anchor="middle" font-size="12" fill="#7f1d1d">In cycle of length L, fast will</text>
+                        <text x="650" y="350" text-anchor="middle" font-size="12" fill="#7f1d1d">catch slow in ≤ L iterations</text>
+                    </svg>
+                    
+                    <div style="margin-top: 2rem; padding: 1.25rem; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 5px solid #10b981; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        <p style="margin: 0; font-size: 1rem; color: #065f46; font-weight: 600;"><strong>Floyd's Cycle Detection:</strong> Fast pointer moves 2 steps while slow moves 1 step. In a cycle, fast will eventually catch up to slow, proving a cycle exists. Time: O(n), Space: O(1).</p>
+                    </div>
+                </div>
+
+                <h3>Cycle Detection</h3>
+                <pre><code>slow = head
+fast = head
+
+while fast and fast.next:
+    slow = slow.next
+    fast = fast.next.next
+    
+    if slow == fast:
+        return True  # Cycle detected
+
+return False  # No cycle</code></pre>
+            </article>
+        </section>
+
+        <section id="algorithm" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Algorithm Section</h1>
+                
+                <h2>Cycle Detection Algorithm</h2>
+                <pre><code>function hasCycle(head):
+    if head is null or head.next is null:
+        return false
+    
+    slow = head
+    fast = head
+    
+    while fast is not null and fast.next is not null:
+        slow = slow.next
+        fast = fast.next.next
+        
+        if slow == fast:
+            return true
+    
+    return false</code></pre>
+
+                <h2>Finding Middle Element</h2>
+                <pre><code>function findMiddle(head):
+    slow = head
+    fast = head
+    
+    while fast is not null and fast.next is not null:
+        slow = slow.next
+        fast = fast.next.next
+    
+    return slow  # slow is at the middle</code></pre>
+
+                <h2>Implementation in C++</h2>
+                <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+
+bool hasCycle(ListNode *head) {
+    if (!head || !head->next) {
+        return false;
+    }
+    
+    ListNode *slow = head;
+    ListNode *fast = head;
+    
+    // Fast moves 2 steps, slow moves 1 step
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+        
+        // If they meet, there's a cycle
+        if (slow == fast) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+ListNode* findMiddle(ListNode *head) {
+    ListNode *slow = head;
+    ListNode *fast = head;
+    
+    // When fast reaches end, slow is at middle
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    
+    return slow;
+}</code></pre>
+            </article>
+        </section>
+
+        <section id="problems" class="mb-12">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="section-title text-center">Practice Problems</h2>
+                
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 1: Linked List Cycle (LeetCode #141)</h3>
+                    <p class="mb-4">Given head, the head of a linked list, determine if the linked list has a cycle in it.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: head = [3,2,0,-4], pos = 1
+Output: true
+Explanation: There is a cycle where the tail connects to the 1st node (0-indexed).</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
+                    <div id="sol1" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(nullptr) {}
+};
+
+bool hasCycle(ListNode *head) {
+    if (!head || !head->next) {
+        return false;
+    }
+    
+    ListNode *slow = head;
+    ListNode *fast = head;
+    
+    // Fast moves 2 steps, slow moves 1 step
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+        
+        // If they meet, there's a cycle
+        if (slow == fast) {
+            return true;
+        }
+    }
+    
+    return false;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Linked List:</strong> 3 -> 2 -> 0 -> -4 -> (points back to 2)</p>
+                            <p style="margin-top: 0.5rem;"><strong>Initial:</strong> slow=3, fast=3</p>
+                            <p><strong>Step 1:</strong> slow=2, fast=0</p>
+                            <p><strong>Step 2:</strong> slow=0, fast=2</p>
+                            <p><strong>Step 3:</strong> slow=-4, fast=-4</p>
+                            <p style="margin-left: 2rem;">slow == fast, cycle detected!</p>
+                            <p style="margin-top: 1rem;"><strong>Why it works:</strong> If there's a cycle of length L, and slow is k steps into the cycle when fast enters, fast will catch up to slow in (L-k) steps because fast gains 1 step per iteration.</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We use Floyd's cycle detection algorithm (also known as the "tortoise and hare" algorithm). The slow pointer moves one step, fast moves two steps. If there's a cycle, fast will eventually catch up to slow. If fast reaches null, there's no cycle. This works because in a cycle, fast gains one step per iteration on slow, so it will eventually catch up. The time complexity is O(n) where n is the number of nodes.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 2: Happy Number (LeetCode #202)</h3>
+                    <p class="mb-4">Write an algorithm to determine if a number n is happy. A happy number is a number defined by the following process: Starting with any positive integer, replace the number by the sum of the squares of its digits. Repeat until the number equals 1, or it loops endlessly in a cycle which does not include 1.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: n = 19
+Output: true
+Explanation: 1² + 9² = 82, 8² + 2² = 68, 6² + 8² = 100, 1² + 0² + 0² = 1</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
+                    <div id="sol2" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+int getNext(int num) {
+    int total = 0;
+    while (num > 0) {
+        int digit = num % 10;
+        total += digit * digit;
+        num /= 10;
+    }
+    return total;
+}
+
+bool isHappy(int n) {
+    int slow = n;
+    int fast = getNext(n);
+    
+    // Continue until fast reaches 1 or meets slow (cycle detected)
+    while (fast != 1 && slow != fast) {
+        slow = getNext(slow);
+        fast = getNext(getNext(fast));  // Fast moves 2 steps
+    }
+    
+    return fast == 1;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation (n=19):</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Initial:</strong> slow=19, fast=getNext(19)=82</p>
+                            <p style="margin-top: 0.5rem;"><strong>Step 1:</strong> slow=82, fast=getNext(getNext(82))</p>
+                            <p style="margin-left: 2rem;">getNext(82)=68, getNext(68)=100, fast=100</p>
+                            <p><strong>Step 2:</strong> slow=68, fast=getNext(getNext(100))</p>
+                            <p style="margin-left: 2rem;">getNext(100)=1, getNext(1)=1, fast=1</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> fast==1, return true</p>
+                            <p style="margin-top: 0.5rem;"><strong>Sequence:</strong> 19 -> 82 -> 68 -> 100 -> 1</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We treat the sequence of numbers as a linked list where each number points to the next (via getNext function). We use fast and slow pointers to detect cycles. If we reach 1, it's happy. If slow meets fast before reaching 1, there's a cycle and it's not happy. The fast pointer moves two steps at a time, so if there's a cycle, it will eventually catch up to slow.</p>
+                        <p><strong>Time Complexity:</strong> O(log n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 3: Find the Duplicate Number (LeetCode #287)</h3>
+                    <p class="mb-4">Given an array of integers nums containing n + 1 integers where each integer is in the range [1, n] inclusive. There is only one repeated number in nums, return this repeated number.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [1,3,4,2,2]
+Output: 2</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
+                    <div id="sol3" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int findDuplicate(vector&lt;int&gt;& nums) {
+    int slow = nums[0];
+    int fast = nums[0];
+    
+    // Phase 1: Find intersection point in cycle
+    do {
+        slow = nums[slow];        // Move 1 step
+        fast = nums[nums[fast]];   // Move 2 steps
+    } while (slow != fast);
+    
+    // Phase 2: Find entrance to cycle (the duplicate)
+    slow = nums[0];
+    while (slow != fast) {
+        slow = nums[slow];
+        fast = nums[fast];
+    }
+    
+    return slow;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [1,3,4,2,2]</p>
+                            <p style="margin-top: 0.5rem;"><strong>Phase 1 - Find Meeting Point:</strong></p>
+                            <p>slow=1, fast=1</p>
+                            <p>slow=nums[1]=3, fast=nums[nums[1]]=nums[3]=2</p>
+                            <p>slow=nums[3]=2, fast=nums[nums[2]]=nums[4]=2</p>
+                            <p>slow=nums[2]=4, fast=nums[nums[2]]=nums[4]=2</p>
+                            <p>slow=nums[4]=2, fast=nums[nums[2]]=nums[4]=2</p>
+                            <p style="margin-left: 2rem;">slow==fast at value 2</p>
+                            <p style="margin-top: 0.5rem;"><strong>Phase 2 - Find Cycle Entrance:</strong></p>
+                            <p>slow=nums[0]=1, fast=2</p>
+                            <p>slow=nums[1]=3, fast=nums[2]=4</p>
+                            <p>slow=nums[3]=2, fast=nums[4]=2</p>
+                            <p style="margin-left: 2rem;">slow==fast at value 2, duplicate found!</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 2</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We treat the array as a linked list where nums[i] points to nums[nums[i]]. The duplicate creates a cycle because two indices point to the same value. First phase: find where slow and fast meet (inside the cycle). Second phase: reset slow to start, move both one step at a time until they meet at the cycle entrance (the duplicate). This works because the distance from start to cycle entrance equals the distance from meeting point to cycle entrance.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 4: Middle of the Linked List (LeetCode #876)</h3>
+                    <p class="mb-4">Given the head of a singly linked list, return the middle node of the linked list. If there are two middle nodes, return the second middle node.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: head = [1,2,3,4,5]
+Output: [3,4,5]
+Explanation: The middle node of the list is node 3.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol4')">Show Solution</button>
+                    <div id="sol4" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+};
+
+ListNode* middleNode(ListNode* head) {
+    ListNode *slow = head;
+    ListNode *fast = head;
+    
+    // When fast reaches end, slow is at middle
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+    }
+    
+    return slow;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Linked List:</strong> 1 -> 2 -> 3 -> 4 -> 5</p>
+                            <p style="margin-top: 0.5rem;"><strong>Initial:</strong> slow=1, fast=1</p>
+                            <p><strong>Step 1:</strong> slow=2, fast=3</p>
+                            <p><strong>Step 2:</strong> slow=3, fast=5</p>
+                            <p><strong>Step 3:</strong> fast->next=nullptr, exit loop</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> slow points to node 3 (middle)</p>
+                            <p style="margin-top: 0.5rem;"><strong>Why it works:</strong> Fast moves 2 steps while slow moves 1 step. When fast has moved n steps (reached end), slow has moved n/2 steps, which is the middle.</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> When fast reaches the end, slow will be at the middle. Fast moves twice as fast, so when fast has moved n steps, slow has moved n/2 steps, which is the middle. This is a classic application of the fast-slow pointer technique. For even-length lists, this returns the second middle node (as per LeetCode problem requirements).</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 5: Linked List Cycle II (LeetCode #142)</h3>
+                    <p class="mb-4">Given the head of a linked list, return the node where the cycle begins. If there is no cycle, return null.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: head = [3,2,0,-4], pos = 1
+Output: tail connects to node index 1
+Explanation: There is a cycle in the linked list, where tail connects to the 1st node (0-indexed).</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
+                    <div id="sol5" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;iostream&gt;
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode(int x) : val(x), next(nullptr) {}
+};
+
+ListNode* detectCycle(ListNode *head) {
+    if (!head || !head->next) {
+        return nullptr;
+    }
+    
+    ListNode *slow = head;
+    ListNode *fast = head;
+    
+    // Phase 1: Find meeting point
+    while (fast && fast->next) {
+        slow = slow->next;
+        fast = fast->next->next;
+        if (slow == fast) {
+            break;  // Cycle detected
+        }
+    }
+    
+    // No cycle found
+    if (!fast || !fast->next) {
+        return nullptr;
+    }
+    
+    // Phase 2: Find cycle entrance
+    // Reset slow to head, move both one step at a time
+    slow = head;
+    while (slow != fast) {
+        slow = slow->next;
+        fast = fast->next;
+    }
+    
+    return slow;  // Cycle entrance
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Mathematical Proof:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Let:</strong></p>
+                            <p>L = distance from head to cycle start</p>
+                            <p>C = cycle length</p>
+                            <p>X = distance from cycle start to meeting point</p>
+                            <p style="margin-top: 0.5rem;"><strong>When they meet:</strong></p>
+                            <p>Distance traveled by slow = L + X</p>
+                            <p>Distance traveled by fast = L + X + nC (n complete cycles)</p>
+                            <p style="margin-top: 0.5rem;"><strong>Since fast = 2 × slow:</strong></p>
+                            <p>2(L + X) = L + X + nC</p>
+                            <p>L + X = nC</p>
+                            <p>L = nC - X</p>
+                            <p style="margin-top: 0.5rem;"><strong>This means:</strong> Distance from head to cycle start = Distance from meeting point to cycle start (going backwards in cycle)</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> First, we detect if there's a cycle using fast-slow pointers. Once they meet, we know there's a cycle. The key insight: the distance from head to cycle start equals the distance from meeting point to cycle start. So we reset slow to head and move both one step until they meet at the cycle start. This is proven mathematically: if slow travels L+X and fast travels 2(L+X) = L+X+nC, then L = nC-X, meaning the distances are equal.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; George Meshveliani - CST Department. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            solution.classList.toggle('show');
+            const btn = event.target;
+            btn.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+        }
+    </script>
+</body>
+</html>

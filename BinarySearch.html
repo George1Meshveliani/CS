@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modified Binary Search Pattern - LeetCode Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
+        .toggle-btn:hover { background-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900">Modified Binary Search Pattern</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="pattern" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Modified Binary Search Pattern</h1>
+                <p><strong>Modified Binary Search</strong> extends the classic binary search algorithm to handle variations like rotated arrays, finding boundaries, or searching in 2D matrices. The core principle remains: eliminate half of the search space at each step.</p>
+
+                <h2>When to Use This Pattern</h2>
+                <ul>
+                    <li>Searching in sorted or rotated sorted arrays</li>
+                    <li>Finding the first/last occurrence of an element</li>
+                    <li>Finding the minimum/maximum in rotated arrays</li>
+                    <li>Searching in 2D sorted matrices</li>
+                    <li>Finding boundaries or insertion points</li>
+                </ul>
+
+                <h2>Key Concepts</h2>
+                <h3>Visual Representation</h3>
+                <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 2px solid #3b82f6; border-radius: 1rem; padding: 2.5rem; margin: 2rem 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+                    <h4 style="margin-bottom: 2rem; color: #1e40af; font-weight: 700; font-size: 1.5rem; text-align: center;">Binary Search - Narrowing Search Space</h4>
+                    <svg width="100%" height="420" viewBox="0 0 1000 420" style="max-width: 1000px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                        <defs>
+                            <linearGradient id="foundGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="searchGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="eliminatedGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#f1f5f9;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+                            </linearGradient>
+                            <filter id="foundGlow">
+                                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                            <filter id="shadow5">
+                                <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.25"/>
+                            </filter>
+                            <marker id="searchArrow" markerWidth="12" markerHeight="12" refX="6" refY="3" orient="auto">
+                                <polygon points="0 0, 12 3, 0 6" fill="#3b82f6"/>
+                            </marker>
+                        </defs>
+                        
+                        <!-- Title -->
+                        <text x="500" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Sorted Array: [1, 3, 5, 7, 9, 11, 13, 15] | Target: 7</text>
+                        
+                        <!-- Step 1: Binary Search -->
+                        <text x="500" y="75" text-anchor="middle" font-size="15" font-weight="700" fill="#1e40af">Step 1: left=0, right=7, mid=(0+7)/2=3</text>
+                        <g transform="translate(100, 95)">
+                            <!-- Eliminated left half -->
+                            <rect x="0" y="0" width="70" height="50" fill="url(#eliminatedGradient)" stroke="#cbd5e1" stroke-width="2" rx="8" opacity="0.6"/>
+                            <text x="35" y="32" text-anchor="middle" font-size="18" font-weight="600" fill="#94a3b8">1</text>
+                            <text x="35" y="68" text-anchor="middle" font-size="12" fill="#94a3b8">[0]</text>
+                            
+                            <rect x="80" y="0" width="70" height="50" fill="url(#eliminatedGradient)" stroke="#cbd5e1" stroke-width="2" rx="8" opacity="0.6"/>
+                            <text x="115" y="32" text-anchor="middle" font-size="18" font-weight="600" fill="#94a3b8">3</text>
+                            <text x="115" y="68" text-anchor="middle" font-size="12" fill="#94a3b8">[1]</text>
+                            
+                            <rect x="160" y="0" width="70" height="50" fill="url(#eliminatedGradient)" stroke="#cbd5e1" stroke-width="2" rx="8" opacity="0.6"/>
+                            <text x="195" y="32" text-anchor="middle" font-size="18" font-weight="600" fill="#94a3b8">5</text>
+                            <text x="195" y="68" text-anchor="middle" font-size="12" fill="#94a3b8">[2]</text>
+                            
+                            <!-- Found element -->
+                            <rect x="240" y="0" width="70" height="50" fill="url(#foundGradient)" stroke="#059669" stroke-width="4" rx="8" filter="url(#foundGlow)"/>
+                            <text x="275" y="32" text-anchor="middle" font-size="22" font-weight="700" fill="white">7</text>
+                            <text x="275" y="68" text-anchor="middle" font-size="13" font-weight="700" fill="#059669">mid ✓</text>
+                            
+                            <!-- Right half (not searched yet) -->
+                            <rect x="320" y="0" width="70" height="50" fill="url(#searchGradient)" stroke="#3b82f6" stroke-width="2.5" rx="8" filter="url(#shadow5)"/>
+                            <text x="355" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">9</text>
+                            <text x="355" y="68" text-anchor="middle" font-size="12" fill="#1e40af">[4]</text>
+                            
+                            <rect x="400" y="0" width="70" height="50" fill="url(#searchGradient)" stroke="#3b82f6" stroke-width="2.5" rx="8" filter="url(#shadow5)"/>
+                            <text x="435" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">11</text>
+                            <text x="435" y="68" text-anchor="middle" font-size="12" fill="#1e40af">[5]</text>
+                            
+                            <rect x="480" y="0" width="70" height="50" fill="url(#searchGradient)" stroke="#3b82f6" stroke-width="2.5" rx="8" filter="url(#shadow5)"/>
+                            <text x="515" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">13</text>
+                            <text x="515" y="68" text-anchor="middle" font-size="12" fill="#1e40af">[6]</text>
+                            
+                            <rect x="560" y="0" width="70" height="50" fill="url(#searchGradient)" stroke="#3b82f6" stroke-width="2.5" rx="8" filter="url(#shadow5)"/>
+                            <text x="595" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">15</text>
+                            <text x="595" y="68" text-anchor="middle" font-size="12" fill="#1e40af">[7]</text>
+                        </g>
+                        
+                        <!-- Success message -->
+                        <rect x="200" y="160" width="600" height="50" fill="#ecfdf5" stroke="#10b981" stroke-width="3" rx="10" filter="url(#shadow5)"/>
+                        <text x="500" y="185" text-anchor="middle" font-size="18" font-weight="700" fill="#059669">✓ Target Found!</text>
+                        <text x="500" y="205" text-anchor="middle" font-size="14" fill="#065f46">nums[3] = 7 == target (7)</text>
+                        
+                        <!-- Search space reduction visualization -->
+                        <text x="500" y="250" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Search Space Reduction</text>
+                        <g transform="translate(100, 270)">
+                            <!-- Initial search space -->
+                            <rect x="0" y="0" width="800" height="35" fill="url(#searchGradient)" stroke="#3b82f6" stroke-width="2.5" rx="8" filter="url(#shadow5)"/>
+                            <text x="400" y="25" text-anchor="middle" font-size="14" font-weight="700" fill="white">Initial: 8 elements</text>
+                            
+                            <path d="M 400 40 L 400 55" stroke="#6b7280" stroke-width="3" marker-end="url(#searchArrow)"/>
+                            <text x="400" y="50" text-anchor="middle" font-size="12" fill="#6b7280" font-weight="600">Compare mid, eliminate half</text>
+                            
+                            <!-- After 1 step -->
+                            <rect x="200" y="70" width="400" height="35" fill="url(#searchGradient)" stroke="#3b82f6" stroke-width="2.5" rx="8" filter="url(#shadow5)" opacity="0.8"/>
+                            <text x="400" y="95" text-anchor="middle" font-size="14" font-weight="700" fill="white">After 1 step: 4 elements (eliminated left half)</text>
+                            
+                            <path d="M 400 110 L 400 125" stroke="#6b7280" stroke-width="3" marker-end="url(#searchArrow)"/>
+                            
+                            <!-- After 2 steps -->
+                            <rect x="300" y="140" width="200" height="35" fill="url(#searchGradient)" stroke="#3b82f6" stroke-width="2.5" rx="8" filter="url(#shadow5)" opacity="0.6"/>
+                            <text x="400" y="165" text-anchor="middle" font-size="14" font-weight="700" fill="white">After 2 steps: 2 elements</text>
+                        </g>
+                        
+                        <!-- Complexity box -->
+                        <rect x="100" y="320" width="800" height="70" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" rx="10" filter="url(#shadow5)"/>
+                        <text x="500" y="350" text-anchor="middle" font-size="16" font-weight="700" fill="#1e40af">Time Complexity Analysis</text>
+                        <g transform="translate(150, 365)">
+                            <circle cx="0" cy="0" r="6" fill="#10b981"/>
+                            <text x="20" y="5" font-size="13" fill="#1e293b">Each iteration eliminates <tspan font-weight="700" fill="#3b82f6">half</tspan> of the search space</text>
+                            <circle cx="0" cy="20" r="6" fill="#3b82f6"/>
+                            <text x="20" y="25" font-size="13" fill="#1e293b">After k iterations: <tspan font-weight="700" fill="#ef4444">n/2^k</tspan> elements remain</text>
+                            <circle cx="0" cy="40" r="6" fill="#f59e0b"/>
+                            <text x="20" y="45" font-size="13" fill="#1e293b">When n/2^k = 1: k = <tspan font-weight="700" fill="#059669">log₂(n)</tspan> → O(log n)</text>
+                        </g>
+                    </svg>
+                    
+                    <div style="margin-top: 2rem; padding: 1.25rem; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #3b82f6; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        <p style="margin: 0; font-size: 1rem; color: #1e40af; font-weight: 600;"><strong>Time Complexity:</strong> O(log n) - Each step eliminates half the search space, requiring at most log₂(n) comparisons</p>
+                        <p style="margin: 0.75rem 0 0 0; font-size: 0.95rem; color: #1e3a8a;"><strong>Space Complexity:</strong> O(1) - Only uses a few variables (left, right, mid)</p>
+                    </div>
+                </div>
+                
+                <h3>Classic Binary Search</h3>
+                <pre><code>def binary_search(arr, target):
+    left, right = 0, len(arr) - 1
+    
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    
+    return -1</code></pre>
+
+                <h3>Modified Variations</h3>
+                <ul>
+                    <li><strong>Rotated Arrays:</strong> Determine which half is sorted</li>
+                    <li><strong>Boundary Search:</strong> Find first/last occurrence</li>
+                    <li><strong>2D Search:</strong> Treat 2D matrix as 1D array</li>
+                </ul>
+            </article>
+        </section>
+
+        <section id="algorithm" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Algorithm Section</h1>
+                
+                <h2>Rotated Array Search</h2>
+                <pre><code>function searchRotated(nums, target):
+    left = 0
+    right = length(nums) - 1
+    
+    while left <= right:
+        mid = (left + right) / 2
+        
+        if nums[mid] == target:
+            return mid
+        
+        # Left half is sorted
+        if nums[left] <= nums[mid]:
+            if nums[left] <= target < nums[mid]:
+                right = mid - 1
+            else:
+                left = mid + 1
+        # Right half is sorted
+        else:
+            if nums[mid] < target <= nums[right]:
+                left = mid + 1
+            else:
+                right = mid - 1
+    
+    return -1</code></pre>
+
+                <h2>Finding First Occurrence</h2>
+                <pre><code>function findFirst(nums, target):
+    left, right = 0, len(nums) - 1
+    result = -1
+    
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] == target:
+            result = mid
+            right = mid - 1  # Continue searching left
+        elif nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    
+    return result</code></pre>
+            </article>
+        </section>
+
+        <section id="problems" class="mb-12">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="section-title text-center">Practice Problems</h2>
+                
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 1: Search in Rotated Sorted Array (LeetCode #33)</h3>
+                    <p class="mb-4">There is an integer array nums sorted in ascending order (with distinct values). Given the array nums after possible rotation and an integer target, return the index of target if it is in nums, or -1 if it is not in nums.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [4,5,6,7,0,1,2], target = 0
+Output: 4</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
+                    <div id="sol1" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int search(vector&lt;int&gt;& nums, int target) {
+    int left = 0;
+    int right = nums.size() - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;  // Avoid overflow
+        
+        if (nums[mid] == target) {
+            return mid;
+        }
+        
+        // Left half is sorted
+        if (nums[left] <= nums[mid]) {
+            // Target is in sorted left half
+            if (nums[left] <= target && target < nums[mid]) {
+                right = mid - 1;
+            } else {
+                // Target is in unsorted right half
+                left = mid + 1;
+            }
+        } 
+        // Right half is sorted
+        else {
+            // Target is in sorted right half
+            if (nums[mid] < target && target <= nums[right]) {
+                left = mid + 1;
+            } else {
+                // Target is in unsorted left half
+                right = mid - 1;
+            }
+        }
+    }
+    
+    return -1;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [4,5,6,7,0,1,2], target = 0</p>
+                            <p style="margin-top: 0.5rem;"><strong>Iteration 1:</strong> left=0, right=6, mid=3</p>
+                            <p style="margin-left: 2rem;">nums[3]=7 != 0</p>
+                            <p style="margin-left: 2rem;">nums[0]=4 <= nums[3]=7, left half sorted</p>
+                            <p style="margin-left: 2rem;">4 <= 0 < 7? No, search right half</p>
+                            <p style="margin-left: 2rem;">left=4</p>
+                            <p style="margin-top: 0.5rem;"><strong>Iteration 2:</strong> left=4, right=6, mid=5</p>
+                            <p style="margin-left: 2rem;">nums[5]=1 != 0</p>
+                            <p style="margin-left: 2rem;">nums[4]=0 <= nums[5]=1, left half sorted</p>
+                            <p style="margin-left: 2rem;">0 <= 0 < 1? Yes, search left half</p>
+                            <p style="margin-left: 2rem;">right=4</p>
+                            <p style="margin-top: 0.5rem;"><strong>Iteration 3:</strong> left=4, right=4, mid=4</p>
+                            <p style="margin-left: 2rem;">nums[4]=0 == 0, found!</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 4</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> In a rotated array, one half is always sorted. We determine which half is sorted by comparing nums[left] with nums[mid]. If the target is in the sorted half, we search there using standard binary search. Otherwise, we search the other half. This allows us to eliminate half the search space at each step, maintaining O(log n) time complexity. The key insight is that we can always determine which half contains the target by checking if it's within the sorted half's range.</p>
+                        <p><strong>Time Complexity:</strong> O(log n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 2: Find Minimum in Rotated Sorted Array (LeetCode #153)</h3>
+                    <p class="mb-4">Suppose an array of length n sorted in ascending order is rotated between 1 and n times. Find the minimum element.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [3,4,5,1,2]
+Output: 1</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
+                    <div id="sol2" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int findMin(vector&lt;int&gt;& nums) {
+    int left = 0;
+    int right = nums.size() - 1;
+    
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+        
+        // Right half is unsorted, minimum is in right half
+        if (nums[mid] > nums[right]) {
+            left = mid + 1;
+        } 
+        // Left half is unsorted or both sorted, minimum is in left half (including mid)
+        else {
+            right = mid;
+        }
+    }
+    
+    return nums[left];
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [3,4,5,1,2]</p>
+                            <p style="margin-top: 0.5rem;"><strong>Iteration 1:</strong> left=0, right=4, mid=2</p>
+                            <p style="margin-left: 2rem;">nums[2]=5 > nums[4]=2, right half unsorted</p>
+                            <p style="margin-left: 2rem;">left=3</p>
+                            <p style="margin-top: 0.5rem;"><strong>Iteration 2:</strong> left=3, right=4, mid=3</p>
+                            <p style="margin-left: 2rem;">nums[3]=1 <= nums[4]=2, left half sorted</p>
+                            <p style="margin-left: 2rem;">right=3</p>
+                            <p style="margin-top: 0.5rem;"><strong>Iteration 3:</strong> left=3, right=3, exit loop</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> nums[3] = 1</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> The minimum is always in the unsorted half. If nums[mid] > nums[right], the right half is unsorted and contains the minimum. Otherwise, the minimum is in the left half (including mid). We use left < right (not <=) because we want to find the exact position. When left == right, we've found the minimum. This works because in a rotated sorted array, the minimum is always at the rotation point.</p>
+                        <p><strong>Time Complexity:</strong> O(log n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 3: Search a 2D Matrix II (LeetCode #240)</h3>
+                    <p class="mb-4">Write an efficient algorithm that searches for a target value in an m x n integer matrix. Each row and column is sorted in ascending order.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: matrix = [[1,4,7,11],[2,5,8,12],[3,6,9,16],[10,13,14,17]], target = 5
+Output: true</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
+                    <div id="sol3" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+bool searchMatrix(vector&lt;vector&lt;int&gt;&gt;& matrix, int target) {
+    if (matrix.empty() || matrix[0].empty()) {
+        return false;
+    }
+    
+    int row = 0;
+    int col = matrix[0].size() - 1;  // Start from top-right
+    
+    while (row < matrix.size() && col >= 0) {
+        if (matrix[row][col] == target) {
+            return true;
+        } else if (matrix[row][col] > target) {
+            // Current element > target, all elements in this column are > target
+            col--;  // Move left
+        } else {
+            // Current element < target, all elements in this row are < target
+            row++;  // Move down
+        }
+    }
+    
+    return false;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> matrix = [[1,4,7,11],[2,5,8,12],[3,6,9,16],[10,13,14,17]], target = 5</p>
+                            <p style="margin-top: 0.5rem;"><strong>Start:</strong> row=0, col=3, matrix[0][3]=11</p>
+                            <p>11 > 5, move left: col=2</p>
+                            <p><strong>row=0, col=2:</strong> matrix[0][2]=7</p>
+                            <p>7 > 5, move left: col=1</p>
+                            <p><strong>row=0, col=1:</strong> matrix[0][1]=4</p>
+                            <p>4 < 5, move down: row=1</p>
+                            <p><strong>row=1, col=1:</strong> matrix[1][1]=5</p>
+                            <p>5 == 5, found!</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> true</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We start from the top-right corner. If the current element is greater than target, all elements in that column are greater (since columns are sorted), so we move left. If it's smaller, all elements in that row are smaller (since rows are sorted), so we move down. This eliminates one row or column at each step, ensuring we find the target efficiently or determine it doesn't exist.</p>
+                        <p><strong>Time Complexity:</strong> O(m + n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 4: Find First and Last Position (LeetCode #34)</h3>
+                    <p class="mb-4">Given an array of integers nums sorted in non-decreasing order, find the starting and ending position of a given target value.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [5,7,7,8,8,10], target = 8
+Output: [3,4]</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol4')">Show Solution</button>
+                    <div id="sol4" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int findFirst(vector&lt;int&gt;& nums, int target) {
+    int left = 0;
+    int right = nums.size() - 1;
+    int result = -1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (nums[mid] == target) {
+            result = mid;
+            right = mid - 1;  // Continue searching left
+        } else if (nums[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return result;
+}
+
+int findLast(vector&lt;int&gt;& nums, int target) {
+    int left = 0;
+    int right = nums.size() - 1;
+    int result = -1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (nums[mid] == target) {
+            result = mid;
+            left = mid + 1;  // Continue searching right
+        } else if (nums[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return result;
+}
+
+vector&lt;int&gt; searchRange(vector&lt;int&gt;& nums, int target) {
+    return {findFirst(nums, target), findLast(nums, target)};
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [5,7,7,8,8,10], target = 8</p>
+                            <p style="margin-top: 0.5rem;"><strong>Finding First Occurrence:</strong></p>
+                            <p>left=0, right=5, mid=2, nums[2]=7 < 8, left=3</p>
+                            <p>left=3, right=5, mid=4, nums[4]=8 == 8, result=4, right=3</p>
+                            <p>left=3, right=3, mid=3, nums[3]=8 == 8, result=3, right=2</p>
+                            <p>left=3, right=2, exit, first=3</p>
+                            <p style="margin-top: 0.5rem;"><strong>Finding Last Occurrence:</strong></p>
+                            <p>left=0, right=5, mid=2, nums[2]=7 < 8, left=3</p>
+                            <p>left=3, right=5, mid=4, nums[4]=8 == 8, result=4, left=5</p>
+                            <p>left=5, right=5, mid=5, nums[5]=10 > 8, right=4</p>
+                            <p>left=5, right=4, exit, last=4</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> [3, 4]</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We perform two binary searches. For the first occurrence, when we find target, we continue searching left to find an earlier occurrence. For the last occurrence, when we find target, we continue searching right to find a later occurrence. This ensures we find the boundaries of the target value. The key is to continue searching in the appropriate direction even after finding a match.</p>
+                        <p><strong>Time Complexity:</strong> O(log n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 5: Search Insert Position (LeetCode #35)</h3>
+                    <p class="mb-4">Given a sorted array of distinct integers and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [1,3,5,6], target = 5
+Output: 2</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
+                    <div id="sol5" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int searchInsert(vector&lt;int&gt;& nums, int target) {
+    int left = 0;
+    int right = nums.size() - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (nums[mid] == target) {
+            return mid;
+        } else if (nums[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    // When loop exits, left points to insertion position
+    // left is the first position where nums[left] >= target
+    return left;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [1,3,5,6], target = 5</p>
+                            <p style="margin-top: 0.5rem;"><strong>Iteration 1:</strong> left=0, right=3, mid=1</p>
+                            <p style="margin-left: 2rem;">nums[1]=3 < 5, left=2</p>
+                            <p style="margin-top: 0.5rem;"><strong>Iteration 2:</strong> left=2, right=3, mid=2</p>
+                            <p style="margin-left: 2rem;">nums[2]=5 == 5, found! Return 2</p>
+                            <p style="margin-top: 1rem;"><strong>Example 2:</strong> target = 2</p>
+                            <p><strong>Iteration 1:</strong> left=0, right=3, mid=1</p>
+                            <p style="margin-left: 2rem;">nums[1]=3 > 2, right=0</p>
+                            <p><strong>Iteration 2:</strong> left=0, right=0, mid=0</p>
+                            <p style="margin-left: 2rem;">nums[0]=1 < 2, left=1</p>
+                            <p style="margin-left: 2rem;">left=1, right=0, exit loop</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 1 (insert at index 1)</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> Standard binary search. If we find the target, return its index. If not, when the loop ends, left will be at the position where target should be inserted. This is because left always points to the first element >= target (or end of array). The invariant is maintained: all elements to the left of 'left' are < target, and all elements at or to the right of 'left' are >= target.</p>
+                        <p><strong>Time Complexity:</strong> O(log n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; George Meshveliani - CST Department. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            solution.classList.toggle('show');
+            const btn = event.target;
+            btn.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+        }
+    </script>
+</body>
+</html>

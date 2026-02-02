@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top K Elements Pattern - LeetCode Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
+        .toggle-btn:hover { background-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900">Top K Elements Pattern</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="pattern" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Top K Elements Pattern</h1>
+                <p>The <strong>Top K Elements</strong> pattern finds the top k largest or smallest elements in an array or stream of data. This pattern typically uses heaps (priority queues) or sorting to efficiently solve these problems.</p>
+
+                <h2>When to Use This Pattern</h2>
+                <ul>
+                    <li>Finding k largest/smallest elements</li>
+                    <li>Finding k most frequent elements</li>
+                    <li>Finding k closest points</li>
+                    <li>Problems involving "top k" or "k largest/smallest"</li>
+                    <li>Streaming data where you need to maintain top k elements</li>
+                </ul>
+
+                <h2>Key Concepts</h2>
+                <h3>Heap (Priority Queue)</h3>
+                <ul>
+                    <li><strong>Min Heap:</strong> Root is minimum. Use for finding k largest (keep size k).</li>
+                    <li><strong>Max Heap:</strong> Root is maximum. Use for finding k smallest (keep size k).</li>
+                </ul>
+                <p>For k largest: maintain a min heap of size k. For k smallest: maintain a max heap of size k.</p>
+            </article>
+        </section>
+
+        <section id="algorithm" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Algorithm Section</h1>
+                
+                <h2>Find K Largest Elements</h2>
+                <pre><code>function findKLargest(nums, k):
+    min_heap = new MinHeap()
+    
+    for num in nums:
+        if min_heap.size() < k:
+            min_heap.push(num)
+        else if num > min_heap.peek():
+            min_heap.pop()
+            min_heap.push(num)
+    
+    return min_heap.toArray()</code></pre>
+
+                <h2>Implementation in C++</h2>
+                <pre><code>#include &lt;vector&gt;
+#include &lt;queue&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+vector&lt;int&gt; findKLargest(vector&lt;int&gt;& nums, int k) {
+    // Min heap: smallest element at top
+    priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; min_heap;
+    
+    for (int num : nums) {
+        if (min_heap.size() < k) {
+            min_heap.push(num);
+        } else if (num > min_heap.top()) {
+            // Replace smallest with current number
+            min_heap.pop();
+            min_heap.push(num);
+        }
+    }
+    
+    // Convert heap to vector
+    vector&lt;int&gt; result;
+    while (!min_heap.empty()) {
+        result.push_back(min_heap.top());
+        min_heap.pop();
+    }
+    
+    return result;
+}</code></pre>
+            </article>
+        </section>
+
+        <section id="problems" class="mb-12">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="section-title text-center">Practice Problems</h2>
+                
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 1: Kth Largest Element in an Array (LeetCode #215)</h3>
+                    <p class="mb-4">Given an integer array nums and an integer k, return the kth largest element in the array.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [3,2,1,5,6,4], k = 2
+Output: 5</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
+                    <div id="sol1" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;queue&gt;
+using namespace std;
+
+int findKthLargest(vector&lt;int&gt;& nums, int k) {
+    // Min heap: keeps k largest elements, smallest at top
+    priority_queue&lt;int, vector&lt;int&gt;, greater&lt;int&gt;&gt; min_heap;
+    
+    for (int num : nums) {
+        if (min_heap.size() < k) {
+            min_heap.push(num);
+        } else if (num > min_heap.top()) {
+            // Current number is larger than smallest in heap
+            min_heap.pop();
+            min_heap.push(num);
+        }
+    }
+    
+    // Root of min heap is kth largest
+    return min_heap.top();
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [3, 2, 1, 5, 6, 4], k = 2</p>
+                            <p style="margin-top: 0.5rem;"><strong>Processing:</strong></p>
+                            <p>num=3: heap=[3] (size < 2)</p>
+                            <p>num=2: heap=[2,3] (size = 2, root=2)</p>
+                            <p>num=1: heap=[2,3] (1 < 2, skip)</p>
+                            <p>num=5: heap=[3,5] (5 > 2, replace 2 with 5)</p>
+                            <p>num=6: heap=[5,6] (6 > 3, replace 3 with 6)</p>
+                            <p>num=4: heap=[4,6] (4 > 5? No, but 4 > 5? Wait...)</p>
+                            <p style="margin-left: 2rem;">Actually: 4 < 5, so skip</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 5 (2nd largest)</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We maintain a min heap of size k. The root is the kth largest element. When we see a number larger than the root, we replace it. After processing all numbers, the root is our answer. The min heap ensures we always have the k largest elements, with the smallest of those k at the root.</p>
+                        <p><strong>Time Complexity:</strong> O(n log k)</p>
+                        <p><strong>Space Complexity:</strong> O(k)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 2: Top K Frequent Elements (LeetCode #347)</h3>
+                    <p class="mb-4">Given an integer array nums and an integer k, return the k most frequent elements.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [1,1,1,2,2,3], k = 2
+Output: [1,2]</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
+                    <div id="sol2" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;unordered_map&gt;
+#include &lt;queue&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+vector&lt;int&gt; topKFrequent(vector&lt;int&gt;& nums, int k) {
+    // Count frequencies
+    unordered_map&lt;int, int&gt; count;
+    for (int num : nums) {
+        count[num]++;
+    }
+    
+    // Min heap: pair of (frequency, number)
+    // Compare by frequency (first element)
+    auto compare = [](pair&lt;int, int&gt;& a, pair&lt;int, int&gt;& b) {
+        return a.first > b.first;  // Min heap: smaller frequency at top
+    };
+    priority_queue&lt;pair&lt;int, int&gt;, vector&lt;pair&lt;int, int&gt;&gt;, 
+                   decltype(compare)&gt; min_heap(compare);
+    
+    // Keep k most frequent elements
+    for (auto& [num, freq] : count) {
+        if (min_heap.size() < k) {
+            min_heap.push({freq, num});
+        } else if (freq > min_heap.top().first) {
+            min_heap.pop();
+            min_heap.push({freq, num});
+        }
+    }
+    
+    // Extract results
+    vector&lt;int&gt; result;
+    while (!min_heap.empty()) {
+        result.push_back(min_heap.top().second);
+        min_heap.pop();
+    }
+    
+    return result;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [1,1,1,2,2,3], k = 2</p>
+                            <p><strong>Frequencies:</strong> {1:3, 2:2, 3:1}</p>
+                            <p style="margin-top: 0.5rem;"><strong>Processing:</strong></p>
+                            <p>num=1, freq=3: heap=[(3,1)]</p>
+                            <p>num=2, freq=2: heap=[(2,2), (3,1)]</p>
+                            <p>num=3, freq=1: heap=[(2,2), (3,1)] (1 < 2, skip)</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> [2, 1] (most frequent)</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> First, count frequencies using a hash map. Then use a min heap of size k to keep track of k most frequent elements. We compare by frequency. When we find an element with higher frequency than the smallest in the heap, we replace it. This ensures we always have the k most frequent elements. The min heap keeps the least frequent of the top k at the root.</p>
+                        <p><strong>Time Complexity:</strong> O(n + k log k)</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 3: Find K Pairs with Smallest Sums (LeetCode #373)</h3>
+                    <p class="mb-4">Given two sorted arrays nums1 and nums2, and an integer k, return the k pairs (u, v) with the smallest sums.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums1 = [1,7,11], nums2 = [2,4,6], k = 3
+Output: [[1,2],[1,4],[1,6]]</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
+                    <div id="sol3" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;queue&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+vector&lt;vector&lt;int&gt;&gt; kSmallestPairs(vector&lt;int&gt;& nums1, 
+                                        vector&lt;int&gt;& nums2, int k) {
+    if (nums1.empty() || nums2.empty()) {
+        return {};
+    }
+    
+    // Min heap: (sum, index1, index2)
+    priority_queue&lt;vector&lt;int&gt;, vector&lt;vector&lt;int&gt;&gt;, 
+                   greater&lt;vector&lt;int&gt;&gt;&gt; heap;
+    
+    // Initialize with first element of nums1 paired with all nums2
+    for (int j = 0; j < min((int)nums2.size(), k); j++) {
+        heap.push({nums1[0] + nums2[j], 0, j});
+    }
+    
+    vector&lt;vector&lt;int&gt;&gt; result;
+    while (!heap.empty() && result.size() < k) {
+        vector&lt;int&gt; top = heap.top();
+        heap.pop();
+        int i = top[1], j = top[2];
+        result.push_back({nums1[i], nums2[j]});
+        
+        // Push next pair from nums1 with same nums2 element
+        if (i + 1 < nums1.size()) {
+            heap.push({nums1[i+1] + nums2[j], i+1, j});
+        }
+    }
+    
+    return result;
+}</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use a min heap to track pairs by their sum. We start with the first element of nums1 paired with all elements of nums2. Then we pop the smallest, add it to results, and push the next pair from nums1 with the same nums2 element. This ensures we process pairs in order of increasing sum. The heap maintains the smallest sums at the top, allowing us to efficiently find k smallest pairs.</p>
+                        <p><strong>Time Complexity:</strong> O(k log k)</p>
+                        <p><strong>Space Complexity:</strong> O(k)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 4: K Closest Points to Origin (LeetCode #973)</h3>
+                    <p class="mb-4">Given an array of points, return the k closest points to the origin (0, 0).</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: points = [[1,3],[-2,2]], k = 1
+Output: [[-2,2]]</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol4')">Show Solution</button>
+                    <div id="sol4" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;queue&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+vector&lt;vector&lt;int&gt;&gt; kClosest(vector&lt;vector&lt;int&gt;&gt;& points, int k) {
+    // Max heap: keep k closest points
+    // Use negative distance since priority_queue is max heap by default
+    priority_queue&lt;pair&lt;int, vector&lt;int&gt;&gt;&gt; max_heap;
+    
+    for (auto& point : points) {
+        // Calculate squared distance (avoid sqrt for efficiency)
+        int dist = point[0] * point[0] + point[1] * point[1];
+        
+        if (max_heap.size() < k) {
+            max_heap.push({dist, point});
+        } else if (dist < max_heap.top().first) {
+            // Current point is closer than farthest in heap
+            max_heap.pop();
+            max_heap.push({dist, point});
+        }
+    }
+    
+    // Extract results
+    vector&lt;vector&lt;int&gt;&gt; result;
+    while (!max_heap.empty()) {
+        result.push_back(max_heap.top().second);
+        max_heap.pop();
+    }
+    
+    return result;
+}</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We maintain a max heap of size k. The root has the largest distance among k closest points. When we find a point closer than the root, we replace it. We use squared distance to avoid square root calculation (since we only compare distances, squared distance works the same). The max heap ensures we always have the k closest points by keeping the farthest of those k at the root.</p>
+                        <p><strong>Time Complexity:</strong> O(n log k)</p>
+                        <p><strong>Space Complexity:</strong> O(k)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 5: Merge K Sorted Lists (LeetCode #23)</h3>
+                    <p class="mb-4">You are given an array of k linked-lists lists, each linked-list is sorted in ascending order. Merge all the linked-lists into one sorted linked-list.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: lists = [[1,4,5],[1,3,4],[2,6]]
+Output: [1,1,2,3,4,4,5,6]</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
+                    <div id="sol5" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;queue&gt;
+using namespace std;
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+
+ListNode* mergeKLists(vector&lt;ListNode*&gt;& lists) {
+    // Min heap: (value, list_index, node)
+    auto compare = [](pair&lt;int, ListNode*&gt;& a, pair&lt;int, ListNode*&gt;& b) {
+        return a.first > b.first;  // Min heap
+    };
+    priority_queue&lt;pair&lt;int, ListNode*&gt;, 
+                   vector&lt;pair&lt;int, ListNode*&gt;&gt;, 
+                   decltype(compare)&gt; min_heap(compare);
+    
+    // Add first node of each list
+    for (ListNode* node : lists) {
+        if (node) {
+            min_heap.push({node->val, node});
+        }
+    }
+    
+    ListNode* dummy = new ListNode(0);
+    ListNode* current = dummy;
+    
+    while (!min_heap.empty()) {
+        auto [val, node] = min_heap.top();
+        min_heap.pop();
+        
+        current->next = node;
+        current = current->next;
+        
+        // Push next node from same list
+        if (node->next) {
+            min_heap.push({node->next->val, node->next});
+        }
+    }
+    
+    return dummy->next;
+}</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use a min heap to always get the smallest element. We start by adding the first node of each list. Then we repeatedly pop the smallest, add it to result, and push the next node from that list. This efficiently merges k sorted lists by always processing the smallest available element. The heap ensures we process elements in sorted order.</p>
+                        <p><strong>Time Complexity:</strong> O(n log k) where n is total nodes</p>
+                        <p><strong>Space Complexity:</strong> O(k)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; George Meshveliani - CST Department. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            solution.classList.toggle('show');
+            const btn = event.target;
+            btn.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+        }
+    </script>
+</body>
+</html>

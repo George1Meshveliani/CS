@@ -1,0 +1,228 @@
+2<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monotonic Stack Pattern - LeetCode Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
+        .toggle-btn:hover { background-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900">Monotonic Stack Pattern</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="pattern" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Monotonic Stack Pattern</h1>
+                <p>A <strong>Monotonic Stack</strong> is a stack that maintains elements in either strictly increasing or strictly decreasing order. This pattern is used to find the next greater/smaller element efficiently.</p>
+
+                <h2>When to Use This Pattern</h2>
+                <ul>
+                    <li>Finding next greater/smaller element</li>
+                    <li>Finding previous greater/smaller element</li>
+                    <li>Problems involving temperature, stock prices, or heights</li>
+                    <li>Largest rectangle in histogram problems</li>
+                </ul>
+
+                <h2>Key Concepts</h2>
+                <ul>
+                    <li><strong>Monotonically Increasing:</strong> Elements increase from bottom to top</li>
+                    <li><strong>Monotonically Decreasing:</strong> Elements decrease from bottom to top</li>
+                </ul>
+            </article>
+        </section>
+
+        <section id="algorithm" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Algorithm Section</h1>
+                
+                <h2>Next Greater Element</h2>
+                <pre><code>function nextGreaterElement(nums):
+    stack = []
+    result = [-1] * len(nums)
+    
+    for i in range(len(nums)):
+        while stack and nums[stack[-1]] < nums[i]:
+            index = stack.pop()
+            result[index] = nums[i]
+        stack.append(i)
+    
+    return result</code></pre>
+            </article>
+        </section>
+
+        <section id="problems" class="mb-12">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="section-title text-center">Practice Problems</h2>
+                
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 1: Next Greater Element I (LeetCode #496)</h3>
+                    <p class="mb-4">The next greater element of some element x in an array is the first greater element that is to the right of x in the same array.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
+                    <div id="sol1" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def nextGreaterElement(nums1, nums2):
+    stack = []
+    next_greater = {}
+    
+    for num in nums2:
+        while stack and stack[-1] < num:
+            next_greater[stack.pop()] = num
+        stack.append(num)
+    
+    return [next_greater.get(num, -1) for num in nums1]</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use a decreasing monotonic stack. When we find a number greater than the top, we pop and record the next greater element. This efficiently finds next greater elements for all numbers.</p>
+                        <p><strong>Time Complexity:</strong> O(n + m)</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 2: Daily Temperatures (LeetCode #739)</h3>
+                    <p class="mb-4">Given an array of integers temperatures representing the daily temperatures, return an array answer such that answer[i] is the number of days you have to wait after the ith day to get a warmer temperature.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
+                    <div id="sol2" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def dailyTemperatures(temperatures):
+    stack = []
+    result = [0] * len(temperatures)
+    
+    for i, temp in enumerate(temperatures):
+        while stack and temperatures[stack[-1]] < temp:
+            prev_index = stack.pop()
+            result[prev_index] = i - prev_index
+        stack.append(i)
+    
+    return result</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We maintain a decreasing stack of indices. When we find a warmer day, we pop previous days and calculate the difference in indices. This gives us the number of days to wait.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 3: Largest Rectangle in Histogram (LeetCode #84)</h3>
+                    <p class="mb-4">Given an array of integers heights representing the histogram's bar height, return the area of the largest rectangle in the histogram.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
+                    <div id="sol3" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def largestRectangleArea(heights):
+    stack = []
+    max_area = 0
+    
+    for i, h in enumerate(heights):
+        while stack and heights[stack[-1]] > h:
+            height = heights[stack.pop()]
+            width = i if not stack else i - stack[-1] - 1
+            max_area = max(max_area, height * width)
+        stack.append(i)
+    
+    while stack:
+        height = heights[stack.pop()]
+        width = len(heights) if not stack else len(heights) - stack[-1] - 1
+        max_area = max(max_area, height * width)
+    
+    return max_area</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use an increasing stack. When we find a bar shorter than the top, we calculate the area of rectangles ending at that bar. The width is determined by the positions where the height can extend.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 4: Trapping Rain Water (LeetCode #42)</h3>
+                    <p class="mb-4">Given n non-negative integers representing an elevation map, compute how much water it can trap after raining.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol4')">Show Solution</button>
+                    <div id="sol4" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def trap(height):
+    stack = []
+    water = 0
+    
+    for i, h in enumerate(height):
+        while stack and height[stack[-1]] < h:
+            bottom = stack.pop()
+            if not stack:
+                break
+            width = i - stack[-1] - 1
+            trapped_height = min(height[stack[-1]], h) - height[bottom]
+            water += width * trapped_height
+        stack.append(i)
+    
+    return water</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use a decreasing stack. When we find a bar higher than the top, we can trap water. We calculate the trapped water between the current bar, the popped bar, and the new top of the stack.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 5: Remove K Digits (LeetCode #402)</h3>
+                    <p class="mb-4">Given string num representing a non-negative integer and an integer k, return the smallest possible integer after removing k digits.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
+                    <div id="sol5" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def removeKdigits(num, k):
+    stack = []
+    
+    for digit in num:
+        while stack and k > 0 and stack[-1] > digit:
+            stack.pop()
+            k -= 1
+        stack.append(digit)
+    
+    # Remove remaining k digits from end
+    while k > 0:
+        stack.pop()
+        k -= 1
+    
+    # Remove leading zeros
+    result = ''.join(stack).lstrip('0')
+    return result if result else '0'</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We maintain an increasing stack. We remove digits that are larger than the current digit (greedy). This ensures we keep the smallest digits. After processing, we remove any remaining k digits from the end.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; George Meshveliani - CST Department. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            solution.classList.toggle('show');
+            const btn = event.target;
+            btn.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+        }
+    </script>
+</body>
+</html>

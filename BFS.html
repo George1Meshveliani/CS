@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breadth-First Search (BFS) Pattern - LeetCode Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
+        .toggle-btn:hover { background-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900">Breadth-First Search (BFS) Pattern</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="pattern" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Breadth-First Search (BFS) Pattern</h1>
+                <p><strong>Breadth-First Search (BFS)</strong> explores nodes level by level in a tree or graph. It uses a queue to process nodes and is ideal for finding shortest paths in unweighted graphs.</p>
+
+                <h2>When to Use This Pattern</h2>
+                <ul>
+                    <li>Finding shortest paths in unweighted graphs</li>
+                    <li>Level-order traversal in trees</li>
+                    <li>Finding minimum steps to reach a target</li>
+                    <li>Problems requiring level-by-level processing</li>
+                </ul>
+
+                <h2>Key Concepts</h2>
+                <p>BFS uses a queue (FIFO) to process nodes level by level. It guarantees finding the shortest path in unweighted graphs.</p>
+            </article>
+        </section>
+
+        <section id="algorithm" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Algorithm Section</h1>
+                
+                <h2>BFS Template</h2>
+                <pre><code>from collections import deque
+
+def bfs(start):
+    queue = deque([start])
+    visited = {start}
+    
+    while queue:
+        node = queue.popleft()
+        # Process node
+        
+        for neighbor in node.neighbors:
+            if neighbor not in visited:
+                visited.add(neighbor)
+                queue.append(neighbor)</code></pre>
+            </article>
+        </section>
+
+        <section id="problems" class="mb-12">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="section-title text-center">Practice Problems</h2>
+                
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 1: Binary Tree Level Order Traversal (LeetCode #102)</h3>
+                    <p class="mb-4">Given the root of a binary tree, return the level order traversal of its nodes' values.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
+                    <div id="sol1" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>from collections import deque
+
+def levelOrder(root):
+    if not root:
+        return []
+    
+    result = []
+    queue = deque([root])
+    
+    while queue:
+        level_size = len(queue)
+        level = []
+        
+        for _ in range(level_size):
+            node = queue.popleft()
+            level.append(node.val)
+            if node.left:
+                queue.append(node.left)
+            if node.right:
+                queue.append(node.right)
+        
+        result.append(level)
+    
+    return result</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use BFS with level tracking. We process all nodes at current level before moving to next. We track level_size to know how many nodes are in current level.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 2: Rotting Oranges (LeetCode #994)</h3>
+                    <p class="mb-4">You are given an m x n grid where each cell can have one of three values. Return the minimum number of minutes until no cell has a fresh orange.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
+                    <div id="sol2" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>from collections import deque
+
+def orangesRotting(grid):
+    m, n = len(grid), len(grid[0])
+    queue = deque()
+    fresh = 0
+    
+    for i in range(m):
+        for j in range(n):
+            if grid[i][j] == 2:
+                queue.append((i, j, 0))
+            elif grid[i][j] == 1:
+                fresh += 1
+    
+    if fresh == 0:
+        return 0
+    
+    directions = [(0,1), (1,0), (0,-1), (-1,0)]
+    minutes = 0
+    
+    while queue:
+        i, j, time = queue.popleft()
+        minutes = time
+        
+        for di, dj in directions:
+            ni, nj = i + di, j + dj
+            if 0 <= ni < m and 0 <= nj < n and grid[ni][nj] == 1:
+                grid[ni][nj] = 2
+                fresh -= 1
+                queue.append((ni, nj, time + 1))
+    
+    return minutes if fresh == 0 else -1</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use BFS starting from all rotten oranges. Each minute, we rot adjacent fresh oranges. We track time for each cell. If all fresh oranges are rotted, return minutes; otherwise -1.</p>
+                        <p><strong>Time Complexity:</strong> O(m × n)</p>
+                        <p><strong>Space Complexity:</strong> O(m × n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 3: Word Ladder (LeetCode #127)</h3>
+                    <p class="mb-4">A transformation sequence from word beginWord to word endWord is a sequence of words such that only one letter can be changed at a time. Return the length of the shortest transformation sequence.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
+                    <div id="sol3" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>from collections import deque
+
+def ladderLength(beginWord, endWord, wordList):
+    wordSet = set(wordList)
+    if endWord not in wordSet:
+        return 0
+    
+    queue = deque([(beginWord, 1)])
+    visited = {beginWord}
+    
+    while queue:
+        word, length = queue.popleft()
+        
+        if word == endWord:
+            return length
+        
+        for i in range(len(word)):
+            for c in 'abcdefghijklmnopqrstuvwxyz':
+                newWord = word[:i] + c + word[i+1:]
+                if newWord in wordSet and newWord not in visited:
+                    visited.add(newWord)
+                    queue.append((newWord, length + 1))
+    
+    return 0</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use BFS to find shortest path. For each word, we try changing each character to all 26 letters. If the new word is in wordList and not visited, we add it to queue. BFS guarantees shortest path.</p>
+                        <p><strong>Time Complexity:</strong> O(M × N × 26) where M is word length, N is wordList size</p>
+                        <p><strong>Space Complexity:</strong> O(N)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 4: Perfect Squares (LeetCode #279)</h3>
+                    <p class="mb-4">Given an integer n, return the least number of perfect square numbers that sum to n.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol4')">Show Solution</button>
+                    <div id="sol4" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>from collections import deque
+
+def numSquares(n):
+    queue = deque([(n, 0)])
+    visited = {n}
+    
+    while queue:
+        num, steps = queue.popleft()
+        
+        if num == 0:
+            return steps
+        
+        i = 1
+        while i * i <= num:
+            next_num = num - i * i
+            if next_num not in visited:
+                visited.add(next_num)
+                queue.append((next_num, steps + 1))
+            i += 1
+    
+    return n</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use BFS to find minimum steps. Each level represents using one more perfect square. We subtract all possible perfect squares and add to queue. When we reach 0, we found the answer.</p>
+                        <p><strong>Time Complexity:</strong> O(n × √n)</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 5: Shortest Path in Binary Matrix (LeetCode #1091)</h3>
+                    <p class="mb-4">Given an n x n binary matrix grid, return the length of the shortest clear path from top-left to bottom-right.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
+                    <div id="sol5" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>from collections import deque
+
+def shortestPathBinaryMatrix(grid):
+    n = len(grid)
+    if grid[0][0] == 1 or grid[n-1][n-1] == 1:
+        return -1
+    
+    queue = deque([(0, 0, 1)])
+    grid[0][0] = 1  # Mark as visited
+    
+    directions = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+    
+    while queue:
+        i, j, length = queue.popleft()
+        
+        if i == n-1 and j == n-1:
+            return length
+        
+        for di, dj in directions:
+            ni, nj = i + di, j + dj
+            if 0 <= ni < n and 0 <= nj < n and grid[ni][nj] == 0:
+                grid[ni][nj] = 1
+                queue.append((ni, nj, length + 1))
+    
+    return -1</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use BFS to find shortest path. We can move in 8 directions. We mark visited cells as 1. When we reach bottom-right, return length. BFS guarantees shortest path in unweighted graph.</p>
+                        <p><strong>Time Complexity:</strong> O(n²)</p>
+                        <p><strong>Space Complexity:</strong> O(n²)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; George Meshveliani - CST Department. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            solution.classList.toggle('show');
+            const btn = event.target;
+            btn.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+        }
+    </script>
+</body>
+</html>

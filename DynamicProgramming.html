@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Programming Pattern - LeetCode Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
+        .toggle-btn:hover { background-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900">Dynamic Programming Pattern</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="pattern" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Dynamic Programming Pattern</h1>
+                <p><strong>Dynamic Programming (DP)</strong> is a method for solving complex problems by breaking them down into simpler subproblems. It stores the results of subproblems to avoid recomputing them, making it highly efficient for problems with overlapping subproblems and optimal substructure.</p>
+
+                <h2>When to Use This Pattern</h2>
+                <ul>
+                    <li>Problems with overlapping subproblems</li>
+                    <li>Problems with optimal substructure (optimal solution contains optimal solutions to subproblems)</li>
+                    <li>Optimization problems (maximize or minimize something)</li>
+                    <li>Counting problems (how many ways to...)</li>
+                    <li>Problems that can be solved recursively but are inefficient</li>
+                </ul>
+
+                <h2>Key Concepts</h2>
+                <h3>1. Overlapping Subproblems</h3>
+                <p>The problem can be broken down into subproblems which are reused several times. For example, in Fibonacci, F(5) = F(4) + F(3), and F(4) = F(3) + F(2), so F(3) is computed multiple times.</p>
+
+                <h3>2. Optimal Substructure</h3>
+                <p>An optimal solution to the problem contains optimal solutions to subproblems. For example, the shortest path from A to C through B is the shortest path from A to B plus the shortest path from B to C.</p>
+
+                <h3>3. Two Approaches</h3>
+                <ul>
+                    <li><strong>Top-Down (Memoization):</strong> Start with the main problem and recursively solve subproblems, storing results in a memo table.</li>
+                    <li><strong>Bottom-Up (Tabulation):</strong> Start with the smallest subproblems and build up to the main problem using a table.</li>
+                </ul>
+
+                <h3>Visual Representation - Fibonacci DP</h3>
+                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 1rem; padding: 2.5rem; margin: 2rem 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+                    <h4 style="margin-bottom: 2rem; color: #92400e; font-weight: 700; font-size: 1.5rem; text-align: center;">Dynamic Programming - Fibonacci Sequence Comparison</h4>
+                    <svg width="100%" height="500" viewBox="0 0 1100 500" style="max-width: 1100px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                        <defs>
+                            <linearGradient id="dpGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="targetGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="recursiveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#fee2e2;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#fecaca;stop-opacity:1" />
+                            </linearGradient>
+                            <filter id="dpGlow">
+                                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                            <filter id="shadow6">
+                                <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.3"/>
+                            </filter>
+                            <marker id="dpArrow" markerWidth="12" markerHeight="12" refX="6" refY="3" orient="auto">
+                                <polygon points="0 0, 12 3, 0 6" fill="#059669"/>
+                            </marker>
+                        </defs>
+                        
+                        <!-- Without DP Section -->
+                        <rect x="50" y="30" width="450" height="200" fill="#fef2f2" stroke="#fecaca" stroke-width="2.5" rx="10" filter="url(#shadow6)"/>
+                        <text x="275" y="60" text-anchor="middle" font-size="17" font-weight="700" fill="#dc2626">Without DP (Recursive): O(2^n)</text>
+                        
+                        <!-- Recursive tree -->
+                        <g transform="translate(100, 80)">
+                            <ellipse cx="150" cy="0" rx="45" ry="22" fill="url(#recursiveGradient)" stroke="#ef4444" stroke-width="3" filter="url(#shadow6)"/>
+                            <text x="150" y="6" text-anchor="middle" font-size="14" font-weight="700" fill="#dc2626">F(5)</text>
+                            
+                            <path d="M 130 22 L 80 50" stroke="#ef4444" stroke-width="2.5"/>
+                            <ellipse cx="80" cy="70" rx="38" ry="18" fill="url(#recursiveGradient)" stroke="#ef4444" stroke-width="2.5"/>
+                            <text x="80" y="76" text-anchor="middle" font-size="12" font-weight="700" fill="#dc2626">F(4)</text>
+                            
+                            <path d="M 170 22 L 220 50" stroke="#ef4444" stroke-width="2.5"/>
+                            <ellipse cx="220" cy="70" rx="38" ry="18" fill="url(#recursiveGradient)" stroke="#ef4444" stroke-width="2.5"/>
+                            <text x="220" y="76" text-anchor="middle" font-size="12" font-weight="700" fill="#dc2626">F(3)</text>
+                            
+                            <path d="M 60 88 L 30 110" stroke="#ef4444" stroke-width="1.5" opacity="0.6"/>
+                            <ellipse cx="30" cy="130" rx="32" ry="15" fill="url(#recursiveGradient)" stroke="#ef4444" stroke-width="1.5" opacity="0.6"/>
+                            <text x="30" y="135" text-anchor="middle" font-size="11" fill="#dc2626" opacity="0.8">F(3)</text>
+                            
+                            <path d="M 100 88 L 70 110" stroke="#ef4444" stroke-width="1.5" opacity="0.6"/>
+                            <ellipse cx="70" cy="130" rx="32" ry="15" fill="url(#recursiveGradient)" stroke="#ef4444" stroke-width="1.5" opacity="0.6"/>
+                            <text x="70" y="135" text-anchor="middle" font-size="11" fill="#dc2626" opacity="0.8">F(2)</text>
+                            
+                            <text x="150" y="160" text-anchor="middle" font-size="13" font-weight="700" fill="#dc2626">⚠️ F(3) calculated twice!</text>
+                            <text x="150" y="180" text-anchor="middle" font-size="12" fill="#991b1b">Exponential time: O(2^n)</text>
+                        </g>
+                        
+                        <!-- With DP Section -->
+                        <rect x="600" y="30" width="450" height="200" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="2.5" rx="10" filter="url(#shadow6)"/>
+                        <text x="825" y="60" text-anchor="middle" font-size="17" font-weight="700" fill="#059669">With DP (Bottom-Up): O(n)</text>
+                        
+                        <!-- DP Array -->
+                        <g transform="translate(650, 80)">
+                            <rect x="0" y="0" width="55" height="50" fill="url(#dpGradient)" stroke="#059669" stroke-width="2.5" rx="8" filter="url(#shadow6)"/>
+                            <text x="27.5" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="white">0</text>
+                            <text x="27.5" y="68" text-anchor="middle" font-size="12" font-weight="600" fill="#059669">F(0)</text>
+                            
+                            <rect x="65" y="0" width="55" height="50" fill="url(#dpGradient)" stroke="#059669" stroke-width="2.5" rx="8" filter="url(#shadow6)"/>
+                            <text x="92.5" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="white">1</text>
+                            <text x="92.5" y="68" text-anchor="middle" font-size="12" font-weight="600" fill="#059669">F(1)</text>
+                            
+                            <rect x="130" y="0" width="55" height="50" fill="url(#dpGradient)" stroke="#059669" stroke-width="2.5" rx="8" filter="url(#shadow6)"/>
+                            <text x="157.5" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="white">1</text>
+                            <text x="157.5" y="68" text-anchor="middle" font-size="12" font-weight="600" fill="#059669">F(2)</text>
+                            
+                            <rect x="195" y="0" width="55" height="50" fill="url(#dpGradient)" stroke="#059669" stroke-width="2.5" rx="8" filter="url(#shadow6)"/>
+                            <text x="222.5" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="white">2</text>
+                            <text x="222.5" y="68" text-anchor="middle" font-size="12" font-weight="600" fill="#059669">F(3)</text>
+                            
+                            <rect x="260" y="0" width="55" height="50" fill="url(#dpGradient)" stroke="#059669" stroke-width="2.5" rx="8" filter="url(#shadow6)"/>
+                            <text x="287.5" y="32" text-anchor="middle" font-size="18" font-weight="700" fill="white">3</text>
+                            <text x="287.5" y="68" text-anchor="middle" font-size="12" font-weight="600" fill="#059669">F(4)</text>
+                            
+                            <rect x="325" y="0" width="55" height="50" fill="url(#targetGradient)" stroke="#f59e0b" stroke-width="4" rx="8" filter="url(#dpGlow)"/>
+                            <text x="352.5" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">5</text>
+                            <text x="352.5" y="68" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">F(5) ✓</text>
+                        </g>
+                        
+                        <!-- Calculation arrows -->
+                        <g transform="translate(650, 150)">
+                            <path d="M 92.5 0 L 157.5 0" stroke="#059669" stroke-width="3" marker-end="url(#dpArrow)"/>
+                            <text x="125" y="-8" text-anchor="middle" font-size="12" fill="#059669" font-weight="600">F(2)=1+0</text>
+                            
+                            <path d="M 157.5 0 L 222.5 0" stroke="#059669" stroke-width="3" marker-end="url(#dpArrow)"/>
+                            <text x="190" y="-8" text-anchor="middle" font-size="12" fill="#059669" font-weight="600">F(3)=1+1</text>
+                            
+                            <path d="M 222.5 0 L 287.5 0" stroke="#059669" stroke-width="3" marker-end="url(#dpArrow)"/>
+                            <text x="255" y="-8" text-anchor="middle" font-size="12" fill="#059669" font-weight="600">F(4)=2+1</text>
+                            
+                            <path d="M 287.5 0 L 352.5 0" stroke="#f59e0b" stroke-width="3" marker-end="url(#dpArrow)"/>
+                            <text x="320" y="-8" text-anchor="middle" font-size="12" fill="#f59e0b" font-weight="700">F(5)=3+2</text>
+                        </g>
+                        
+                        <text x="825" y="200" text-anchor="middle" font-size="15" fill="#059669" font-weight="700">✓ Each value calculated once and reused!</text>
+                        
+                        <!-- Comparison Box -->
+                        <rect x="50" y="260" width="1000" height="200" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2.5" rx="12" filter="url(#shadow6)"/>
+                        <text x="550" y="295" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">DP Table Construction (Bottom-Up)</text>
+                        
+                        <g transform="translate(100, 320)">
+                            <rect x="0" y="0" width="850" height="140" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" rx="8"/>
+                            <g transform="translate(50, 20)">
+                                <text x="0" y="0" font-size="14" font-weight="700" fill="#1e40af">Base Cases:</text>
+                                <text x="0" y="25" font-size="13" fill="#3b82f6">dp[0] = 0, dp[1] = 1</text>
+                                
+                                <text x="0" y="55" font-size="14" font-weight="700" fill="#1e40af">Recurrence Relation:</text>
+                                <text x="0" y="80" font-size="13" fill="#6b7280">dp[i] = dp[i-1] + dp[i-2] for i ≥ 2</text>
+                                
+                                <text x="450" y="0" font-size="14" font-weight="700" fill="#059669">Step-by-Step:</text>
+                                <text x="450" y="25" font-size="12" fill="#6b7280">dp[2] = dp[1] + dp[0] = 1 + 0 = <tspan font-weight="700" fill="#059669">1</tspan></text>
+                                <text x="450" y="45" font-size="12" fill="#6b7280">dp[3] = dp[2] + dp[1] = 1 + 1 = <tspan font-weight="700" fill="#059669">2</tspan></text>
+                                <text x="450" y="65" font-size="12" fill="#6b7280">dp[4] = dp[3] + dp[2] = 2 + 1 = <tspan font-weight="700" fill="#059669">3</tspan></text>
+                                <text x="450" y="85" font-size="12" fill="#6b7280">dp[5] = dp[4] + dp[3] = 3 + 2 = <tspan font-weight="700" fill="#f59e0b">5</tspan> ✓</text>
+                                
+                                <line x1="0" y1="100" x2="800" y2="100" stroke="#e2e8f0" stroke-width="1"/>
+                                <text x="400" y="125" text-anchor="middle" font-size="13" font-weight="700" fill="#059669">Time: O(n) | Space: O(n) | No redundant calculations!</text>
+                            </g>
+                        </g>
+                    </svg>
+                    
+                    <div style="margin-top: 2rem; padding: 1.25rem; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 5px solid #10b981; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        <p style="margin: 0; font-size: 1rem; color: #065f46; font-weight: 600;"><strong>Key Insight:</strong> DP stores results of subproblems to avoid recomputation. This transforms exponential O(2^n) time to linear O(n) time, making it feasible to compute large Fibonacci numbers.</p>
+                    </div>
+                </div>
+
+                <h2>Common DP Patterns</h2>
+                <ul>
+                    <li><strong>Fibonacci Numbers:</strong> F(n) = F(n-1) + F(n-2)</li>
+                    <li><strong>0/1 Knapsack:</strong> Choose items with weight and value constraints</li>
+                    <li><strong>Longest Common Subsequence (LCS):</strong> Find longest common subsequence between two strings</li>
+                    <li><strong>Longest Increasing Subsequence (LIS):</strong> Find longest increasing subsequence</li>
+                    <li><strong>Subset Sum:</strong> Check if a subset sums to a target</li>
+                </ul>
+            </article>
+        </section>
+
+        <section id="algorithm" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Algorithm Section</h1>
+                
+                <h2>Top-Down Approach (Memoization)</h2>
+                <pre><code>function dp_topdown(n, memo):
+    if n in memo:
+        return memo[n]
+    
+    if base_case(n):
+        result = base_value
+    else:
+        result = combine(dp_topdown(subproblem1, memo),
+                         dp_topdown(subproblem2, memo))
+    
+    memo[n] = result
+    return result</code></pre>
+
+                <h2>Bottom-Up Approach (Tabulation)</h2>
+                <pre><code>function dp_bottomup(n):
+    dp = array of size n+1
+    dp[0] = base_value
+    
+    for i from 1 to n:
+        dp[i] = combine(dp[subproblem1], dp[subproblem2])
+    
+    return dp[n]</code></pre>
+
+                <h2>Fibonacci Example in C++</h2>
+                <pre><code>#include &lt;vector&gt;
+#include &lt;unordered_map&gt;
+using namespace std;
+
+// Top-Down (Memoization)
+unordered_map&lt;int, int&gt; memo;
+
+int fib_memo(int n) {
+    if (memo.find(n) != memo.end()) {
+        return memo[n];
+    }
+    if (n <= 1) {
+        return n;
+    }
+    memo[n] = fib_memo(n - 1) + fib_memo(n - 2);
+    return memo[n];
+}
+
+// Bottom-Up (Tabulation)
+int fib_tab(int n) {
+    if (n <= 1) {
+        return n;
+    }
+    vector&lt;int&gt; dp(n + 1, 0);
+    dp[1] = 1;
+    for (int i = 2; i <= n; i++) {
+        dp[i] = dp[i-1] + dp[i-2];
+    }
+    return dp[n];
+}</code></pre>
+
+                <h2>0/1 Knapsack Pattern in C++</h2>
+                <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int knapsack(vector&lt;int&gt;& weights, vector&lt;int&gt;& values, int capacity) {
+    int n = weights.size();
+    // dp[i][w] = maximum value with first i items and capacity w
+    vector&lt;vector&lt;int&gt;&gt; dp(n + 1, vector&lt;int&gt;(capacity + 1, 0));
+    
+    for (int i = 1; i <= n; i++) {
+        for (int w = 1; w <= capacity; w++) {
+            if (weights[i-1] <= w) {
+                // Choose max of: don't take item, or take item
+                dp[i][w] = max(
+                    dp[i-1][w],  // Don't take item i
+                    dp[i-1][w - weights[i-1]] + values[i-1]  // Take item i
+                );
+            } else {
+                // Can't take item i (too heavy)
+                dp[i][w] = dp[i-1][w];
+            }
+        }
+    }
+    
+    return dp[n][capacity];
+}</code></pre>
+            </article>
+        </section>
+
+        <section id="problems" class="mb-12">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="section-title text-center">Practice Problems</h2>
+                
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 1: Climbing Stairs (LeetCode #70)</h3>
+                    <p class="mb-4">You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: n = 3
+Output: 3
+Explanation: There are three ways: 1+1+1, 1+2, 2+1</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
+                    <div id="sol1" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int climbStairs(int n) {
+    if (n <= 2) {
+        return n;
+    }
+    
+    vector&lt;int&gt; dp(n + 1, 0);
+    dp[1] = 1;
+    dp[2] = 2;
+    
+    for (int i = 3; i <= n; i++) {
+        dp[i] = dp[i-1] + dp[i-2];
+    }
+    
+    return dp[n];
+}
+
+// Space-optimized version
+int climbStairs_optimized(int n) {
+    if (n <= 2) {
+        return n;
+    }
+    
+    int prev2 = 1;  // ways to reach step 1
+    int prev1 = 2;  // ways to reach step 2
+    
+    for (int i = 3; i <= n; i++) {
+        int current = prev1 + prev2;
+        prev2 = prev1;
+        prev1 = current;
+    }
+    
+    return prev1;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation (n=5):</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Base Cases:</strong></p>
+                            <p>dp[1] = 1 (only way: 1 step)</p>
+                            <p>dp[2] = 2 (ways: 1+1 or 2)</p>
+                            <p style="margin-top: 0.5rem;"><strong>Building DP table:</strong></p>
+                            <p>dp[3] = dp[2] + dp[1] = 2 + 1 = 3</p>
+                            <p>dp[4] = dp[3] + dp[2] = 3 + 2 = 5</p>
+                            <p>dp[5] = dp[4] + dp[3] = 5 + 3 = 8</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 8 ways to reach step 5</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> This is essentially a Fibonacci problem. To reach step n, you can come from step n-1 (1 step) or step n-2 (2 steps). So ways(n) = ways(n-1) + ways(n-2). We use bottom-up DP to build the solution. The space-optimized version only keeps track of the last two values, reducing space from O(n) to O(1).</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(n) or O(1) optimized</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 2: House Robber (LeetCode #198)</h3>
+                    <p class="mb-4">You are a robber planning to rob houses along a street. Each house has a certain amount of money. You cannot rob two adjacent houses. Determine the maximum amount of money you can rob.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [2,7,9,3,1]
+Output: 12
+Explanation: Rob house 1 (money = 2), rob house 3 (money = 9), rob house 5 (money = 1).</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
+                    <div id="sol2" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int rob(vector&lt;int&gt;& nums) {
+    if (nums.empty()) {
+        return 0;
+    }
+    if (nums.size() == 1) {
+        return nums[0];
+    }
+    
+    vector&lt;int&gt; dp(nums.size(), 0);
+    dp[0] = nums[0];
+    dp[1] = max(nums[0], nums[1]);
+    
+    for (int i = 2; i < nums.size(); i++) {
+        // Either skip house i (take dp[i-1])
+        // Or rob house i (take dp[i-2] + nums[i])
+        dp[i] = max(dp[i-1], dp[i-2] + nums[i]);
+    }
+    
+    return dp[nums.size() - 1];
+}
+
+// Space-optimized version
+int rob_optimized(vector&lt;int&gt;& nums) {
+    int prev2 = 0;  // max money up to i-2
+    int prev1 = 0;  // max money up to i-1
+    
+    for (int num : nums) {
+        int current = max(prev1, prev2 + num);
+        prev2 = prev1;
+        prev1 = current;
+    }
+    
+    return prev1;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [2, 7, 9, 3, 1]</p>
+                            <p style="margin-top: 0.5rem;"><strong>Base Cases:</strong></p>
+                            <p>dp[0] = 2 (rob house 0)</p>
+                            <p>dp[1] = max(2, 7) = 7 (rob house 1, skip house 0)</p>
+                            <p style="margin-top: 0.5rem;"><strong>Building DP:</strong></p>
+                            <p>dp[2] = max(dp[1], dp[0] + 9) = max(7, 2+9) = 11</p>
+                            <p>dp[3] = max(dp[2], dp[1] + 3) = max(11, 7+3) = 11</p>
+                            <p>dp[4] = max(dp[3], dp[2] + 1) = max(11, 11+1) = 12</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 12 (rob houses 0, 2, 4)</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> At each house, we have two choices: rob it or skip it. If we rob house i, we can't rob house i-1, so we take dp[i-2] + nums[i]. If we skip it, we take dp[i-1]. We choose the maximum. The recurrence is: dp[i] = max(dp[i-1], dp[i-2] + nums[i]). This ensures we never rob two adjacent houses while maximizing the total money.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(n) or O(1) optimized</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 3: Coin Change (LeetCode #322)</h3>
+                    <p class="mb-4">You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money. Return the fewest number of coins that you need to make up that amount.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: coins = [1,2,5], amount = 11
+Output: 3
+Explanation: 11 = 5 + 5 + 1</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
+                    <div id="sol3" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+int coinChange(vector&lt;int&gt;& coins, int amount) {
+    // dp[i] = minimum coins needed to make amount i
+    vector&lt;int&gt; dp(amount + 1, INT_MAX);
+    dp[0] = 0;  // 0 coins needed for amount 0
+    
+    // For each coin, update all amounts >= coin
+    for (int coin : coins) {
+        for (int i = coin; i <= amount; i++) {
+            if (dp[i - coin] != INT_MAX) {
+                // Use this coin: dp[i] = min(current, 1 + dp[i-coin])
+                dp[i] = min(dp[i], dp[i - coin] + 1);
+            }
+        }
+    }
+    
+    return (dp[amount] == INT_MAX) ? -1 : dp[amount];
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> coins = [1, 2, 5], amount = 11</p>
+                            <p><strong>Initial:</strong> dp = [0, ∞, ∞, ∞, ∞, ∞, ∞, ∞, ∞, ∞, ∞, ∞]</p>
+                            <p style="margin-top: 0.5rem;"><strong>Processing coin 1:</strong></p>
+                            <p>dp[1] = min(∞, 1 + dp[0]) = 1</p>
+                            <p>dp[2] = min(∞, 1 + dp[1]) = 2</p>
+                            <p>... (all amounts become their value)</p>
+                            <p style="margin-top: 0.5rem;"><strong>Processing coin 2:</strong></p>
+                            <p>dp[2] = min(2, 1 + dp[0]) = 1</p>
+                            <p>dp[4] = min(4, 1 + dp[2]) = 2</p>
+                            <p style="margin-top: 0.5rem;"><strong>Processing coin 5:</strong></p>
+                            <p>dp[5] = min(5, 1 + dp[0]) = 1</p>
+                            <p>dp[10] = min(10, 1 + dp[5]) = 2</p>
+                            <p>dp[11] = min(11, 1 + dp[6]) = 3</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 3 (5 + 5 + 1)</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We use bottom-up DP. dp[i] represents the minimum number of coins needed to make amount i. For each coin, we update dp[i] by checking if using this coin gives us a better solution: dp[i] = min(dp[i], dp[i-coin] + 1). We initialize dp[0] = 0 (0 coins for amount 0) and all others as infinity. This ensures we find the optimal solution by trying all coin combinations.</p>
+                        <p><strong>Time Complexity:</strong> O(amount × len(coins))</p>
+                        <p><strong>Space Complexity:</strong> O(amount)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 4: Longest Common Subsequence (LeetCode #1143)</h3>
+                    <p class="mb-4">Given two strings text1 and text2, return the length of their longest common subsequence.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: text1 = "abcde", text2 = "ace"
+Output: 3
+Explanation: The longest common subsequence is "ace" and its length is 3.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol4')">Show Solution</button>
+                    <div id="sol4" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int longestCommonSubsequence(string text1, string text2) {
+    int m = text1.length();
+    int n = text2.length();
+    
+    // dp[i][j] = LCS of text1[0..i-1] and text2[0..j-1]
+    vector&lt;vector&lt;int&gt;&gt; dp(m + 1, vector&lt;int&gt;(n + 1, 0));
+    
+    for (int i = 1; i <= m; i++) {
+        for (int j = 1; j <= n; j++) {
+            if (text1[i-1] == text2[j-1]) {
+                // Characters match: extend LCS
+                dp[i][j] = dp[i-1][j-1] + 1;
+            } else {
+                // Characters don't match: take max of skipping either
+                dp[i][j] = max(dp[i-1][j], dp[i][j-1]);
+            }
+        }
+    }
+    
+    return dp[m][n];
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> text1 = "abcde", text2 = "ace"</p>
+                            <p style="margin-top: 0.5rem;"><strong>DP Table (showing key steps):</strong></p>
+                            <p>i=1, j=1: 'a' == 'a' → dp[1][1] = dp[0][0] + 1 = 1</p>
+                            <p>i=1, j=2: 'a' != 'c' → dp[1][2] = max(dp[0][2], dp[1][1]) = 1</p>
+                            <p>i=2, j=2: 'b' != 'c' → dp[2][2] = max(dp[1][2], dp[2][1]) = 1</p>
+                            <p>i=3, j=2: 'c' == 'c' → dp[3][2] = dp[2][1] + 1 = 2</p>
+                            <p>i=4, j=3: 'd' != 'e' → dp[4][3] = max(dp[3][3], dp[4][2]) = 2</p>
+                            <p>i=5, j=3: 'e' == 'e' → dp[5][3] = dp[4][2] + 1 = 3</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 3 (LCS = "ace")</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We use a 2D DP table where dp[i][j] represents the LCS of text1[0:i] and text2[0:j]. If characters match, we take dp[i-1][j-1] + 1 (extend the LCS). Otherwise, we take the maximum of either skipping character from text1 (dp[i-1][j]) or from text2 (dp[i][j-1]). This ensures we find the longest common subsequence by considering all possibilities.</p>
+                        <p><strong>Time Complexity:</strong> O(m × n)</p>
+                        <p><strong>Space Complexity:</strong> O(m × n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 5: Longest Increasing Subsequence (LeetCode #300)</h3>
+                    <p class="mb-4">Given an integer array nums, return the length of the longest strictly increasing subsequence.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [10,9,2,5,3,7,101,18]
+Output: 4
+Explanation: The longest increasing subsequence is [2,3,7,18], therefore the length is 4.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
+                    <div id="sol5" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+// O(n²) approach
+int lengthOfLIS(vector&lt;int&gt;& nums) {
+    int n = nums.size();
+    // dp[i] = length of LIS ending at index i
+    vector&lt;int&gt; dp(n, 1);
+    
+    for (int i = 1; i < n; i++) {
+        for (int j = 0; j < i; j++) {
+            if (nums[j] < nums[i]) {
+                // Can extend subsequence ending at j
+                dp[i] = max(dp[i], dp[j] + 1);
+            }
+        }
+    }
+    
+    return *max_element(dp.begin(), dp.end());
+}
+
+// O(n log n) optimized approach using binary search
+int lengthOfLIS_optimized(vector&lt;int&gt;& nums) {
+    vector&lt;int&gt; tails;  // tails[i] = smallest tail of LIS of length i+1
+    
+    for (int num : nums) {
+        // Binary search for the position to replace
+        auto it = lower_bound(tails.begin(), tails.end(), num);
+        
+        if (it == tails.end()) {
+            // num is larger than all tails, extend LIS
+            tails.push_back(num);
+        } else {
+            // Replace first element >= num
+            *it = num;
+        }
+    }
+    
+    return tails.size();
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [10, 9, 2, 5, 3, 7, 101, 18]</p>
+                            <p style="margin-top: 0.5rem;"><strong>DP Approach:</strong></p>
+                            <p>dp[0] = 1 (LIS ending at 0: [10])</p>
+                            <p>dp[1] = 1 (LIS ending at 1: [9])</p>
+                            <p>dp[2] = 1 (LIS ending at 2: [2])</p>
+                            <p>dp[3] = max(1, dp[2]+1) = 2 (LIS: [2,5])</p>
+                            <p>dp[4] = max(1, dp[2]+1) = 2 (LIS: [2,3])</p>
+                            <p>dp[5] = max(1, dp[3]+1, dp[4]+1) = 3 (LIS: [2,5,7] or [2,3,7])</p>
+                            <p>dp[6] = max(1, dp[5]+1) = 4 (LIS: [2,5,7,101])</p>
+                            <p>dp[7] = max(1, dp[5]+1) = 4 (LIS: [2,5,7,18])</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 4</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> DP approach: dp[i] is the length of LIS ending at index i. For each position, we check all previous positions and if nums[j] < nums[i], we can extend the subsequence. The optimized version uses binary search to maintain the smallest tail element for each LIS length, achieving O(n log n) time. The key insight is that we only need to track the smallest tail for each length to maximize future extension possibilities.</p>
+                        <p><strong>Time Complexity:</strong> O(n²) or O(n log n) optimized</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; George Meshveliani - CST Department. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            solution.classList.toggle('show');
+            const btn = event.target;
+            btn.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+        }
+    </script>
+</body>
+</html>

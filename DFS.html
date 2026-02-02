@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Depth-First Search (DFS) Pattern - LeetCode Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
+        .toggle-btn:hover { background-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900">Depth-First Search (DFS) Pattern</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="pattern" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Depth-First Search (DFS) Pattern</h1>
+                <p><strong>Depth-First Search (DFS)</strong> is a traversal algorithm that explores as far as possible along each branch before backtracking. It's used for exploring all paths or branches in graphs or trees.</p>
+
+                <h2>When to Use This Pattern</h2>
+                <ul>
+                    <li>Exploring all paths in graphs or trees</li>
+                    <li>Finding connected components</li>
+                    <li>Topological sorting</li>
+                    <li>Finding cycles in graphs</li>
+                    <li>Path finding problems</li>
+                    <li>Tree/graph traversal</li>
+                </ul>
+
+                <h2>Key Concepts</h2>
+                <p>DFS can be implemented using:</p>
+                <ul>
+                    <li><strong>Recursion:</strong> Natural for tree/graph traversal</li>
+                    <li><strong>Stack:</strong> Iterative approach using explicit stack</li>
+                </ul>
+            </article>
+        </section>
+
+        <section id="algorithm" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Algorithm Section</h1>
+                
+                <h2>Recursive DFS</h2>
+                <pre><code>def dfs_recursive(node, visited):
+    visited.add(node)
+    # Process node
+    
+    for neighbor in node.neighbors:
+        if neighbor not in visited:
+            dfs_recursive(neighbor, visited)</code></pre>
+
+                <h2>Iterative DFS</h2>
+                <pre><code>def dfs_iterative(start):
+    stack = [start]
+    visited = set()
+    
+    while stack:
+        node = stack.pop()
+        if node not in visited:
+            visited.add(node)
+            # Process node
+            for neighbor in node.neighbors:
+                if neighbor not in visited:
+                    stack.append(neighbor)</code></pre>
+            </article>
+        </section>
+
+        <section id="problems" class="mb-12">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="section-title text-center">Practice Problems</h2>
+                
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 1: Clone Graph (LeetCode #133)</h3>
+                    <p class="mb-4">Given a reference of a node in a connected undirected graph, return a deep copy of the graph.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
+                    <div id="sol1" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def cloneGraph(node):
+    if not node:
+        return None
+    
+    clone_map = {}
+    
+    def dfs(original):
+        if original in clone_map:
+            return clone_map[original]
+        
+        clone = Node(original.val)
+        clone_map[original] = clone
+        
+        for neighbor in original.neighbors:
+            clone.neighbors.append(dfs(neighbor))
+        
+        return clone
+    
+    return dfs(node)</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use DFS to traverse the graph. For each node, we create a clone and recursively clone all neighbors. We use a map to avoid creating duplicate clones and handle cycles.</p>
+                        <p><strong>Time Complexity:</strong> O(V + E)</p>
+                        <p><strong>Space Complexity:</strong> O(V)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 2: Path Sum II (LeetCode #113)</h3>
+                    <p class="mb-4">Given the root of a binary tree and an integer targetSum, return all root-to-leaf paths where the sum of the node values equals targetSum.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
+                    <div id="sol2" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def pathSum(root, targetSum):
+    result = []
+    
+    def dfs(node, path, remaining):
+        if not node:
+            return
+        
+        path.append(node.val)
+        remaining -= node.val
+        
+        if not node.left and not node.right and remaining == 0:
+            result.append(path[:])
+        
+        dfs(node.left, path, remaining)
+        dfs(node.right, path, remaining)
+        
+        path.pop()  # Backtrack
+    
+    dfs(root, [], targetSum)
+    return result</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use DFS to explore all paths. We maintain current path and remaining sum. When we reach a leaf with remaining == 0, we found a valid path. We backtrack by removing the node from path after exploring its children.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(h) where h is height</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 3: Course Schedule II (LeetCode #210)</h3>
+                    <p class="mb-4">There are a total of numCourses courses you have to take. Return the ordering of courses you should take to finish all courses.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
+                    <div id="sol3" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def findOrder(numCourses, prerequisites):
+    graph = [[] for _ in range(numCourses)]
+    for course, prereq in prerequisites:
+        graph[prereq].append(course)
+    
+    WHITE, GRAY, BLACK = 0, 1, 2
+    color = [WHITE] * numCourses
+    result = []
+    
+    def dfs(node):
+        if color[node] == GRAY:
+            return False  # Cycle detected
+        if color[node] == BLACK:
+            return True
+        
+        color[node] = GRAY
+        for neighbor in graph[node]:
+            if not dfs(neighbor):
+                return False
+        
+        color[node] = BLACK
+        result.append(node)
+        return True
+    
+    for i in range(numCourses):
+        if color[i] == WHITE:
+            if not dfs(i):
+                return []
+    
+    return result[::-1]</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use DFS with three colors: WHITE (unvisited), GRAY (visiting), BLACK (visited). GRAY indicates we're in the current path - if we encounter GRAY, there's a cycle. We add nodes to result after processing all neighbors (post-order), then reverse for topological order.</p>
+                        <p><strong>Time Complexity:</strong> O(V + E)</p>
+                        <p><strong>Space Complexity:</strong> O(V + E)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 4: Number of Islands (LeetCode #200)</h3>
+                    <p class="mb-4">Given an m x n 2D binary grid which represents a map of '1's (land) and '0's (water), return the number of islands.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol4')">Show Solution</button>
+                    <div id="sol4" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def numIslands(grid):
+    if not grid:
+        return 0
+    
+    m, n = len(grid), len(grid[0])
+    count = 0
+    
+    def dfs(i, j):
+        if i < 0 or i >= m or j < 0 or j >= n or grid[i][j] != '1':
+            return
+        
+        grid[i][j] = '0'  # Mark as visited
+        dfs(i+1, j)
+        dfs(i-1, j)
+        dfs(i, j+1)
+        dfs(i, j-1)
+    
+    for i in range(m):
+        for j in range(n):
+            if grid[i][j] == '1':
+                count += 1
+                dfs(i, j)
+    
+    return count</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We iterate through the grid. When we find land ('1'), we increment count and use DFS to mark all connected land as visited ('0'). This ensures each island is counted only once.</p>
+                        <p><strong>Time Complexity:</strong> O(m × n)</p>
+                        <p><strong>Space Complexity:</strong> O(m × n) for recursion stack</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 5: Binary Tree Maximum Path Sum (LeetCode #124)</h3>
+                    <p class="mb-4">A path in a binary tree is a sequence of nodes where each pair of adjacent nodes has an edge. Return the maximum path sum.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
+                    <div id="sol5" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def maxPathSum(root):
+    max_sum = float('-inf')
+    
+    def dfs(node):
+        nonlocal max_sum
+        if not node:
+            return 0
+        
+        left_sum = max(0, dfs(node.left))
+        right_sum = max(0, dfs(node.right))
+        
+        current_path = node.val + left_sum + right_sum
+        max_sum = max(max_sum, current_path)
+        
+        return node.val + max(left_sum, right_sum)
+    
+    dfs(root)
+    return max_sum</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> For each node, we calculate the maximum path sum that goes through it. We can either include both children (current_path) or extend upward with the better child. We use max(0, ...) to ignore negative contributions.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(h)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; George Meshveliani - CST Department. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            solution.classList.toggle('show');
+            const btn = event.target;
+            btn.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+        }
+    </script>
+</body>
+</html>

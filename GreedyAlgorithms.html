@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Greedy Algorithms Pattern - LeetCode Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
+        .toggle-btn:hover { background-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900">Greedy Algorithms Pattern</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="pattern" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Greedy Algorithms Pattern</h1>
+                <p><strong>Greedy Algorithms</strong> make locally optimal choices at each step with the hope of finding a global optimum. They don't reconsider previous choices and work well for optimization problems with certain properties.</p>
+
+                <h2>When to Use This Pattern</h2>
+                <ul>
+                    <li>Problems with optimal substructure</li>
+                    <li>Problems with greedy choice property</li>
+                    <li>Interval scheduling problems</li>
+                    <li>Activity selection problems</li>
+                    <li>Minimum spanning tree problems</li>
+                    <li>Shortest path problems (Dijkstra's)</li>
+                </ul>
+
+                <h2>Key Concepts</h2>
+                <h3>Greedy Choice Property</h3>
+                <p>A global optimum can be reached by making locally optimal choices. The choice made at each step is the best choice at that moment.</p>
+
+                <h3>Optimal Substructure</h3>
+                <p>An optimal solution contains optimal solutions to subproblems. This is similar to dynamic programming, but greedy algorithms don't store solutions to subproblems.</p>
+            </article>
+        </section>
+
+        <section id="algorithm" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Algorithm Section</h1>
+                
+                <h2>General Greedy Template</h2>
+                <pre><code>function greedy(problem):
+    solution = []
+    
+    while problem is not solved:
+        choice = makeGreedyChoice(problem)
+        if choice is valid:
+            solution.add(choice)
+            problem = updateProblem(problem, choice)
+    
+    return solution</code></pre>
+
+                <h2>Activity Selection Example</h2>
+                <pre><code>def activitySelection(activities):
+    # Sort by finish time
+    activities.sort(key=lambda x: x[1])
+    
+    selected = [activities[0]]
+    last_finish = activities[0][1]
+    
+    for start, finish in activities[1:]:
+        if start >= last_finish:
+            selected.append((start, finish))
+            last_finish = finish
+    
+    return selected</code></pre>
+            </article>
+        </section>
+
+        <section id="problems" class="mb-12">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="section-title text-center">Practice Problems</h2>
+                
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 1: Jump Game (LeetCode #55)</h3>
+                    <p class="mb-4">You are given an integer array nums. You are initially positioned at the array's first index, and each element represents your maximum jump length. Return true if you can reach the last index.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
+                    <div id="sol1" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def canJump(nums):
+    max_reach = 0
+    
+    for i in range(len(nums)):
+        if i > max_reach:
+            return False
+        max_reach = max(max_reach, i + nums[i])
+        if max_reach >= len(nums) - 1:
+            return True
+    
+    return True</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We greedily track the maximum position we can reach. At each step, we update max_reach to be the maximum of current max_reach and the position we can reach from current index. If we can't reach current index (i > max_reach), return False. If max_reach >= last index, return True.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 2: Merge Intervals (LeetCode #56)</h3>
+                    <p class="mb-4">Given an array of intervals, merge all overlapping intervals.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
+                    <div id="sol2" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def merge(intervals):
+    intervals.sort(key=lambda x: x[0])
+    merged = [intervals[0]]
+    
+    for current in intervals[1:]:
+        last = merged[-1]
+        if current[0] <= last[1]:
+            last[1] = max(last[1], current[1])
+        else:
+            merged.append(current)
+    
+    return merged</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> Sort intervals by start time. Greedily merge overlapping intervals. If current interval overlaps with last merged interval (current.start <= last.end), merge by updating the end. Otherwise, add as new interval.</p>
+                        <p><strong>Time Complexity:</strong> O(n log n)</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 3: Non-overlapping Intervals (LeetCode #435)</h3>
+                    <p class="mb-4">Given an array of intervals, find the minimum number of intervals you need to remove to make the rest non-overlapping.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
+                    <div id="sol3" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def eraseOverlapIntervals(intervals):
+    if not intervals:
+        return 0
+    
+    intervals.sort(key=lambda x: x[1])
+    count = 0
+    end = intervals[0][1]
+    
+    for i in range(1, len(intervals)):
+        if intervals[i][0] < end:
+            count += 1
+        else:
+            end = intervals[i][1]
+    
+    return count</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> Sort by end time. Greedily keep intervals with earliest end times. When we encounter an overlapping interval, we remove it (count++). This maximizes the number of non-overlapping intervals we can keep.</p>
+                        <p><strong>Time Complexity:</strong> O(n log n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 4: Gas Station (LeetCode #134)</h3>
+                    <p class="mb-4">There are n gas stations along a circular route. Return the starting gas station's index if you can travel around the circuit once, otherwise return -1.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol4')">Show Solution</button>
+                    <div id="sol4" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def canCompleteCircuit(gas, cost):
+    total_tank = 0
+    current_tank = 0
+    start = 0
+    
+    for i in range(len(gas)):
+        total_tank += gas[i] - cost[i]
+        current_tank += gas[i] - cost[i]
+        
+        if current_tank < 0:
+            start = i + 1
+            current_tank = 0
+    
+    return start if total_tank >= 0 else -1</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We track total_tank (sum of all gas - cost) and current_tank. If current_tank becomes negative, we can't start from previous positions, so we start from next position. If total_tank >= 0, there's a solution starting at 'start'.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 5: Partition Labels (LeetCode #763)</h3>
+                    <p class="mb-4">A string S of lowercase English letters is given. Partition this string into as many parts as possible so that each letter appears in at most one part.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
+                    <div id="sol5" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution:</h4>
+                        <pre><code>def partitionLabels(s):
+    last_occurrence = {char: i for i, char in enumerate(s)}
+    
+    result = []
+    start = 0
+    end = 0
+    
+    for i, char in enumerate(s):
+        end = max(end, last_occurrence[char])
+        if i == end:
+            result.append(end - start + 1)
+            start = i + 1
+    
+    return result</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> First, record the last occurrence of each character. Then, greedily extend the partition until we reach the last occurrence of all characters in current partition. When i == end, we've completed a partition.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1) - at most 26 characters</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; George Meshveliani - CST Department. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            solution.classList.toggle('show');
+            const btn = event.target;
+            btn.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+        }
+    </script>
+</body>
+</html>

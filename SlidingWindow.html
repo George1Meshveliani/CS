@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sliding Window Pattern - LeetCode Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
+        .toggle-btn:hover { background-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900">Sliding Window Pattern</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="pattern" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Sliding Window Pattern</h1>
+                <p>The <strong>Sliding Window</strong> technique is used to find a subarray or substring that satisfies a specific condition. Instead of recalculating everything for each window, we efficiently update the window by adding one element and removing another.</p>
+
+                <h2>When to Use This Pattern</h2>
+                <ul>
+                    <li>Problems involving contiguous subarrays or substrings</li>
+                    <li>Finding maximum/minimum sum of subarray of fixed size</li>
+                    <li>Finding longest/shortest subarray with certain properties</li>
+                    <li>Problems with "substring" or "subarray" keywords</li>
+                    <li>When you need to maintain a window of elements</li>
+                </ul>
+
+                <h2>Key Concepts</h2>
+                <p>There are two main types of sliding windows:</p>
+
+                <h3>Visual Representation</h3>
+                <div style="background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%); border: 2px solid #6366f1; border-radius: 1rem; padding: 2.5rem; margin: 2rem 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+                    <h4 style="margin-bottom: 2rem; color: #4f46e5; font-weight: 700; font-size: 1.5rem; text-align: center;">Sliding Window - Fixed Size (k=3)</h4>
+                    <svg width="100%" height="380" viewBox="0 0 1000 380" style="max-width: 1000px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                        <defs>
+                            <linearGradient id="windowGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="inactiveGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#f1f5f9;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+                            </linearGradient>
+                            <filter id="windowGlow">
+                                <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                            <filter id="shadow3">
+                                <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.25"/>
+                            </filter>
+                            <marker id="slideArrow" markerWidth="12" markerHeight="12" refX="6" refY="3" orient="auto">
+                                <polygon points="0 0, 12 3, 0 6" fill="#6366f1"/>
+                            </marker>
+                        </defs>
+                        
+                        <!-- Title -->
+                        <text x="500" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Array: [2, 1, 5, 1, 3, 2] | Window Size: k = 3</text>
+                        
+                        <!-- Window 1 with highlight -->
+                        <g transform="translate(100, 60)">
+                            <!-- Window highlight background -->
+                            <rect x="-5" y="-5" width="195" height="60" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,5" rx="8" opacity="0.4"/>
+                            
+                            <!-- Active window elements -->
+                            <rect x="0" y="0" width="60" height="50" fill="url(#windowGradient)" stroke="#4f46e5" stroke-width="2.5" rx="8" filter="url(#shadow3)"/>
+                            <text x="30" y="32" text-anchor="middle" font-size="22" font-weight="700" fill="white">2</text>
+                            <text x="30" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#4f46e5">[0]</text>
+                            
+                            <rect x="70" y="0" width="60" height="50" fill="url(#windowGradient)" stroke="#4f46e5" stroke-width="2.5" rx="8" filter="url(#shadow3)"/>
+                            <text x="100" y="32" text-anchor="middle" font-size="22" font-weight="700" fill="white">1</text>
+                            <text x="100" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#4f46e5">[1]</text>
+                            
+                            <rect x="140" y="0" width="60" height="50" fill="url(#windowGradient)" stroke="#4f46e5" stroke-width="2.5" rx="8" filter="url(#shadow3)"/>
+                            <text x="170" y="32" text-anchor="middle" font-size="22" font-weight="700" fill="white">5</text>
+                            <text x="170" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#4f46e5">[2]</text>
+                        </g>
+                        
+                        <!-- Inactive elements -->
+                        <g transform="translate(220, 60)">
+                            <rect x="0" y="0" width="60" height="50" fill="url(#inactiveGradient)" stroke="#cbd5e1" stroke-width="2" rx="8"/>
+                            <text x="30" y="32" text-anchor="middle" font-size="20" font-weight="600" fill="#64748b">1</text>
+                            <text x="30" y="68" text-anchor="middle" font-size="12" fill="#94a3b8">[3]</text>
+                            
+                            <rect x="70" y="0" width="60" height="50" fill="url(#inactiveGradient)" stroke="#cbd5e1" stroke-width="2" rx="8"/>
+                            <text x="100" y="32" text-anchor="middle" font-size="20" font-weight="600" fill="#64748b">3</text>
+                            <text x="100" y="68" text-anchor="middle" font-size="12" fill="#94a3b8">[4]</text>
+                            
+                            <rect x="140" y="0" width="60" height="50" fill="url(#inactiveGradient)" stroke="#cbd5e1" stroke-width="2" rx="8"/>
+                            <text x="170" y="32" text-anchor="middle" font-size="20" font-weight="600" fill="#64748b">2</text>
+                            <text x="170" y="68" text-anchor="middle" font-size="12" fill="#94a3b8">[5]</text>
+                        </g>
+                        
+                        <!-- Window 1 calculation -->
+                        <rect x="100" y="130" width="185" height="50" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" rx="8" filter="url(#shadow3)"/>
+                        <text x="192.5" y="155" text-anchor="middle" font-size="15" font-weight="700" fill="#1e40af">Window 1</text>
+                        <text x="192.5" y="175" text-anchor="middle" font-size="14" fill="#3b82f6">sum = 2 + 1 + 5 = <tspan font-weight="700" fill="#059669">8</tspan></text>
+                        
+                        <!-- Elegant sliding arrow -->
+                        <path d="M 350 85 L 420 85" stroke="#6366f1" stroke-width="4" marker-end="url(#slideArrow)" filter="url(#windowGlow)"/>
+                        <text x="385" y="80" text-anchor="middle" font-size="13" font-weight="600" fill="#6366f1">Slide →</text>
+                        
+                        <!-- Window 2 -->
+                        <g transform="translate(440, 60)">
+                            <!-- Window highlight background -->
+                            <rect x="-5" y="-5" width="195" height="60" fill="#dbeafe" stroke="#3b82f6" stroke-width="2" stroke-dasharray="5,5" rx="8" opacity="0.4"/>
+                            
+                            <!-- Active window elements -->
+                            <rect x="0" y="0" width="60" height="50" fill="url(#windowGradient)" stroke="#4f46e5" stroke-width="2.5" rx="8" filter="url(#shadow3)"/>
+                            <text x="30" y="32" text-anchor="middle" font-size="22" font-weight="700" fill="white">1</text>
+                            <text x="30" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#4f46e5">[1]</text>
+                            
+                            <rect x="70" y="0" width="60" height="50" fill="url(#windowGradient)" stroke="#4f46e5" stroke-width="2.5" rx="8" filter="url(#shadow3)"/>
+                            <text x="100" y="32" text-anchor="middle" font-size="22" font-weight="700" fill="white">5</text>
+                            <text x="100" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#4f46e5">[2]</text>
+                            
+                            <rect x="140" y="0" width="60" height="50" fill="url(#windowGradient)" stroke="#4f46e5" stroke-width="2.5" rx="8" filter="url(#shadow3)"/>
+                            <text x="170" y="32" text-anchor="middle" font-size="22" font-weight="700" fill="white">1</text>
+                            <text x="170" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#4f46e5">[3]</text>
+                        </g>
+                        
+                        <!-- Window 2 calculation -->
+                        <rect x="440" y="130" width="185" height="70" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" rx="8" filter="url(#shadow3)"/>
+                        <text x="532.5" y="155" text-anchor="middle" font-size="15" font-weight="700" fill="#1e40af">Window 2</text>
+                        <text x="532.5" y="175" text-anchor="middle" font-size="13" fill="#6b7280">Remove: <tspan fill="#ef4444" font-weight="600">-2</tspan></text>
+                        <text x="532.5" y="190" text-anchor="middle" font-size="13" fill="#6b7280">Add: <tspan fill="#10b981" font-weight="600">+1</tspan></text>
+                        <text x="532.5" y="210" text-anchor="middle" font-size="14" fill="#3b82f6">sum = 8 - 2 + 1 = <tspan font-weight="700" fill="#059669">7</tspan></text>
+                        
+                        <!-- Key insight box -->
+                        <rect x="100" y="220" width="800" height="120" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" rx="10" filter="url(#shadow3)"/>
+                        <text x="500" y="250" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Key Insight: Efficient Window Update</text>
+                        <g transform="translate(150, 270)">
+                            <circle cx="0" cy="0" r="6" fill="#10b981"/>
+                            <text x="20" y="5" font-size="14" fill="#1e293b">Instead of recalculating sum from scratch (O(k))</text>
+                            <circle cx="0" cy="30" r="6" fill="#3b82f6"/>
+                            <text x="20" y="35" font-size="14" fill="#1e293b">We update: <tspan font-weight="700" fill="#ef4444">remove</tspan> leftmost + <tspan font-weight="700" fill="#10b981">add</tspan> rightmost (O(1))</text>
+                            <circle cx="0" cy="60" r="6" fill="#f59e0b"/>
+                            <text x="20" y="65" font-size="14" fill="#1e293b">This reduces time complexity from O(nk) to O(n)</text>
+                        </g>
+                    </svg>
+                    
+                    <div style="margin-top: 2rem; padding: 1.25rem; background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #6366f1; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        <p style="margin: 0; font-size: 1rem; color: #1e40af; font-weight: 600;"><strong>Efficiency:</strong> Each window update is O(1) instead of O(k), making the overall algorithm O(n) instead of O(nk)</p>
+                    </div>
+                </div>
+                
+                <h3>1. Fixed Size Window</h3>
+                <p>The window size remains constant. We slide it by removing one element from the left and adding one to the right.</p>
+                <pre><code>window_sum = sum of first k elements
+max_sum = window_sum
+
+for i from k to n-1:
+    window_sum = window_sum - arr[i-k] + arr[i]
+    max_sum = max(max_sum, window_sum)</code></pre>
+
+                <h3>2. Variable Size Window</h3>
+                <p>The window size changes based on conditions. We expand the window when we need more elements and shrink it when we have enough.</p>
+                <pre><code>left = 0
+for right from 0 to n-1:
+    # Expand window
+    add arr[right] to window
+    
+    # Shrink window while condition is met
+    while condition is satisfied:
+        # Process current window
+        update result
+        
+        # Remove left element
+        remove arr[left] from window
+        left += 1</code></pre>
+
+                <h3>Visual Simulation: Fixed Size Window</h3>
+                <p>Finding maximum sum of subarray of size k = 3 in [2, 1, 5, 1, 3, 2]:</p>
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1.5rem 0; font-family: monospace; font-size: 0.9rem;">
+                    <p><strong>Array:</strong> [2, 1, 5, 1, 3, 2], k = 3</p>
+                    <p style="margin-top: 0.5rem;"><strong>Window 1 (indices 0-2):</strong></p>
+                    <p>Elements: [2, 1, 5], sum = 8</p>
+                    <p>max_sum = 8</p>
+                    <p style="margin-top: 0.5rem;"><strong>Window 2 (indices 1-3):</strong></p>
+                    <p>Remove 2, add 1: sum = 8 - 2 + 1 = 7</p>
+                    <p>Elements: [1, 5, 1], max_sum = max(8, 7) = 8</p>
+                    <p style="margin-top: 0.5rem;"><strong>Window 3 (indices 2-4):</strong></p>
+                    <p>Remove 1, add 3: sum = 7 - 1 + 3 = 9</p>
+                    <p>Elements: [5, 1, 3], max_sum = max(8, 9) = 9</p>
+                    <p style="margin-top: 0.5rem;"><strong>Window 4 (indices 3-5):</strong></p>
+                    <p>Remove 5, add 2: sum = 9 - 5 + 2 = 6</p>
+                    <p>Elements: [1, 3, 2], max_sum = max(9, 6) = 9</p>
+                    <p style="margin-top: 1rem;"><strong>Result:</strong> 9</p>
+                </div>
+            </article>
+        </section>
+
+        <section id="algorithm" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Algorithm Section</h1>
+                
+                <h2>Fixed Size Window Algorithm</h2>
+                <pre><code>function maxSumFixedWindow(arr, k):
+    n = length(arr)
+    if n < k:
+        return -1
+    
+    window_sum = sum of first k elements
+    max_sum = window_sum
+    
+    for i from k to n-1:
+        window_sum = window_sum - arr[i-k] + arr[i]
+        max_sum = max(max_sum, window_sum)
+    
+    return max_sum</code></pre>
+
+                <h2>Variable Size Window Algorithm</h2>
+                <pre><code>function longestSubarrayWithCondition(arr, condition):
+    left = 0
+    max_length = 0
+    window_state = initialize()
+    
+    for right from 0 to n-1:
+        window_state.add(arr[right])
+        
+        while not condition(window_state):
+            window_state.remove(arr[left])
+            left += 1
+        
+        max_length = max(max_length, right - left + 1)
+    
+    return max_length</code></pre>
+
+                <h2>Implementation in C++</h2>
+                <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;unordered_map&gt;
+#include &lt;string&gt;
+using namespace std;
+
+// Fixed Size Window: Maximum sum of subarray of size k
+int maxSumFixedWindow(vector&lt;int&gt;& nums, int k) {
+    int n = nums.size();
+    if (n < k) {
+        return -1;
+    }
+    
+    // Calculate sum of first window
+    int window_sum = 0;
+    for (int i = 0; i < k; i++) {
+        window_sum += nums[i];
+    }
+    
+    int max_sum = window_sum;
+    
+    // Slide the window
+    for (int i = k; i < n; i++) {
+        // Remove leftmost element, add rightmost element
+        window_sum = window_sum - nums[i - k] + nums[i];
+        max_sum = max(max_sum, window_sum);
+    }
+    
+    return max_sum;
+}
+
+// Variable Size Window: Longest substring without repeating characters
+int longestSubstringWithoutRepeating(string s) {
+    unordered_map&lt;char, int&gt; char_map;
+    int left = 0;
+    int max_length = 0;
+    
+    for (int right = 0; right < s.length(); right++) {
+        // If character seen and within current window, move left pointer
+        if (char_map.find(s[right]) != char_map.end() && 
+            char_map[s[right]] >= left) {
+            left = char_map[s[right]] + 1;
+        }
+        
+        // Update character's last position
+        char_map[s[right]] = right;
+        
+        // Update maximum length
+        max_length = max(max_length, right - left + 1);
+    }
+    
+    return max_length;
+}</code></pre>
+                
+                <h3>Detailed Explanation</h3>
+                <ul>
+                    <li><strong>Fixed Window:</strong> We calculate the sum of the first k elements, then slide the window by subtracting the leftmost element and adding the new rightmost element. This avoids recalculating the entire sum each time.</li>
+                    <li><strong>Variable Window:</strong> We expand the window by moving the right pointer. When we encounter a duplicate character within our current window, we shrink the window by moving the left pointer to just after the last occurrence of that character.</li>
+                    <li><strong>Time Complexity:</strong> O(n) for both - each element is visited at most twice</li>
+                    <li><strong>Space Complexity:</strong> O(1) for fixed window, O(min(n, m)) for variable window where m is character set size</li>
+                </ul>
+            </article>
+        </section>
+
+        <section id="problems" class="mb-12">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="section-title text-center">Practice Problems</h2>
+                
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 1: Maximum Average Subarray I (LeetCode #643)</h3>
+                    <p class="mb-4">You are given an integer array nums consisting of n elements, and an integer k. Find a contiguous subarray whose length is equal to k that has the maximum average value and return this value.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [1,12,-5,-6,50,3], k = 4
+Output: 12.75000
+Explanation: Maximum average is (12-5-6+50)/4 = 51/4 = 12.75</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
+                    <div id="sol1" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;numeric&gt;
+using namespace std;
+
+double findMaxAverage(vector&lt;int&gt;& nums, int k) {
+    int n = nums.size();
+    
+    // Calculate sum of first window
+    int window_sum = 0;
+    for (int i = 0; i < k; i++) {
+        window_sum += nums[i];
+    }
+    
+    int max_sum = window_sum;
+    
+    // Slide the window
+    for (int i = k; i < n; i++) {
+        // Remove leftmost, add rightmost
+        window_sum = window_sum - nums[i - k] + nums[i];
+        max_sum = max(max_sum, window_sum);
+    }
+    
+    return (double)max_sum / k;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [1,12,-5,-6,50,3], k = 4</p>
+                            <p style="margin-top: 0.5rem;"><strong>Window 1 (indices 0-3):</strong></p>
+                            <p>window_sum = 1+12+(-5)+(-6) = 2, max_sum = 2</p>
+                            <p style="margin-top: 0.5rem;"><strong>Window 2 (indices 1-4):</strong></p>
+                            <p>window_sum = 2 - 1 + 50 = 51, max_sum = max(2, 51) = 51</p>
+                            <p style="margin-top: 0.5rem;"><strong>Window 3 (indices 2-5):</strong></p>
+                            <p>window_sum = 51 - 12 + 3 = 42, max_sum = max(51, 42) = 51</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 51/4 = 12.75</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> This is a classic fixed-size sliding window problem. We calculate the sum of the first k elements, then slide the window by subtracting the leftmost element and adding the new rightmost element. We track the maximum sum and return the average. This avoids recalculating the entire sum for each window, making it O(n) instead of O(nk).</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 2: Longest Substring Without Repeating Characters (LeetCode #3)</h3>
+                    <p class="mb-4">Given a string s, find the length of the longest substring without repeating characters.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: s = "abcabcbb"
+Output: 3
+Explanation: The answer is "abc", with the length of 3.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
+                    <div id="sol2" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;string&gt;
+#include &lt;unordered_map&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int lengthOfLongestSubstring(string s) {
+    unordered_map&lt;char, int&gt; char_map;
+    int left = 0;
+    int max_length = 0;
+    
+    for (int right = 0; right < s.length(); right++) {
+        // If character seen and within current window, move left pointer
+        if (char_map.find(s[right]) != char_map.end() && 
+            char_map[s[right]] >= left) {
+            left = char_map[s[right]] + 1;
+        }
+        
+        // Update character's last position
+        char_map[s[right]] = right;
+        
+        // Update maximum length
+        max_length = max(max_length, right - left + 1);
+    }
+    
+    return max_length;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> s = "abcabcbb"</p>
+                            <p style="margin-top: 0.5rem;"><strong>right=0 ('a'):</strong> left=0, window="a", max_length=1</p>
+                            <p><strong>right=1 ('b'):</strong> left=0, window="ab", max_length=2</p>
+                            <p><strong>right=2 ('c'):</strong> left=0, window="abc", max_length=3</p>
+                            <p><strong>right=3 ('a'):</strong> 'a' found at 0, left=1, window="bca", max_length=3</p>
+                            <p><strong>right=4 ('b'):</strong> 'b' found at 1, left=2, window="cab", max_length=3</p>
+                            <p><strong>right=5 ('c'):</strong> 'c' found at 2, left=3, window="abc", max_length=3</p>
+                            <p><strong>right=6 ('b'):</strong> 'b' found at 4, left=5, window="cb", max_length=3</p>
+                            <p><strong>right=7 ('b'):</strong> 'b' found at 6, left=7, window="b", max_length=3</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 3</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We use a variable-size sliding window with a hash map to track the last occurrence of each character. When we encounter a duplicate character within our current window, we move the left pointer to just after the last occurrence. This ensures our window always contains unique characters. The key insight is that we only need to track the last occurrence of each character, not all occurrences.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(min(n, m)) where m is the character set size</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 3: Minimum Window Substring (LeetCode #76)</h3>
+                    <p class="mb-4">Given two strings s and t, return the minimum window substring of s such that every character in t (including duplicates) is included in the window. If there is no such substring, return the empty string "".</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: s = "ADOBECODEBANC", t = "ABC"
+Output: "BANC"
+Explanation: The minimum window substring "BANC" includes 'A', 'B', and 'C' from string t.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
+                    <div id="sol3" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;string&gt;
+#include &lt;unordered_map&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+string minWindow(string s, string t) {
+    if (s.empty() || t.empty()) {
+        return "";
+    }
+    
+    // Count characters needed from t
+    unordered_map&lt;char, int&gt; dict_t;
+    for (char c : t) {
+        dict_t[c]++;
+    }
+    
+    int required = dict_t.size();
+    int formed = 0;
+    
+    // Current window character counts
+    unordered_map&lt;char, int&gt; window_counts;
+    int left = 0, right = 0;
+    int min_len = INT_MAX;
+    int min_left = 0;
+    
+    while (right < s.length()) {
+        char c = s[right];
+        window_counts[c]++;
+        
+        // Check if current character's frequency matches requirement
+        if (dict_t.find(c) != dict_t.end() && 
+            window_counts[c] == dict_t[c]) {
+            formed++;
+        }
+        
+        // Try to shrink window from left
+        while (left <= right && formed == required) {
+            // Update minimum window
+            if (right - left + 1 < min_len) {
+                min_len = right - left + 1;
+                min_left = left;
+            }
+            
+            // Remove leftmost character
+            char left_char = s[left];
+            window_counts[left_char]--;
+            if (dict_t.find(left_char) != dict_t.end() && 
+                window_counts[left_char] < dict_t[left_char]) {
+                formed--;
+            }
+            
+            left++;
+        }
+        
+        right++;
+    }
+    
+    return (min_len == INT_MAX) ? "" : s.substr(min_left, min_len);
+}</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use a variable-size sliding window. We expand the window by moving the right pointer and track character frequencies. When all required characters are present (formed == required), we try to shrink the window from the left to find the minimum valid window. We track the minimum length and starting position. The 'formed' variable counts how many unique characters have reached their required frequency, allowing us to know when the window is valid.</p>
+                        <p><strong>Time Complexity:</strong> O(|s| + |t|)</p>
+                        <p><strong>Space Complexity:</strong> O(|s| + |t|)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 4: Maximum Sum Subarray of Size K</h3>
+                    <p class="mb-4">Given an array of integers and a number k, find the maximum sum of a subarray of size k.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: arr = [2, 1, 5, 1, 3, 2], k = 3
+Output: 9
+Explanation: Subarray [5, 1, 3] has maximum sum 9.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol4')">Show Solution</button>
+                    <div id="sol4" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;numeric&gt;
+using namespace std;
+
+int maxSumSubarray(vector&lt;int&gt;& arr, int k) {
+    int n = arr.size();
+    if (n < k) {
+        return -1;
+    }
+    
+    // Calculate sum of first window
+    int window_sum = 0;
+    for (int i = 0; i < k; i++) {
+        window_sum += arr[i];
+    }
+    
+    int max_sum = window_sum;
+    
+    // Slide the window
+    for (int i = k; i < n; i++) {
+        window_sum = window_sum - arr[i - k] + arr[i];
+        max_sum = max(max_sum, window_sum);
+    }
+    
+    return max_sum;
+}</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> This is a straightforward fixed-size sliding window problem. We maintain a window of size k, calculate its sum, and slide it through the array. At each step, we update the maximum sum found so far. By reusing the previous window's sum and only adjusting for the elements entering and leaving, we achieve O(n) time complexity instead of O(nk).</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 5: Longest Repeating Character Replacement (LeetCode #424)</h3>
+                    <p class="mb-4">You are given a string s and an integer k. You can choose any character of the string and change it to any other uppercase English letter. You can perform this operation at most k times. Return the length of the longest substring containing the same letter you can get after performing the above operations.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: s = "AABABBA", k = 1
+Output: 4
+Explanation: Replace the one 'A' in the middle with 'B' and form "AABBBBA".</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
+                    <div id="sol5" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;string&gt;
+#include &lt;unordered_map&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int characterReplacement(string s, int k) {
+    unordered_map&lt;char, int&gt; char_count;
+    int left = 0;
+    int max_count = 0;  // Maximum frequency in current window
+    int max_length = 0;
+    
+    for (int right = 0; right < s.length(); right++) {
+        char_count[s[right]]++;
+        max_count = max(max_count, char_count[s[right]]);
+        
+        // If window needs more than k replacements, shrink it
+        // (window_size - max_frequency) = number of characters to replace
+        if ((right - left + 1) - max_count > k) {
+            char_count[s[left]]--;
+            left++;
+        }
+        
+        max_length = max(max_length, right - left + 1);
+    }
+    
+    return max_length;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> s = "AABABBA", k = 1</p>
+                            <p style="margin-top: 0.5rem;"><strong>right=0 ('A'):</strong> count[A]=1, max_count=1, window="A", length=1</p>
+                            <p><strong>right=1 ('A'):</strong> count[A]=2, max_count=2, window="AA", length=2</p>
+                            <p><strong>right=2 ('B'):</strong> count[B]=1, max_count=2, window="AAB", (3-2=1 <= 1), length=3</p>
+                            <p><strong>right=3 ('A'):</strong> count[A]=3, max_count=3, window="AABA", (4-3=1 <= 1), length=4</p>
+                            <p><strong>right=4 ('B'):</strong> count[B]=2, max_count=3, window="AABAB", (5-3=2 > 1), shrink</p>
+                            <p style="margin-left: 2rem;">left=1, window="ABAB", length=4</p>
+                            <p><strong>right=5 ('B'):</strong> count[B]=3, max_count=3, window="ABABB", (5-3=2 > 1), shrink</p>
+                            <p style="margin-left: 2rem;">left=2, window="ABB", length=3</p>
+                            <p><strong>right=6 ('A'):</strong> count[A]=2, max_count=3, window="ABBA", (4-3=1 <= 1), length=4</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 4</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We use a sliding window approach. The key insight is that a valid window has at most k characters that are not the most frequent character. We track character frequencies and the maximum frequency in the current window. When (window_size - max_frequency) > k, we need to shrink the window. We maintain the maximum valid window length. Note: we don't need to update max_count when shrinking because we only care about the maximum we've seen, and a smaller window can't have a larger max_count.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1) - at most 26 characters</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; George Meshveliani - CST Department. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            solution.classList.toggle('show');
+            const btn = event.target;
+            btn.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+        }
+    </script>
+</body>
+</html>

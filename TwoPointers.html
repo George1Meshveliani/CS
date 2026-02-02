@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Two Pointers Pattern - LeetCode Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
+        .toggle-btn:hover { background-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900">Two Pointers Pattern</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="pattern" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Two Pointers Pattern</h1>
+                <p>The <strong>Two Pointers</strong> technique involves using two pointers to iterate through an array or list simultaneously. This pattern is particularly effective for problems involving sorted arrays, palindromes, or finding pairs that meet specific criteria.</p>
+
+                <h2>When to Use This Pattern</h2>
+                <ul>
+                    <li>When dealing with sorted arrays or lists</li>
+                    <li>When you need to find pairs of elements that satisfy a condition</li>
+                    <li>When working with palindromes or symmetric structures</li>
+                    <li>When you need to merge two sorted arrays</li>
+                    <li>When removing duplicates from sorted arrays</li>
+                </ul>
+
+                <h2>Key Concepts</h2>
+                <p>There are two main variations of the two pointers technique:</p>
+                
+                <h3>Visual Representation</h3>
+                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 1rem; padding: 2.5rem; margin: 2rem 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+                    <h4 style="margin-bottom: 2rem; color: #92400e; font-weight: 700; font-size: 1.5rem; text-align: center;">Two Pointers Technique - Opposite Ends</h4>
+                    <svg width="100%" height="280" viewBox="0 0 900 280" style="max-width: 900px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                        <defs>
+                            <linearGradient id="arrayGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#4f46e5;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="highlightGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#fbbf24;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#f59e0b;stop-opacity:1" />
+                            </linearGradient>
+                            <filter id="glow">
+                                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                            <filter id="shadow2">
+                                <feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.25"/>
+                            </filter>
+                        </defs>
+                        
+                        <!-- Title -->
+                        <text x="450" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Sorted Array: [1, 2, 3, 4, 6] | Target: 6</text>
+                        
+                        <!-- Array elements -->
+                        <g transform="translate(150, 60)">
+                            <rect x="0" y="0" width="65" height="55" fill="url(#arrayGradient)" stroke="#4f46e5" stroke-width="2.5" rx="8" filter="url(#shadow2)"/>
+                            <text x="32.5" y="35" text-anchor="middle" font-size="22" font-weight="700" fill="white">1</text>
+                            <text x="32.5" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="#4f46e5">[0]</text>
+                            
+                            <rect x="75" y="0" width="65" height="55" fill="url(#arrayGradient)" stroke="#4f46e5" stroke-width="2.5" rx="8" filter="url(#shadow2)"/>
+                            <text x="107.5" y="35" text-anchor="middle" font-size="22" font-weight="700" fill="white">2</text>
+                            <text x="107.5" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="#4f46e5">[1]</text>
+                            
+                            <rect x="150" y="0" width="65" height="55" fill="url(#arrayGradient)" stroke="#4f46e5" stroke-width="2.5" rx="8" filter="url(#shadow2)"/>
+                            <text x="182.5" y="35" text-anchor="middle" font-size="22" font-weight="700" fill="white">3</text>
+                            <text x="182.5" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="#4f46e5">[2]</text>
+                            
+                            <rect x="225" y="0" width="65" height="55" fill="url(#highlightGradient)" stroke="#f59e0b" stroke-width="3" rx="8" filter="url(#glow)"/>
+                            <text x="257.5" y="35" text-anchor="middle" font-size="22" font-weight="700" fill="white">4</text>
+                            <text x="257.5" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="#92400e">[3]</text>
+                            
+                            <rect x="300" y="0" width="65" height="55" fill="url(#arrayGradient)" stroke="#4f46e5" stroke-width="2.5" rx="8" filter="url(#shadow2)"/>
+                            <text x="332.5" y="35" text-anchor="middle" font-size="22" font-weight="700" fill="white">6</text>
+                            <text x="332.5" y="72" text-anchor="middle" font-size="13" font-weight="600" fill="#4f46e5">[4]</text>
+                        </g>
+
+                        <!-- Left Pointer with elegant design -->
+                        <g transform="translate(175, 0)">
+                            <circle cx="0" cy="40" r="12" fill="#ef4444" stroke="#dc2626" stroke-width="3" filter="url(#glow)"/>
+                            <circle cx="0" cy="40" r="6" fill="white" opacity="0.8"/>
+                            <text x="0" y="20" text-anchor="middle" font-size="15" font-weight="700" fill="#dc2626">left</text>
+                            <line x1="0" y1="52" x2="0" y2="60" stroke="#ef4444" stroke-width="3" stroke-dasharray="4,3"/>
+                            <polygon points="0,60 -5,70 5,70" fill="#ef4444"/>
+                        </g>
+                        
+                        <!-- Right Pointer -->
+                        <g transform="translate(332.5, 0)">
+                            <circle cx="0" cy="40" r="12" fill="#10b981" stroke="#059669" stroke-width="3" filter="url(#glow)"/>
+                            <circle cx="0" cy="40" r="6" fill="white" opacity="0.8"/>
+                            <text x="0" y="20" text-anchor="middle" font-size="15" font-weight="700" fill="#059669">right</text>
+                            <line x1="0" y1="52" x2="0" y2="60" stroke="#10b981" stroke-width="3" stroke-dasharray="4,3"/>
+                            <polygon points="0,60 -5,70 5,70" fill="#10b981"/>
+                        </g>
+
+                        <!-- Calculation steps in elegant box -->
+                        <rect x="450" y="60" width="400" height="180" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" rx="10" filter="url(#shadow2)"/>
+                        <text x="650" y="90" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Algorithm Steps</text>
+                        
+                        <g transform="translate(470, 110)">
+                            <circle cx="0" cy="0" r="8" fill="#ef4444"/>
+                            <text x="20" y="5" font-size="14" font-weight="600" fill="#1e293b">Step 1:</text>
+                            <text x="20" y="25" font-size="13" fill="#6b7280">sum = 1 + 6 = 7 > 6</text>
+                            <text x="20" y="45" font-size="13" fill="#6b7280" font-style="italic">→ move right left</text>
+                            
+                            <circle cx="0" cy="70" r="8" fill="#f59e0b"/>
+                            <text x="20" y="75" font-size="14" font-weight="600" fill="#1e293b">Step 2:</text>
+                            <text x="20" y="95" font-size="13" fill="#6b7280">sum = 1 + 4 = 5 < 6</text>
+                            <text x="20" y="115" font-size="13" fill="#6b7280" font-style="italic">→ move left right</text>
+                            
+                            <circle cx="0" cy="140" r="8" fill="#10b981"/>
+                            <text x="20" y="145" font-size="14" font-weight="600" fill="#1e293b">Step 3:</text>
+                            <text x="20" y="165" font-size="13" font-weight="700" fill="#059669">sum = 2 + 4 = 6 = target ✓</text>
+                        </g>
+                    </svg>
+                </div>
+                
+                <h3>1. Opposite Ends (Converging Pointers)</h3>
+                <p>Start with one pointer at the beginning and one at the end, then move them toward each other:</p>
+                <pre><code>left = 0
+right = n - 1
+
+while left < right:
+    # Process elements at left and right
+    if condition:
+        left += 1
+    else:
+        right -= 1</code></pre>
+
+                <h3>2. Same Direction (Fast and Slow)</h3>
+                <p>Both pointers start at the beginning, but move at different speeds:</p>
+                <pre><code>slow = 0
+fast = 0
+
+while fast < n:
+    # Process elements
+    if condition:
+        # Move slow pointer
+        slow += 1
+    fast += 1</code></pre>
+
+                <h2>Time Complexity</h2>
+                <p>Two pointers typically reduces time complexity from \(O(n^2)\) to \(O(n)\) by eliminating the need for nested loops.</p>
+
+                <h3>Visual Simulation: Two Sum in Sorted Array</h3>
+                <p>Let's trace through finding two numbers that sum to target = 9 in array [2, 7, 11, 15]:</p>
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1.5rem 0; font-family: monospace; font-size: 0.9rem;">
+                    <p><strong>Initial State:</strong></p>
+                    <p>Array: [2, 7, 11, 15]</p>
+                    <p>left = 0, right = 3, target = 9</p>
+                    <p style="margin-top: 0.5rem;"><strong>Iteration 1:</strong></p>
+                    <p>nums[left] + nums[right] = 2 + 15 = 17</p>
+                    <p>17 > 9, so move right pointer left (need smaller sum)</p>
+                    <p>left = 0, right = 2</p>
+                    <p style="margin-top: 0.5rem;"><strong>Iteration 2:</strong></p>
+                    <p>nums[left] + nums[right] = 2 + 11 = 13</p>
+                    <p>13 > 9, so move right pointer left</p>
+                    <p>left = 0, right = 1</p>
+                    <p style="margin-top: 0.5rem;"><strong>Iteration 3:</strong></p>
+                    <p>nums[left] + nums[right] = 2 + 7 = 9</p>
+                    <p>9 == 9, found! Return [0, 1]</p>
+                </div>
+            </article>
+        </section>
+
+        <section id="algorithm" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Algorithm Section</h1>
+                
+                <h2>Basic Two Pointers Algorithm</h2>
+                <pre><code>function twoPointers(arr, target):
+    left = 0
+    right = length(arr) - 1
+    
+    while left < right:
+        current_sum = arr[left] + arr[right]
+        
+        if current_sum == target:
+            return [left, right]
+        else if current_sum < target:
+            left += 1  # Need larger sum
+        else:
+            right -= 1  # Need smaller sum
+    
+    return []  # No solution found</code></pre>
+
+                <h2>Implementation in C++</h2>
+                <pre><code>#include &lt;vector&gt;
+#include &lt;iostream&gt;
+using namespace std;
+
+vector&lt;int&gt; twoSumSorted(vector&lt;int&gt;& nums, int target) {
+    int left = 0;
+    int right = nums.size() - 1;
+    
+    while (left < right) {
+        int current_sum = nums[left] + nums[right];
+        
+        if (current_sum == target) {
+            // Return 1-indexed positions
+            return {left + 1, right + 1};
+        } else if (current_sum < target) {
+            // Sum is too small, move left pointer right
+            // (to get a larger number)
+            left++;
+        } else {
+            // Sum is too large, move right pointer left
+            // (to get a smaller number)
+            right--;
+        }
+    }
+    
+    return {};  // No solution found
+}
+
+// Example usage
+int main() {
+    vector&lt;int&gt; nums = {2, 7, 11, 15};
+    int target = 9;
+    vector&lt;int&gt; result = twoSumSorted(nums, target);
+    
+    if (!result.empty()) {
+        cout << "Indices: [" << result[0] << ", " << result[1] << "]" << endl;
+        // Output: Indices: [1, 2]
+    }
+    
+    return 0;
+}</code></pre>
+                
+                <h3>Detailed Explanation</h3>
+                <ul>
+                    <li><strong>Why it works:</strong> Since the array is sorted, if the sum is too small, we need a larger number, so we move the left pointer right. If the sum is too large, we need a smaller number, so we move the right pointer left.</li>
+                    <li><strong>Correctness:</strong> We never skip valid pairs because if nums[left] + nums[right] < target, then nums[left] + any number to the left of right is also < target. Similarly for the other case.</li>
+                    <li><strong>Time Complexity:</strong> O(n) - each element is visited at most once</li>
+                    <li><strong>Space Complexity:</strong> O(1) - only using two pointers</li>
+                </ul>
+
+                <h2>Common Patterns</h2>
+                <ul>
+                    <li><strong>Finding pairs:</strong> Use converging pointers on sorted array</li>
+                    <li><strong>Removing duplicates:</strong> Use slow and fast pointers</li>
+                    <li><strong>Palindrome checking:</strong> Use converging pointers from both ends</li>
+                    <li><strong>Merging arrays:</strong> Use two pointers, one for each array</li>
+                </ul>
+            </article>
+        </section>
+
+        <section id="problems" class="mb-12">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="section-title text-center">Practice Problems</h2>
+                
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 1: Two Sum II - Input Array is Sorted (LeetCode #167)</h3>
+                    <p class="mb-4">Given a 1-indexed array of integers that is already sorted in non-decreasing order, find two numbers such that they add up to a specific target number.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: numbers = [2,7,11,15], target = 9
+Output: [1,2]
+Explanation: The sum of 2 and 7 is 9. Therefore index1 = 1, index2 = 2.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
+                    <div id="sol1" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+vector&lt;int&gt; twoSum(vector&lt;int&gt;& numbers, int target) {
+    int left = 0;
+    int right = numbers.size() - 1;
+    
+    while (left < right) {
+        int current_sum = numbers[left] + numbers[right];
+        
+        if (current_sum == target) {
+            return {left + 1, right + 1};  // 1-indexed
+        } else if (current_sum < target) {
+            left++;  // Need larger sum
+        } else {
+            right--;  // Need smaller sum
+        }
+    }
+    
+    return {};  // No solution
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> numbers = [2, 7, 11, 15], target = 9</p>
+                            <p style="margin-top: 0.5rem;"><strong>Initial:</strong> left = 0, right = 3</p>
+                            <p style="margin-top: 0.5rem;"><strong>Iteration 1:</strong></p>
+                            <p>numbers[0] + numbers[3] = 2 + 15 = 17</p>
+                            <p>17 > 9, move right left: right = 2</p>
+                            <p style="margin-top: 0.5rem;"><strong>Iteration 2:</strong></p>
+                            <p>numbers[0] + numbers[2] = 2 + 11 = 13</p>
+                            <p>13 > 9, move right left: right = 1</p>
+                            <p style="margin-top: 0.5rem;"><strong>Iteration 3:</strong></p>
+                            <p>numbers[0] + numbers[1] = 2 + 7 = 9</p>
+                            <p>9 == 9, found! Return [1, 2]</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> Since the array is sorted, we can use two pointers starting from both ends. If the sum is too small, we move the left pointer right (increase sum). If too large, we move the right pointer left (decrease sum). This works because the array is sorted, guaranteeing we don't miss any valid pairs. The key insight is that if nums[left] + nums[right] < target, then nums[left] + any element to the left of right is also < target, so we can safely move left forward.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 2: 3Sum (LeetCode #15)</h3>
+                    <p class="mb-4">Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [-1,0,1,2,-1,-4]
+Output: [[-1,-1,2],[-1,0,1]]</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
+                    <div id="sol2" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+vector&lt;vector&lt;int&gt;&gt; threeSum(vector&lt;int&gt;& nums) {
+    sort(nums.begin(), nums.end());
+    vector&lt;vector&lt;int&gt;&gt; result;
+    int n = nums.size();
+    
+    for (int i = 0; i < n - 2; i++) {
+        // Skip duplicates for first number
+        if (i > 0 && nums[i] == nums[i-1]) {
+            continue;
+        }
+        
+        int left = i + 1;
+        int right = n - 1;
+        
+        while (left < right) {
+            int current_sum = nums[i] + nums[left] + nums[right];
+            
+            if (current_sum == 0) {
+                result.push_back({nums[i], nums[left], nums[right]});
+                
+                // Skip duplicates
+                while (left < right && nums[left] == nums[left + 1]) {
+                    left++;
+                }
+                while (left < right && nums[right] == nums[right - 1]) {
+                    right--;
+                }
+                
+                left++;
+                right--;
+            } else if (current_sum < 0) {
+                left++;  // Need larger sum
+            } else {
+                right--;  // Need smaller sum
+            }
+        }
+    }
+    
+    return result;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [-1,0,1,2,-1,-4]</p>
+                            <p><strong>After sorting:</strong> [-4,-1,-1,0,1,2]</p>
+                            <p style="margin-top: 0.5rem;"><strong>i=0, nums[0]=-4:</strong> left=1, right=5</p>
+                            <p style="margin-left: 2rem;">sum = -4 + (-1) + 2 = -3 < 0, left++</p>
+                            <p style="margin-left: 2rem;">sum = -4 + (-1) + 2 = -3 < 0, left++</p>
+                            <p style="margin-left: 2rem;">No solution found</p>
+                            <p style="margin-top: 0.5rem;"><strong>i=1, nums[1]=-1:</strong> left=2, right=5</p>
+                            <p style="margin-left: 2rem;">sum = -1 + (-1) + 2 = 0, found! Add [-1,-1,2]</p>
+                            <p style="margin-left: 2rem;">left=3, right=4, sum = -1 + 0 + 1 = 0, found! Add [-1,0,1]</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> [[-1,-1,2], [-1,0,1]]</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We fix the first number and use two pointers for the remaining two. After sorting, we iterate through each number as the first element, then use two pointers to find pairs that sum to the negative of the first number. We skip duplicates to avoid duplicate triplets in the result. Sorting allows us to use two pointers efficiently and skip duplicates easily.</p>
+                        <p><strong>Time Complexity:</strong> O(n²)</p>
+                        <p><strong>Space Complexity:</strong> O(1) excluding output array</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 3: Container With Most Water (LeetCode #11)</h3>
+                    <p class="mb-4">You are given an integer array height of length n. Find two lines that together with the x-axis form a container, such that the container contains the most water.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: height = [1,8,6,2,5,4,8,3,7]
+Output: 49
+Explanation: The above vertical lines form a container with area 49.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
+                    <div id="sol3" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int maxArea(vector&lt;int&gt;& height) {
+    int left = 0;
+    int right = height.size() - 1;
+    int max_water = 0;
+    
+    while (left < right) {
+        // Calculate area: width × min(height[left], height[right])
+        int width = right - left;
+        int current_area = width * min(height[left], height[right]);
+        max_water = max(max_water, current_area);
+        
+        // Move the pointer with smaller height
+        // This is optimal because:
+        // - Moving the taller pointer can only decrease area (width decreases)
+        // - Moving the shorter pointer might increase area (if we find taller line)
+        if (height[left] < height[right]) {
+            left++;
+        } else {
+            right--;
+        }
+    }
+    
+    return max_water;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> height = [1,8,6,2,5,4,8,3,7]</p>
+                            <p style="margin-top: 0.5rem;"><strong>left=0, right=8:</strong> area = 8 × min(1,7) = 8, max_water=8</p>
+                            <p style="margin-left: 2rem;">height[0] < height[8], move left: left=1</p>
+                            <p><strong>left=1, right=8:</strong> area = 7 × min(8,7) = 49, max_water=49</p>
+                            <p style="margin-left: 2rem;">height[1] > height[8], move right: right=7</p>
+                            <p><strong>left=1, right=7:</strong> area = 6 × min(8,3) = 18, max_water=49</p>
+                            <p style="margin-left: 2rem;">height[1] > height[7], move right: right=6</p>
+                            <p><strong>left=1, right=6:</strong> area = 5 × min(8,8) = 40, max_water=49</p>
+                            <p style="margin-left: 2rem;">height[1] == height[6], move either: left=2</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 49</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We start with pointers at both ends. The area is limited by the shorter line. We always move the pointer with the smaller height because moving the taller one can only decrease the area (width decreases, height can't increase). This greedy approach ensures we check all possible optimal containers. The key insight is that we never miss the optimal solution because if the optimal container uses lines at positions i and j, we'll find it before one of the pointers passes the other.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 4: Valid Palindrome (LeetCode #125)</h3>
+                    <p class="mb-4">A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: s = "A man, a plan, a canal: Panama"
+Output: true
+Explanation: "amanaplanacanalpanama" is a palindrome.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol4')">Show Solution</button>
+                    <div id="sol4" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;string&gt;
+#include &lt;cctype&gt;
+using namespace std;
+
+bool isPalindrome(string s) {
+    int left = 0;
+    int right = s.length() - 1;
+    
+    while (left < right) {
+        // Skip non-alphanumeric characters
+        while (left < right && !isalnum(s[left])) {
+            left++;
+        }
+        while (left < right && !isalnum(s[right])) {
+            right--;
+        }
+        
+        // Compare characters (case-insensitive)
+        if (tolower(s[left]) != tolower(s[right])) {
+            return false;
+        }
+        
+        left++;
+        right--;
+    }
+    
+    return true;
+}</code></pre>
+                        <p class="mt-4"><strong>Explanation:</strong> We use two pointers from both ends. We skip non-alphanumeric characters by moving pointers until we find valid characters. Then we compare them case-insensitively using tolower(). If any pair doesn't match, it's not a palindrome. The algorithm continues until pointers meet or cross. This approach is efficient because we only process each character once.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 5: Remove Duplicates from Sorted Array (LeetCode #26)</h3>
+                    <p class="mb-4">Given an integer array nums sorted in non-decreasing order, remove the duplicates in-place such that each unique element appears only once. The relative order of the elements should be kept the same.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [1,1,2]
+Output: 2, nums = [1,2,_]
+Explanation: Your function should return k = 2, with the first two elements of nums being 1 and 2 respectively.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
+                    <div id="sol5" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int removeDuplicates(vector&lt;int&gt;& nums) {
+    if (nums.empty()) {
+        return 0;
+    }
+    
+    int slow = 0;  // Position to place next unique element
+    
+    for (int fast = 1; fast < nums.size(); fast++) {
+        // If current element is different from previous unique element
+        if (nums[fast] != nums[slow]) {
+            slow++;
+            nums[slow] = nums[fast];
+        }
+    }
+    
+    return slow + 1;  // Length of array with unique elements
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [1,1,2]</p>
+                            <p style="margin-top: 0.5rem;"><strong>Initial:</strong> slow=0, fast=1</p>
+                            <p><strong>fast=1:</strong> nums[1]=1 == nums[0]=1, skip</p>
+                            <p><strong>fast=2:</strong> nums[2]=2 != nums[0]=1</p>
+                            <p style="margin-left: 2rem;">slow=1, nums[1]=2</p>
+                            <p style="margin-left: 2rem;">Array: [1,2,2]</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 2 (first 2 elements are unique)</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We use slow and fast pointers. The slow pointer tracks where to place the next unique element. The fast pointer scans through the array. When we find a new unique element (different from the one at slow), we increment slow and place the new element there. Since the array is sorted, duplicates are adjacent, so this efficiently removes them. The in-place modification ensures O(1) space complexity.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; George Meshveliani - CST Department. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            solution.classList.toggle('show');
+            const btn = event.target;
+            btn.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+        }
+    </script>
+</body>
+</html>

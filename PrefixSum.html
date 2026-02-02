@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prefix Sum Pattern - LeetCode Patterns</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
+        .toggle-btn:hover { background-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900">Prefix Sum Pattern</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="pattern" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Prefix Sum Pattern</h1>
+                <p>The <strong>Prefix Sum</strong> pattern involves preprocessing an array to create a new array where each element at index <code>i</code> represents the sum of all elements from the start of the array up to index <code>i</code>. This technique allows for efficient sum queries on subarrays in constant time.</p>
+
+                <h2>When to Use This Pattern</h2>
+                <ul>
+                    <li>When you need to perform multiple sum queries on subarrays</li>
+                    <li>When you need to calculate cumulative sums efficiently</li>
+                    <li>When dealing with range sum queries</li>
+                    <li>When optimizing problems that require repeated subarray sum calculations</li>
+                </ul>
+
+                <h2>Key Concepts</h2>
+                <p>The fundamental idea is to precompute a prefix sum array <code>P</code> where:</p>
+                <p>\[ P[i] = \sum_{j=0}^{i} A[j] = A[0] + A[1] + \ldots + A[i] \]</p>
+                <p>Once we have this prefix array, we can calculate the sum of any subarray from index <code>i</code> to <code>j</code> in constant time using:</p>
+                <p>\[ \text{Sum}(i, j) = P[j] - P[i-1] \]</p>
+                <p>For the special case when <code>i = 0</code>, the sum is simply <code>P[j]</code>.</p>
+
+                <h3>Visual Representation</h3>
+                <div style="background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%); border: 2px solid #6366f1; border-radius: 1rem; padding: 2.5rem; margin: 2rem 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+                    <h4 style="margin-bottom: 2rem; color: #4f46e5; font-weight: 700; font-size: 1.5rem; text-align: center;">Prefix Sum Array Visualization</h4>
+                    <svg width="100%" height="380" viewBox="0 0 900 380" style="max-width: 900px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                        <!-- Title -->
+                        <text x="450" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Original Array A = [1, 2, 3, 4, 5]</text>
+                        
+                        <!-- Original Array with gradient -->
+                        <g transform="translate(150, 60)">
+                            <rect x="0" y="0" width="70" height="50" fill="url(#blueGradient)" stroke="#3b82f6" stroke-width="2.5" rx="6"/>
+                            <text x="35" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">1</text>
+                            <text x="35" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">A[0]</text>
+                            
+                            <rect x="80" y="0" width="70" height="50" fill="url(#blueGradient)" stroke="#3b82f6" stroke-width="2.5" rx="6"/>
+                            <text x="115" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">2</text>
+                            <text x="115" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">A[1]</text>
+                            
+                            <rect x="160" y="0" width="70" height="50" fill="url(#blueGradient)" stroke="#3b82f6" stroke-width="2.5" rx="6"/>
+                            <text x="195" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">3</text>
+                            <text x="195" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">A[2]</text>
+                            
+                            <rect x="240" y="0" width="70" height="50" fill="url(#blueGradient)" stroke="#3b82f6" stroke-width="2.5" rx="6"/>
+                            <text x="275" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">4</text>
+                            <text x="275" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">A[3]</text>
+                            
+                            <rect x="320" y="0" width="70" height="50" fill="url(#blueGradient)" stroke="#3b82f6" stroke-width="2.5" rx="6"/>
+                            <text x="355" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">5</text>
+                            <text x="355" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">A[4]</text>
+                        </g>
+
+                        <!-- Elegant Arrow with shadow -->
+                        <defs>
+                            <linearGradient id="blueGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="greenGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+                            </linearGradient>
+                            <filter id="shadow">
+                                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+                            </filter>
+                            <marker id="arrowhead" markerWidth="12" markerHeight="12" refX="6" refY="3" orient="auto">
+                                <polygon points="0 0, 12 3, 0 6" fill="#10b981"/>
+                            </marker>
+                        </defs>
+                        
+                        <path d="M 450 130 L 450 160" stroke="#10b981" stroke-width="4" marker-end="url(#arrowhead)" filter="url(#shadow)"/>
+                        <text x="450" y="150" text-anchor="middle" font-size="14" font-weight="600" fill="#059669">Build Prefix Sum</text>
+
+                        <!-- Prefix Sum Array -->
+                        <text x="450" y="210" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Prefix Sum Array P = [1, 3, 6, 10, 15]</text>
+                        <g transform="translate(150, 230)">
+                            <rect x="0" y="0" width="70" height="50" fill="url(#greenGradient)" stroke="#059669" stroke-width="2.5" rx="6" filter="url(#shadow)"/>
+                            <text x="35" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">1</text>
+                            <text x="35" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#059669">P[0]</text>
+                            
+                            <rect x="80" y="0" width="70" height="50" fill="url(#greenGradient)" stroke="#059669" stroke-width="2.5" rx="6" filter="url(#shadow)"/>
+                            <text x="115" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">3</text>
+                            <text x="115" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#059669">P[1]</text>
+                            
+                            <rect x="160" y="0" width="70" height="50" fill="url(#greenGradient)" stroke="#059669" stroke-width="2.5" rx="6" filter="url(#shadow)"/>
+                            <text x="195" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">6</text>
+                            <text x="195" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#059669">P[2]</text>
+                            
+                            <rect x="240" y="0" width="70" height="50" fill="url(#greenGradient)" stroke="#059669" stroke-width="2.5" rx="6" filter="url(#shadow)"/>
+                            <text x="275" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">10</text>
+                            <text x="275" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#059669">P[3]</text>
+                            
+                            <rect x="320" y="0" width="70" height="50" fill="url(#greenGradient)" stroke="#059669" stroke-width="2.5" rx="6" filter="url(#shadow)"/>
+                            <text x="355" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">15</text>
+                            <text x="355" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#059669">P[4]</text>
+                        </g>
+
+                        <!-- Calculation formulas in elegant box -->
+                        <rect x="550" y="60" width="320" height="200" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" rx="8" filter="url(#shadow)"/>
+                        <text x="710" y="85" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Calculation Steps</text>
+                        <g transform="translate(570, 100)">
+                            <text x="0" y="0" font-size="14" font-weight="600" fill="#3b82f6">P[0] = 1</text>
+                            <text x="0" y="25" font-size="14" font-weight="600" fill="#3b82f6">P[1] = 1 + 2 = 3</text>
+                            <text x="0" y="50" font-size="14" font-weight="600" fill="#3b82f6">P[2] = 3 + 3 = 6</text>
+                            <text x="0" y="75" font-size="14" font-weight="600" fill="#3b82f6">P[3] = 6 + 4 = 10</text>
+                            <text x="0" y="100" font-size="14" font-weight="600" fill="#3b82f6">P[4] = 10 + 5 = 15</text>
+                            <line x1="0" y1="120" x2="280" y2="120" stroke="#e2e8f0" stroke-width="1"/>
+                            <text x="0" y="145" font-size="13" fill="#6b7280"><tspan font-weight="700" fill="#059669">Query:</tspan> Sum(1,3) = P[3] - P[0]</text>
+                            <text x="0" y="165" font-size="13" fill="#6b7280">= 10 - 1 = <tspan font-weight="700" fill="#ef4444">9</tspan></text>
+                        </g>
+                    </svg>
+                    
+                    <div style="margin-top: 2rem; padding: 1.25rem; background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 5px solid #10b981; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        <p style="margin: 0; font-size: 1rem; color: #065f46; font-weight: 600;"><strong>Query Example:</strong> Sum from index 1 to 3 = P[3] - P[0] = 10 - 1 = 9</p>
+                        <p style="margin: 0.75rem 0 0 0; font-size: 0.95rem; color: #047857;">This represents: A[1] + A[2] + A[3] = 2 + 3 + 4 = 9</p>
+                    </div>
+                </div>
+
+                <h3>Step-by-Step Simulation</h3>
+                <p>Let's trace through building a prefix sum array with <code>A = [1, 2, 3, 4, 5]</code>:</p>
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1.5rem 0; font-family: monospace;">
+                    <p><strong>Initial Array A:</strong> [1, 2, 3, 4, 5]</p>
+                    <p><strong>Step 0:</strong> P[0] = A[0] = 1</p>
+                    <p style="margin-left: 2rem;">P = [1, _, _, _, _]</p>
+                    <p><strong>Step 1:</strong> P[1] = P[0] + A[1] = 1 + 2 = 3</p>
+                    <p style="margin-left: 2rem;">P = [1, 3, _, _, _]</p>
+                    <p><strong>Step 2:</strong> P[2] = P[1] + A[2] = 3 + 3 = 6</p>
+                    <p style="margin-left: 2rem;">P = [1, 3, 6, _, _]</p>
+                    <p><strong>Step 3:</strong> P[3] = P[2] + A[3] = 6 + 4 = 10</p>
+                    <p style="margin-left: 2rem;">P = [1, 3, 6, 10, _]</p>
+                    <p><strong>Step 4:</strong> P[4] = P[3] + A[4] = 10 + 5 = 15</p>
+                    <p style="margin-left: 2rem;">P = [1, 3, 6, 10, 15]</p>
+                    <p style="margin-top: 1rem;"><strong>Final Prefix Array:</strong> [1, 3, 6, 10, 15]</p>
+                </div>
+                
+                <h3>Query Simulation</h3>
+                <p>Now let's query the sum from index 1 to 3:</p>
+                <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1.5rem 0; font-family: monospace;">
+                    <p><strong>Query:</strong> Sum from index 1 to 3 (inclusive)</p>
+                    <p><strong>Direct calculation:</strong> A[1] + A[2] + A[3] = 2 + 3 + 4 = 9</p>
+                    <p><strong>Using prefix sum:</strong> P[3] - P[0] = 10 - 1 = 9</p>
+                    <p style="margin-top: 1rem;"><strong>Why this works:</strong></p>
+                    <p style="margin-left: 2rem;">P[3] = A[0] + A[1] + A[2] + A[3] = 1 + 2 + 3 + 4 = 10</p>
+                    <p style="margin-left: 2rem;">P[0] = A[0] = 1</p>
+                    <p style="margin-left: 2rem;">P[3] - P[0] = (A[0] + A[1] + A[2] + A[3]) - A[0] = A[1] + A[2] + A[3] = 9</p>
+                </div>
+            </article>
+        </section>
+
+        <section id="algorithm" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Algorithm Section</h1>
+                
+                <h2>Building the Prefix Sum Array</h2>
+                <p>The algorithm to build a prefix sum array is straightforward:</p>
+                <pre><code>function buildPrefixSum(arr):
+    n = length(arr)
+    prefix = new array of size n
+    prefix[0] = arr[0]
+    
+    for i from 1 to n-1:
+        prefix[i] = prefix[i-1] + arr[i]
+    
+    return prefix</code></pre>
+
+                <h2>Querying Subarray Sum</h2>
+                <p>To get the sum of elements from index <code>i</code> to <code>j</code> (inclusive):</p>
+                <pre><code>function rangeSum(prefix, i, j):
+    if i == 0:
+        return prefix[j]
+    else:
+        return prefix[j] - prefix[i-1]</code></pre>
+
+                <h2>Time and Space Complexity</h2>
+                <ul>
+                    <li><strong>Time Complexity:</strong> \(O(n)\) to build the prefix array, \(O(1)\) per query</li>
+                    <li><strong>Space Complexity:</strong> \(O(n)\) for storing the prefix array</li>
+                </ul>
+
+                <h2>Implementation in C++</h2>
+                <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+// Build prefix sum array
+vector&lt;int&gt; buildPrefixSum(const vector&lt;int&gt;& arr) {
+    int n = arr.size();
+    vector&lt;int&gt; prefix(n);
+    prefix[0] = arr[0];
+    
+    // Build prefix sum: each element is sum of all previous + current
+    for (int i = 1; i < n; i++) {
+        prefix[i] = prefix[i-1] + arr[i];
+    }
+    
+    return prefix;
+}
+
+// Query range sum from index i to j (inclusive)
+int rangeSum(const vector&lt;int&gt;& prefix, int i, int j) {
+    // If starting from index 0, prefix[j] is the answer
+    if (i == 0) {
+        return prefix[j];
+    }
+    // Otherwise, subtract prefix[i-1] to exclude elements before i
+    return prefix[j] - prefix[i-1];
+}
+
+// Example usage
+int main() {
+    vector&lt;int&gt; arr = {1, 2, 3, 4, 5};
+    vector&lt;int&gt; prefix = buildPrefixSum(arr);
+    
+    cout << "Prefix array: ";
+    for (int val : prefix) {
+        cout << val << " ";
+    }
+    cout << endl;
+    
+    cout << "Sum from index 1 to 3: " << rangeSum(prefix, 1, 3) << endl;
+    // Output: 9
+    
+    return 0;
+}</code></pre>
+                
+                <h3>Detailed Explanation of C++ Implementation</h3>
+                <ul>
+                    <li><strong>buildPrefixSum:</strong> Creates a prefix array where each element stores the cumulative sum up to that index. We start with prefix[0] = arr[0], then for each subsequent index i, we add arr[i] to the previous prefix sum.</li>
+                    <li><strong>rangeSum:</strong> To get the sum from index i to j, we use prefix[j] - prefix[i-1]. This works because prefix[j] contains the sum of all elements from 0 to j, and prefix[i-1] contains the sum from 0 to i-1. Subtracting them gives us the sum from i to j.</li>
+                    <li><strong>Edge Case:</strong> When i = 0, we simply return prefix[j] since there are no elements before index 0 to subtract.</li>
+                </ul>
+            </article>
+        </section>
+
+        <section id="problems" class="mb-12">
+            <div class="max-w-7xl mx-auto">
+                <h2 class="section-title text-center">Practice Problems</h2>
+                
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 1: Range Sum Query - Immutable (LeetCode #303)</h3>
+                    <p class="mb-4">Design a data structure that supports range sum queries on an immutable array.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [-2, 0, 3, -5, 2, -1]
+sumRange(0, 2) -> 1
+sumRange(2, 5) -> -1
+sumRange(0, 5) -> -3</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
+                    <div id="sol1" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+class NumArray {
+private:
+    vector&lt;int&gt; prefix;
+    
+public:
+    NumArray(vector&lt;int&gt;& nums) {
+        prefix.push_back(0);  // prefix[0] = 0 for easier calculation
+        for (int num : nums) {
+            // Each prefix[i+1] = sum of elements from 0 to i
+            prefix.push_back(prefix.back() + num);
+        }
+    }
+    
+    int sumRange(int left, int right) {
+        // prefix[right+1] contains sum from 0 to right
+        // prefix[left] contains sum from 0 to left-1
+        // Subtracting gives sum from left to right
+        return prefix[right + 1] - prefix[left];
+    }
+};</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [-2, 0, 3, -5, 2, -1]</p>
+                            <p><strong>Building prefix array:</strong></p>
+                            <p>prefix[0] = 0 (initial)</p>
+                            <p>prefix[1] = 0 + (-2) = -2</p>
+                            <p>prefix[2] = -2 + 0 = -2</p>
+                            <p>prefix[3] = -2 + 3 = 1</p>
+                            <p>prefix[4] = 1 + (-5) = -4</p>
+                            <p>prefix[5] = -4 + 2 = -2</p>
+                            <p>prefix[6] = -2 + (-1) = -3</p>
+                            <p style="margin-top: 1rem;"><strong>Query sumRange(0, 2):</strong></p>
+                            <p>prefix[3] - prefix[0] = 1 - 0 = 1 ✓</p>
+                            <p style="margin-top: 1rem;"><strong>Query sumRange(2, 5):</strong></p>
+                            <p>prefix[6] - prefix[2] = -3 - (-2) = -1 ✓</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We build a prefix sum array where prefix[i] represents the sum of elements from index 0 to i-1. This allows us to calculate any range sum in O(1) time. The key insight is that sumRange(left, right) = prefix[right+1] - prefix[left], where prefix[0] = 0 to handle the edge case. By storing prefix[0] = 0, we can use the same formula for all queries without special cases.</p>
+                        <p><strong>Time Complexity:</strong> O(n) for initialization, O(1) per query</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 2: Contiguous Array (LeetCode #525)</h3>
+                    <p class="mb-4">Given a binary array, find the maximum length of a contiguous subarray with equal number of 0 and 1.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: [0,1,0]
+Output: 2
+Explanation: [0, 1] or [1, 0] is the longest contiguous subarray with equal number of 0 and 1.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
+                    <div id="sol2" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;unordered_map&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int findMaxLength(vector&lt;int&gt;& nums) {
+    int count = 0;
+    int max_length = 0;
+    unordered_map&lt;int, int&gt; count_map;
+    count_map[0] = -1;  // Initialize: count 0 at index -1
+    
+    for (int i = 0; i < nums.size(); i++) {
+        // Treat 1 as +1, 0 as -1
+        count += (nums[i] == 1) ? 1 : -1;
+        
+        // If we've seen this count before, we found a balanced subarray
+        if (count_map.find(count) != count_map.end()) {
+            // Length = current index - first occurrence index
+            max_length = max(max_length, i - count_map[count]);
+        } else {
+            // Store first occurrence of this count
+            count_map[count] = i;
+        }
+    }
+    
+    return max_length;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [0, 1, 0]</p>
+                            <p><strong>count_map initialized:</strong> {0: -1}</p>
+                            <p style="margin-top: 0.5rem;"><strong>i=0, nums[0]=0:</strong> count = -1</p>
+                            <p style="margin-left: 2rem;">count_map[-1] not found, store: {0: -1, -1: 0}</p>
+                            <p style="margin-top: 0.5rem;"><strong>i=1, nums[1]=1:</strong> count = -1 + 1 = 0</p>
+                            <p style="margin-left: 2rem;">count_map[0] = -1 found! length = 1 - (-1) = 2</p>
+                            <p style="margin-left: 2rem;">max_length = max(0, 2) = 2</p>
+                            <p style="margin-top: 0.5rem;"><strong>i=2, nums[2]=0:</strong> count = 0 - 1 = -1</p>
+                            <p style="margin-left: 2rem;">count_map[-1] = 0 found! length = 2 - 0 = 2</p>
+                            <p style="margin-left: 2rem;">max_length = max(2, 2) = 2</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 2</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We use a prefix sum approach where we treat 1 as +1 and 0 as -1. When the count (prefix sum) repeats, it means we've found a subarray with equal 0s and 1s. We track the first occurrence of each count in a hash map. The length of the subarray is the difference between the current index and the first occurrence index. The key insight is that if count at index i equals count at index j, then the subarray from j+1 to i has equal 0s and 1s (net count = 0).</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 3: Subarray Sum Equals K (LeetCode #560)</h3>
+                    <p class="mb-4">Given an array of integers and an integer k, find the total number of continuous subarrays whose sum equals k.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [1,1,1], k = 2
+Output: 2</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
+                    <div id="sol3" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;unordered_map&gt;
+using namespace std;
+
+int subarraySum(vector&lt;int&gt;& nums, int k) {
+    int count = 0;
+    int prefix_sum = 0;
+    unordered_map&lt;int, int&gt; sum_map;
+    sum_map[0] = 1;  // prefix sum 0 appears once initially
+    
+    for (int num : nums) {
+        prefix_sum += num;
+        
+        // If prefix_sum - k exists, we found subarray(s) with sum k
+        // prefix_sum - (prefix_sum - k) = k
+        if (sum_map.find(prefix_sum - k) != sum_map.end()) {
+            count += sum_map[prefix_sum - k];
+        }
+        
+        // Update frequency of current prefix sum
+        sum_map[prefix_sum]++;
+    }
+    
+    return count;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [1, 1, 1], k = 2</p>
+                            <p><strong>sum_map initialized:</strong> {0: 1}</p>
+                            <p style="margin-top: 0.5rem;"><strong>i=0, num=1:</strong> prefix_sum = 1</p>
+                            <p style="margin-left: 2rem;">Check: prefix_sum - k = 1 - 2 = -1 (not in map)</p>
+                            <p style="margin-left: 2rem;">sum_map = {0: 1, 1: 1}</p>
+                            <p style="margin-top: 0.5rem;"><strong>i=1, num=1:</strong> prefix_sum = 2</p>
+                            <p style="margin-left: 2rem;">Check: prefix_sum - k = 2 - 2 = 0 (found! count += 1)</p>
+                            <p style="margin-left: 2rem;">count = 1, sum_map = {0: 1, 1: 1, 2: 1}</p>
+                            <p style="margin-top: 0.5rem;"><strong>i=2, num=1:</strong> prefix_sum = 3</p>
+                            <p style="margin-left: 2rem;">Check: prefix_sum - k = 3 - 2 = 1 (found! count += 1)</p>
+                            <p style="margin-left: 2rem;">count = 2, sum_map = {0: 1, 1: 1, 2: 1, 3: 1}</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 2</p>
+                            <p style="margin-top: 0.5rem;"><strong>Subarrays found:</strong> [1,1] (indices 0-1) and [1,1] (indices 1-2)</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We use prefix sums and a hash map. For each prefix sum, we check if prefix_sum - k exists in our map. If it does, it means there's a subarray ending at the current position with sum k. The key insight is: if prefix_sum[j] - prefix_sum[i] = k, then the subarray from i+1 to j has sum k. We count frequencies because multiple subarrays can have the same prefix sum difference.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 4: Maximum Size Subarray Sum Equals k</h3>
+                    <p class="mb-4">Given an array nums and a target value k, find the maximum length of a subarray that sums to k. If there isn't one, return 0 instead.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [1, -1, 5, -2, 3], k = 3
+Output: 4
+Explanation: The subarray [1, -1, 5, -2] sums to 3 and is the longest.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol4')">Show Solution</button>
+                    <div id="sol4" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;unordered_map&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int maxSubArrayLen(vector&lt;int&gt;& nums, int k) {
+    int prefix_sum = 0;
+    int max_length = 0;
+    unordered_map&lt;int, int&gt; sum_map;
+    sum_map[0] = -1;  // prefix sum 0 at index -1
+    
+    for (int i = 0; i < nums.size(); i++) {
+        prefix_sum += nums[i];
+        
+        // If prefix_sum - k exists, calculate length
+        if (sum_map.find(prefix_sum - k) != sum_map.end()) {
+            // Length = current index - earliest index with prefix_sum - k
+            max_length = max(max_length, i - sum_map[prefix_sum - k]);
+        }
+        
+        // Store the earliest index for each prefix sum
+        if (sum_map.find(prefix_sum) == sum_map.end()) {
+            sum_map[prefix_sum] = i;
+        }
+    }
+    
+    return max_length;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [1, -1, 5, -2, 3], k = 3</p>
+                            <p><strong>sum_map initialized:</strong> {0: -1}</p>
+                            <p style="margin-top: 0.5rem;"><strong>i=0, num=1:</strong> prefix_sum = 1</p>
+                            <p style="margin-left: 2rem;">Check: prefix_sum - k = 1 - 3 = -2 (not found)</p>
+                            <p style="margin-left: 2rem;">Store: sum_map = {0: -1, 1: 0}</p>
+                            <p style="margin-top: 0.5rem;"><strong>i=1, num=-1:</strong> prefix_sum = 0</p>
+                            <p style="margin-left: 2rem;">Check: prefix_sum - k = 0 - 3 = -3 (not found)</p>
+                            <p style="margin-left: 2rem;">0 already in map, don't update</p>
+                            <p style="margin-top: 0.5rem;"><strong>i=2, num=5:</strong> prefix_sum = 5</p>
+                            <p style="margin-left: 2rem;">Check: prefix_sum - k = 5 - 3 = 2 (not found)</p>
+                            <p style="margin-left: 2rem;">Store: sum_map = {0: -1, 1: 0, 5: 2}</p>
+                            <p style="margin-top: 0.5rem;"><strong>i=3, num=-2:</strong> prefix_sum = 3</p>
+                            <p style="margin-left: 2rem;">Check: prefix_sum - k = 3 - 3 = 0 (found! length = 3 - (-1) = 4)</p>
+                            <p style="margin-left: 2rem;">max_length = 4</p>
+                            <p style="margin-top: 0.5rem;"><strong>i=4, num=3:</strong> prefix_sum = 6</p>
+                            <p style="margin-left: 2rem;">Check: prefix_sum - k = 6 - 3 = 3 (not found)</p>
+                            <p style="margin-left: 2rem;">Store: sum_map = {0: -1, 1: 0, 5: 2, 3: 3, 6: 4}</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> 4 (subarray [1, -1, 5, -2])</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> Similar to the previous problem, but we track the earliest index where each prefix sum occurs. This ensures we get the maximum length subarray. When we find prefix_sum - k in the map, the subarray from map[prefix_sum - k] + 1 to current index has sum k. We only store the first occurrence of each prefix sum to maximize the subarray length.</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card">
+                    <h3 class="text-xl font-semibold mb-3">Problem 5: Product of Array Except Self (LeetCode #238)</h3>
+                    <p class="mb-4">Given an integer array nums, return an array answer such that answer[i] is equal to the product of all the elements of nums except nums[i]. You must write an algorithm that runs in O(n) time and without using the division operator.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [1,2,3,4]
+Output: [24,12,8,6]</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
+                    <div id="sol5" class="solution-content">
+                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+vector&lt;int&gt; productExceptSelf(vector&lt;int&gt;& nums) {
+    int n = nums.size();
+    vector&lt;int&gt; result(n, 1);
+    
+    // First pass: Calculate left prefix products
+    // result[i] = product of all elements to the left of i
+    for (int i = 1; i < n; i++) {
+        result[i] = result[i-1] * nums[i-1];
+    }
+    
+    // Second pass: Multiply by right prefix products
+    // Accumulate right product on the fly to save space
+    int right_product = 1;
+    for (int i = n - 1; i >= 0; i--) {
+        result[i] *= right_product;
+        right_product *= nums[i];
+    }
+    
+    return result;
+}</code></pre>
+                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
+                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
+                            <p><strong>Input:</strong> nums = [1, 2, 3, 4]</p>
+                            <p style="margin-top: 0.5rem;"><strong>First Pass (Left Products):</strong></p>
+                            <p>result[0] = 1 (no elements to the left)</p>
+                            <p>result[1] = result[0] × nums[0] = 1 × 1 = 1</p>
+                            <p>result[2] = result[1] × nums[1] = 1 × 2 = 2</p>
+                            <p>result[3] = result[2] × nums[2] = 2 × 3 = 6</p>
+                            <p style="margin-left: 2rem;">After first pass: result = [1, 1, 2, 6]</p>
+                            <p style="margin-top: 0.5rem;"><strong>Second Pass (Right Products):</strong></p>
+                            <p>right_product = 1</p>
+                            <p>i=3: result[3] = 6 × 1 = 6, right_product = 1 × 4 = 4</p>
+                            <p>i=2: result[2] = 2 × 4 = 8, right_product = 4 × 3 = 12</p>
+                            <p>i=1: result[1] = 1 × 12 = 12, right_product = 12 × 2 = 24</p>
+                            <p>i=0: result[0] = 1 × 24 = 24, right_product = 24 × 1 = 24</p>
+                            <p style="margin-top: 1rem;"><strong>Result:</strong> [24, 12, 8, 6]</p>
+                            <p style="margin-top: 0.5rem;"><strong>Verification:</strong></p>
+                            <p>result[0] = 2×3×4 = 24 ✓</p>
+                            <p>result[1] = 1×3×4 = 12 ✓</p>
+                            <p>result[2] = 1×2×4 = 8 ✓</p>
+                            <p>result[3] = 1×2×3 = 6 ✓</p>
+                        </div>
+                        <p class="mt-4"><strong>Explanation:</strong> We use a variation of prefix products. First pass: result[i] contains the product of all elements to the left. Second pass: we multiply by the product of all elements to the right. This avoids division and handles zeros correctly. The right product is accumulated on the fly to save space. This approach works because: product_except_self[i] = (product of left elements) × (product of right elements).</p>
+                        <p><strong>Time Complexity:</strong> O(n)</p>
+                        <p><strong>Space Complexity:</strong> O(1) excluding output array</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto text-center">
+            <p>&copy; George Meshveliani - CST Department. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            solution.classList.toggle('show');
+            const btn = event.target;
+            btn.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+        }
+    </script>
+</body>
+</html>
