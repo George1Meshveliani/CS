@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arrays, Pointers and Functions - CS Fundamentals</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
+        .toggle-btn:hover { background-color: #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900">Arrays, Pointers and Functions</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="pattern" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Arrays, Pointers and Functions</h1>
+                <p>Understanding <strong>pointers</strong> is fundamental to mastering C++ programming. Pointers provide direct access to memory addresses, enabling efficient manipulation of data structures, function parameters, and dynamic memory allocation. This guide explores how pointers work with arrays and functions, and why they are essential for writing efficient C++ code.</p>
+
+                <h2>What are Pointers?</h2>
+                <p>A <strong>pointer</strong> is a variable that stores the memory address of another variable. Instead of holding a value directly, a pointer holds the location where a value is stored in memory.</p>
+                
+                <h3>Basic Pointer Syntax</h3>
+                <pre><code>int x = 10;        // Regular variable
+int* ptr = &x;     // Pointer to x (stores address of x)
+// ptr now contains the memory address where x is stored
+// *ptr dereferences the pointer to access the value (10)</code></pre>
+
+                <h3>Key Pointer Operations</h3>
+                <ul>
+                    <li><code>&</code> (address-of operator): Gets the memory address of a variable</li>
+                    <li><code>*</code> (dereference operator): Accesses the value at the address stored in the pointer</li>
+                    <li><code>ptr</code>: The pointer variable itself (contains an address)</li>
+                    <li><code>*ptr</code>: The value at the address stored in ptr</li>
+                </ul>
+
+                <h2>Why Are Pointers Important?</h2>
+                <ul>
+                    <li><strong>Memory Efficiency:</strong> Pass large data structures by reference instead of copying entire objects</li>
+                    <li><strong>Dynamic Memory Allocation:</strong> Allocate and deallocate memory at runtime using <code>new</code> and <code>delete</code></li>
+                    <li><strong>Array Manipulation:</strong> Efficiently traverse and manipulate arrays</li>
+                    <li><strong>Function Parameters:</strong> Modify variables passed to functions (pass by reference)</li>
+                    <li><strong>Data Structures:</strong> Essential for implementing linked lists, trees, and graphs</li>
+                    <li><strong>Performance:</strong> Avoid expensive copy operations, especially with large objects</li>
+                </ul>
+
+                <h2>Pointers and Arrays</h2>
+                <p>In C++, arrays and pointers are closely related. The name of an array is essentially a pointer to its first element.</p>
+
+                <h3>Array-Pointer Relationship</h3>
+                <pre><code>int arr[5] = {10, 20, 30, 40, 50};
+
+// These are equivalent:
+int* ptr1 = arr;        // Array name is a pointer to first element
+int* ptr2 = &arr[0];    // Explicitly get address of first element
+
+// Array indexing using pointers:
+arr[2]    // Access element at index 2
+*(arr + 2) // Same as arr[2] using pointer arithmetic
+ptr1[2]   // Same as arr[2]
+*(ptr1 + 2) // Same as arr[2]</code></pre>
+
+                <h3>Pointer Arithmetic</h3>
+                <p>When you add an integer to a pointer, it moves forward by that many elements (not bytes). The compiler automatically accounts for the size of the data type.</p>
+                <pre><code>int arr[5] = {10, 20, 30, 40, 50};
+int* ptr = arr;
+
+ptr + 0  // Points to arr[0] (value: 10)
+ptr + 1  // Points to arr[1] (value: 20)
+ptr + 2  // Points to arr[2] (value: 30)
+*(ptr + 2) // Dereferences to get value 30</code></pre>
+
+                <h3>Visual Representation</h3>
+                <div style="background: linear-gradient(135deg, #f8fafc 0%, #e0e7ff 100%); border: 2px solid #6366f1; border-radius: 1rem; padding: 2.5rem; margin: 2rem 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+                    <h4 style="margin-bottom: 2rem; color: #4f46e5; font-weight: 700; font-size: 1.5rem; text-align: center;">Array and Pointer Relationship</h4>
+                    <svg width="100%" height="320" viewBox="0 0 900 320" style="max-width: 900px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                        <defs>
+                            <linearGradient id="arrayGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#2563eb;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="pointerGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+                            </linearGradient>
+                            <filter id="glow">
+                                <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        
+                        <!-- Memory Addresses -->
+                        <text x="50" y="30" font-size="16" font-weight="700" fill="#1e293b">Memory Addresses</text>
+                        <text x="50" y="80" font-size="14" font-weight="600" fill="#64748b">0x1000</text>
+                        <text x="50" y="120" font-size="14" font-weight="600" fill="#64748b">0x1004</text>
+                        <text x="50" y="160" font-size="14" font-weight="600" fill="#64748b">0x1008</text>
+                        <text x="50" y="200" font-size="14" font-weight="600" fill="#64748b">0x100C</text>
+                        <text x="50" y="240" font-size="14" font-weight="600" fill="#64748b">0x1010</text>
+                        
+                        <!-- Array Elements -->
+                        <text x="450" y="30" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Array: int arr[5] = {10, 20, 30, 40, 50}</text>
+                        
+                        <g transform="translate(200, 50)">
+                            <rect x="0" y="0" width="80" height="50" fill="url(#arrayGradient)" stroke="#3b82f6" stroke-width="2.5" rx="6" filter="url(#glow)"/>
+                            <text x="40" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">10</text>
+                            <text x="40" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">arr[0]</text>
+                            
+                            <rect x="100" y="0" width="80" height="50" fill="url(#arrayGradient)" stroke="#3b82f6" stroke-width="2.5" rx="6" filter="url(#glow)"/>
+                            <text x="140" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">20</text>
+                            <text x="140" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">arr[1]</text>
+                            
+                            <rect x="200" y="0" width="80" height="50" fill="url(#arrayGradient)" stroke="#3b82f6" stroke-width="2.5" rx="6" filter="url(#glow)"/>
+                            <text x="240" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">30</text>
+                            <text x="240" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">arr[2]</text>
+                            
+                            <rect x="300" y="0" width="80" height="50" fill="url(#arrayGradient)" stroke="#3b82f6" stroke-width="2.5" rx="6" filter="url(#glow)"/>
+                            <text x="340" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">40</text>
+                            <text x="340" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">arr[3]</text>
+                            
+                            <rect x="400" y="0" width="80" height="50" fill="url(#arrayGradient)" stroke="#3b82f6" stroke-width="2.5" rx="6" filter="url(#glow)"/>
+                            <text x="440" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">50</text>
+                            <text x="440" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#1e40af">arr[4]</text>
+                        </g>
+                        
+                        <!-- Pointer -->
+                        <text x="450" y="160" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Pointer: int* ptr = arr</text>
+                        <g transform="translate(200, 180)">
+                            <rect x="0" y="0" width="120" height="50" fill="url(#pointerGradient)" stroke="#10b981" stroke-width="2.5" rx="6" filter="url(#glow)"/>
+                            <text x="60" y="32" text-anchor="middle" font-size="16" font-weight="700" fill="white">0x1000</text>
+                            <text x="60" y="68" text-anchor="middle" font-size="13" font-weight="600" fill="#065f46">ptr</text>
+                        </g>
+                        
+                        <!-- Arrow from pointer to array -->
+                        <path d="M 260 230 Q 250 250 200 280" stroke="#10b981" stroke-width="3" fill="none" marker-end="url(#arrowhead)" filter="url(#glow)"/>
+                        <text x="150" y="295" font-size="12" font-weight="600" fill="#059669">Points to arr[0]</text>
+                        
+                        <defs>
+                            <marker id="arrowhead" markerWidth="12" markerHeight="12" refX="6" refY="3" orient="auto">
+                                <polygon points="0 0, 12 3, 0 6" fill="#10b981"/>
+                            </marker>
+                        </defs>
+                        
+                        <!-- Pointer Arithmetic Examples -->
+                        <text x="700" y="30" font-size="16" font-weight="700" fill="#1e293b">Pointer Arithmetic</text>
+                        <text x="700" y="60" font-size="14" fill="#64748b">ptr + 0 → arr[0] = 10</text>
+                        <text x="700" y="85" font-size="14" fill="#64748b">ptr + 1 → arr[1] = 20</text>
+                        <text x="700" y="110" font-size="14" fill="#64748b">ptr + 2 → arr[2] = 30</text>
+                        <text x="700" y="135" font-size="14" fill="#64748b">*(ptr + 2) = 30</text>
+                        <text x="700" y="160" font-size="14" fill="#64748b">ptr[2] = 30</text>
+                    </svg>
+                </div>
+
+                <h2>Pointers and Functions</h2>
+                <p>Pointers enable functions to modify variables passed as arguments and efficiently handle arrays and large data structures.</p>
+
+                <h3>Pass by Value vs Pass by Reference</h3>
+                <pre><code>// Pass by Value (creates a copy)
+void incrementByValue(int x) {
+    x++;  // Only modifies the copy
+}
+
+// Pass by Pointer (modifies original)
+void incrementByPointer(int* x) {
+    (*x)++;  // Modifies the original variable
+}
+
+// Pass by Reference (C++ style, cleaner)
+void incrementByReference(int& x) {
+    x++;  // Modifies the original variable
+}
+
+int num = 5;
+incrementByValue(num);      // num is still 5
+incrementByPointer(&num);   // num becomes 6
+incrementByReference(num);  // num becomes 7</code></pre>
+
+                <h3>Passing Arrays to Functions</h3>
+                <p>When you pass an array to a function, you're actually passing a pointer to the first element. Arrays are always passed by reference (pointer).</p>
+                <pre><code>// These function signatures are equivalent:
+void printArray(int arr[], int size);
+void printArray(int* arr, int size);
+
+void printArray(int* arr, int size) {
+    for (int i = 0; i < size; i++) {
+        cout << arr[i] << " ";  // Can use array notation
+        // or
+        cout << *(arr + i) << " ";  // Can use pointer notation
+    }
+}
+
+int numbers[5] = {1, 2, 3, 4, 5};
+printArray(numbers, 5);  // Pass array name (pointer)</code></pre>
+
+                <h3>Returning Pointers from Functions</h3>
+                <pre><code>// Return pointer to dynamically allocated memory
+int* createArray(int size) {
+    int* arr = new int[size];
+    for (int i = 0; i < size; i++) {
+        arr[i] = i * 2;
+    }
+    return arr;  // Return pointer to first element
+}
+
+int* myArray = createArray(10);
+// Use myArray...
+delete[] myArray;  // Don't forget to free memory!</code></pre>
+
+                <h3>Function Pointers</h3>
+                <p>Pointers can also point to functions, enabling dynamic function calls and callbacks.</p>
+                <pre><code>// Function pointer syntax
+int add(int a, int b) { return a + b; }
+int multiply(int a, int b) { return a * b; }
+
+int (*operation)(int, int);  // Function pointer declaration
+
+operation = add;        // Point to add function
+int result1 = operation(5, 3);  // Calls add(5, 3) → 8
+
+operation = multiply;   // Point to multiply function
+int result2 = operation(5, 3);  // Calls multiply(5, 3) → 15</code></pre>
+
+                <h2>Common Pointer Pitfalls</h2>
+                <ul>
+                    <li><strong>Dangling Pointers:</strong> Pointers that reference memory that has been freed</li>
+                    <li><strong>Memory Leaks:</strong> Forgetting to free dynamically allocated memory</li>
+                    <li><strong>Null Pointer Dereference:</strong> Accessing memory through a null pointer</li>
+                    <li><strong>Uninitialized Pointers:</strong> Using pointers before assigning them a valid address</li>
+                    <li><strong>Array Bounds:</strong> Accessing array elements outside valid range</li>
+                </ul>
+
+                <h2>Best Practices</h2>
+                <ul>
+                    <li>Always initialize pointers (use <code>nullptr</code> if not immediately assigned)</li>
+                    <li>Check for null pointers before dereferencing</li>
+                    <li>Use smart pointers (<code>unique_ptr</code>, <code>shared_ptr</code>) in modern C++</li>
+                    <li>Match every <code>new</code> with a <code>delete</code>, and <code>new[]</code> with <code>delete[]</code></li>
+                    <li>Prefer references over pointers when you don't need nullability or reassignment</li>
+                    <li>Use const pointers when you don't need to modify the pointed-to value</li>
+                </ul>
+            </article>
+        </section>
+
+        <section id="algorithm" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h2 class="section-title">Algorithm Examples</h2>
+
+                <h3>Example 1: Swapping Two Variables Using Pointers</h3>
+                <pre><code>void swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+int main() {
+    int x = 10, y = 20;
+    cout << "Before: x = " << x << ", y = " << y << endl;
+    swap(&x, &y);  // Pass addresses
+    cout << "After: x = " << x << ", y = " << y << endl;
+    return 0;
+}
+// Output:
+// Before: x = 10, y = 20
+// After: x = 20, y = 10</code></pre>
+
+                <h3>Example 2: Finding Maximum Element in Array</h3>
+                <pre><code>int findMax(int* arr, int size) {
+    if (size == 0) return -1;
+    
+    int max = arr[0];
+    for (int i = 1; i < size; i++) {
+        if (arr[i] > max) {
+            max = arr[i];
+        }
+    }
+    return max;
+}
+
+int main() {
+    int numbers[] = {3, 7, 2, 9, 1, 5};
+    int max = findMax(numbers, 6);
+    cout << "Maximum: " << max << endl;  // Output: 9
+    return 0;
+}</code></pre>
+
+                <h3>Example 3: Reversing an Array Using Pointers</h3>
+                <pre><code>void reverseArray(int* arr, int size) {
+    int* start = arr;
+    int* end = arr + size - 1;
+    
+    while (start < end) {
+        // Swap elements at start and end
+        int temp = *start;
+        *start = *end;
+        *end = temp;
+        
+        start++;
+        end--;
+    }
+}
+
+int main() {
+    int arr[] = {1, 2, 3, 4, 5};
+    reverseArray(arr, 5);
+    // arr is now {5, 4, 3, 2, 1}
+    return 0;
+}</code></pre>
+
+                <h3>Example 4: Dynamic Memory Allocation</h3>
+                <pre><code>int* createDynamicArray(int size) {
+    int* arr = new int[size];
+    
+    // Initialize array
+    for (int i = 0; i < size; i++) {
+        arr[i] = i * i;
+    }
+    
+    return arr;
+}
+
+int main() {
+    int size = 5;
+    int* dynamicArray = createDynamicArray(size);
+    
+    // Use the array
+    for (int i = 0; i < size; i++) {
+        cout << dynamicArray[i] << " ";
+    }
+    // Output: 0 1 4 9 16
+    
+    // Free the memory
+    delete[] dynamicArray;
+    return 0;
+}</code></pre>
+            </article>
+        </section>
+
+        <section id="problems" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h2 class="section-title">LeetCode Problems</h2>
+
+                <!-- Problem 1: Easy -->
+                <div class="problem-card">
+                    <h3>Problem 1: Two Sum (Easy)</h3>
+                    <p><strong>Description:</strong> Given an array of integers <code>nums</code> and an integer <code>target</code>, return indices of the two numbers such that they add up to <code>target</code>. You may assume that each input would have exactly one solution, and you may not use the same element twice.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [2,7,11,15], target = 9
+Output: [0,1]
+Explanation: Because nums[0] + nums[1] == 9, we return [0, 1].</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
+                    <div id="sol1" class="solution-content">
+                        <h4>Solution:</h4>
+                        <p><strong>Approach:</strong> Use a hash map to store each number and its index. For each number, check if the complement (target - current number) exists in the map.</p>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;unordered_map&gt;
+using namespace std;
+
+vector&lt;int&gt; twoSum(vector&lt;int&gt;& nums, int target) {
+    unordered_map&lt;int, int&gt; map;
+    
+    for (int i = 0; i < nums.size(); i++) {
+        int complement = target - nums[i];
+        
+        if (map.find(complement) != map.end()) {
+            return {map[complement], i};
+        }
+        
+        map[nums[i]] = i;
+    }
+    
+    return {};  // No solution found
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(n) - Single pass through the array</p>
+                        <p><strong>Space Complexity:</strong> O(n) - Hash map storage</p>
+                    </div>
+                </div>
+
+                <!-- Problem 2: Easy -->
+                <div class="problem-card">
+                    <h3>Problem 2: Remove Duplicates from Sorted Array (Easy)</h3>
+                    <p><strong>Description:</strong> Given an integer array <code>nums</code> sorted in non-decreasing order, remove the duplicates in-place such that each unique element appears only once. The relative order of the elements should be kept the same. Return <code>k</code> after placing the final result in the first <code>k</code> slots of <code>nums</code>.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [1,1,2]
+Output: 2, nums = [1,2,_]
+Explanation: Your function should return k = 2, with the first two elements of nums being 1 and 2 respectively.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
+                    <div id="sol2" class="solution-content">
+                        <h4>Solution:</h4>
+                        <p><strong>Approach:</strong> Use two pointers - one to track the position of unique elements and another to iterate through the array.</p>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int removeDuplicates(vector&lt;int&gt;& nums) {
+    if (nums.empty()) return 0;
+    
+    int writeIndex = 1;  // Pointer for writing unique elements
+    
+    for (int readIndex = 1; readIndex < nums.size(); readIndex++) {
+        if (nums[readIndex] != nums[readIndex - 1]) {
+            nums[writeIndex] = nums[readIndex];
+            writeIndex++;
+        }
+    }
+    
+    return writeIndex;
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(n) - Single pass through the array</p>
+                        <p><strong>Space Complexity:</strong> O(1) - In-place modification</p>
+                    </div>
+                </div>
+
+                <!-- Problem 3: Easy -->
+                <div class="problem-card">
+                    <h3>Problem 3: Best Time to Buy and Sell Stock (Easy)</h3>
+                    <p><strong>Description:</strong> You are given an array <code>prices</code> where <code>prices[i]</code> is the price of a given stock on the <code>i</code>-th day. You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock. Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return <code>0</code>.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: prices = [7,1,5,3,6,4]
+Output: 5
+Explanation: Buy on day 2 (price = 1) and sell on day 5 (price = 6), profit = 6-1 = 5.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
+                    <div id="sol3" class="solution-content">
+                        <h4>Solution:</h4>
+                        <p><strong>Approach:</strong> Track the minimum price seen so far and calculate the maximum profit at each day.</p>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int maxProfit(vector&lt;int&gt;& prices) {
+    int minPrice = prices[0];
+    int maxProfit = 0;
+    
+    for (int i = 1; i < prices.size(); i++) {
+        // Update minimum price seen so far
+        minPrice = min(minPrice, prices[i]);
+        
+        // Calculate profit if we sell today
+        int profit = prices[i] - minPrice;
+        maxProfit = max(maxProfit, profit);
+    }
+    
+    return maxProfit;
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(n) - Single pass through the array</p>
+                        <p><strong>Space Complexity:</strong> O(1) - Constant space</p>
+                    </div>
+                </div>
+
+                <!-- Problem 4: Easy -->
+                <div class="problem-card">
+                    <h3>Problem 4: Contains Duplicate (Easy)</h3>
+                    <p><strong>Description:</strong> Given an integer array <code>nums</code>, return <code>true</code> if any value appears at least twice in the array, and return <code>false</code> if every element is distinct.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [1,2,3,1]
+Output: true
+
+Input: nums = [1,2,3,4]
+Output: false</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol4')">Show Solution</button>
+                    <div id="sol4" class="solution-content">
+                        <h4>Solution:</h4>
+                        <p><strong>Approach:</strong> Use a hash set to track seen elements. If we encounter an element that's already in the set, return true.</p>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;unordered_set&gt;
+using namespace std;
+
+bool containsDuplicate(vector&lt;int&gt;& nums) {
+    unordered_set&lt;int&gt; seen;
+    
+    for (int num : nums) {
+        if (seen.find(num) != seen.end()) {
+            return true;
+        }
+        seen.insert(num);
+    }
+    
+    return false;
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(n) - Single pass through the array</p>
+                        <p><strong>Space Complexity:</strong> O(n) - Hash set storage</p>
+                    </div>
+                </div>
+
+                <!-- Problem 5: Easy -->
+                <div class="problem-card">
+                    <h3>Problem 5: Maximum Subarray (Easy)</h3>
+                    <p><strong>Description:</strong> Given an integer array <code>nums</code>, find the contiguous subarray (containing at least one number) which has the largest sum and return its sum. A subarray is a contiguous part of an array.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
+Output: 6
+Explanation: [4,-1,2,1] has the largest sum = 6.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
+                    <div id="sol5" class="solution-content">
+                        <h4>Solution (Kadane's Algorithm):</h4>
+                        <p><strong>Approach:</strong> Use dynamic programming. At each position, decide whether to extend the previous subarray or start a new one.</p>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int maxSubArray(vector&lt;int&gt;& nums) {
+    int maxSum = nums[0];
+    int currentSum = nums[0];
+    
+    for (int i = 1; i < nums.size(); i++) {
+        // Either extend the previous subarray or start new
+        currentSum = max(nums[i], currentSum + nums[i]);
+        maxSum = max(maxSum, currentSum);
+    }
+    
+    return maxSum;
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(n) - Single pass through the array</p>
+                        <p><strong>Space Complexity:</strong> O(1) - Constant space</p>
+                        <p><strong>Step-by-Step Simulation:</strong></p>
+                        <p>For nums = [-2,1,-3,4,-1,2,1,-5,4]:</p>
+                        <ul>
+                            <li>i=0: currentSum = -2, maxSum = -2</li>
+                            <li>i=1: currentSum = max(1, -2+1) = 1, maxSum = 1</li>
+                            <li>i=2: currentSum = max(-3, 1-3) = -2, maxSum = 1</li>
+                            <li>i=3: currentSum = max(4, -2+4) = 4, maxSum = 4</li>
+                            <li>i=4: currentSum = max(-1, 4-1) = 3, maxSum = 4</li>
+                            <li>i=5: currentSum = max(2, 3+2) = 5, maxSum = 5</li>
+                            <li>i=6: currentSum = max(1, 5+1) = 6, maxSum = 6</li>
+                            <li>i=7: currentSum = max(-5, 6-5) = 1, maxSum = 6</li>
+                            <li>i=8: currentSum = max(4, 1+4) = 5, maxSum = 6</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Problem 6: Medium -->
+                <div class="problem-card">
+                    <h3>Problem 6: Product of Array Except Self (Medium)</h3>
+                    <p><strong>Description:</strong> Given an integer array <code>nums</code>, return an array <code>answer</code> such that <code>answer[i]</code> is equal to the product of all the elements of <code>nums</code> except <code>nums[i]</code>. The product of any prefix or suffix of <code>nums</code> is guaranteed to fit in a 32-bit integer. You must write an algorithm that runs in O(n) time and without using the division operator.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [1,2,3,4]
+Output: [24,12,8,6]
+
+Input: nums = [-1,1,0,-3,3]
+Output: [0,0,9,0,0]</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol6')">Show Solution</button>
+                    <div id="sol6" class="solution-content">
+                        <h4>Solution:</h4>
+                        <p><strong>Approach:</strong> Use two passes - first pass calculates left products, second pass calculates right products and multiplies them together.</p>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+vector&lt;int&gt; productExceptSelf(vector&lt;int&gt;& nums) {
+    int n = nums.size();
+    vector&lt;int&gt; result(n, 1);
+    
+    // First pass: Calculate left products
+    int leftProduct = 1;
+    for (int i = 0; i < n; i++) {
+        result[i] = leftProduct;
+        leftProduct *= nums[i];
+    }
+    
+    // Second pass: Multiply by right products
+    int rightProduct = 1;
+    for (int i = n - 1; i >= 0; i--) {
+        result[i] *= rightProduct;
+        rightProduct *= nums[i];
+    }
+    
+    return result;
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(n) - Two passes through the array</p>
+                        <p><strong>Space Complexity:</strong> O(1) - Excluding the output array</p>
+                        <p><strong>Step-by-Step Simulation:</strong></p>
+                        <p>For nums = [1,2,3,4]:</p>
+                        <p><strong>First Pass (Left Products):</strong></p>
+                        <ul>
+                            <li>i=0: result[0] = 1, leftProduct = 1</li>
+                            <li>i=1: result[1] = 1, leftProduct = 2</li>
+                            <li>i=2: result[2] = 2, leftProduct = 6</li>
+                            <li>i=3: result[3] = 6, leftProduct = 24</li>
+                        </ul>
+                        <p>After first pass: result = [1, 1, 2, 6]</p>
+                        <p><strong>Second Pass (Right Products):</strong></p>
+                        <ul>
+                            <li>i=3: result[3] = 6*1 = 6, rightProduct = 4</li>
+                            <li>i=2: result[2] = 2*4 = 8, rightProduct = 12</li>
+                            <li>i=1: result[1] = 1*12 = 12, rightProduct = 24</li>
+                            <li>i=0: result[0] = 1*24 = 24, rightProduct = 24</li>
+                        </ul>
+                        <p>Final result: [24, 12, 8, 6]</p>
+                    </div>
+                </div>
+
+                <!-- Problem 7: Medium -->
+                <div class="problem-card">
+                    <h3>Problem 7: 3Sum (Medium)</h3>
+                    <p><strong>Description:</strong> Given an integer array <code>nums</code>, return all the triplets <code>[nums[i], nums[j], nums[k]]</code> such that <code>i != j</code>, <code>i != k</code>, and <code>j != k</code>, and <code>nums[i] + nums[j] + nums[k] == 0</code>. Notice that the solution set must not contain duplicate triplets.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [-1,0,1,2,-1,-4]
+Output: [[-1,-1,2],[-1,0,1]]
+
+Input: nums = [0,1,1]
+Output: []</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol7')">Show Solution</button>
+                    <div id="sol7" class="solution-content">
+                        <h4>Solution:</h4>
+                        <p><strong>Approach:</strong> Sort the array first, then use two pointers technique. For each element, use two pointers to find pairs that sum to the negative of that element.</p>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+vector&lt;vector&lt;int&gt;&gt; threeSum(vector&lt;int&gt;& nums) {
+    vector&lt;vector&lt;int&gt;&gt; result;
+    int n = nums.size();
+    
+    if (n < 3) return result;
+    
+    sort(nums.begin(), nums.end());
+    
+    for (int i = 0; i < n - 2; i++) {
+        // Skip duplicates for the first element
+        if (i > 0 && nums[i] == nums[i - 1]) continue;
+        
+        int left = i + 1;
+        int right = n - 1;
+        int target = -nums[i];
+        
+        while (left < right) {
+            int sum = nums[left] + nums[right];
+            
+            if (sum == target) {
+                result.push_back({nums[i], nums[left], nums[right]});
+                
+                // Skip duplicates
+                while (left < right && nums[left] == nums[left + 1]) left++;
+                while (left < right && nums[right] == nums[right - 1]) right--;
+                
+                left++;
+                right--;
+            } else if (sum < target) {
+                left++;
+            } else {
+                right--;
+            }
+        }
+    }
+    
+    return result;
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(n²) - Sorting takes O(n log n), and for each element we do a two-pointer scan</p>
+                        <p><strong>Space Complexity:</strong> O(1) - Excluding the output array</p>
+                        <p><strong>Step-by-Step Simulation:</strong></p>
+                        <p>For nums = [-1,0,1,2,-1,-4] (sorted: [-4,-1,-1,0,1,2]):</p>
+                        <ul>
+                            <li>i=0, nums[i]=-4: left=1, right=5, target=4, sum=(-1)+2=1 < 4, left++</li>
+                            <li>i=0, nums[i]=-4: left=2, right=5, target=4, sum=(-1)+2=1 < 4, left++</li>
+                            <li>i=0, nums[i]=-4: left=3, right=5, target=4, sum=0+2=2 < 4, left++</li>
+                            <li>i=0, nums[i]=-4: left=4, right=5, target=4, sum=1+2=3 < 4, left++</li>
+                            <li>i=1, nums[i]=-1: left=2, right=5, target=1, sum=(-1)+2=1 == 1, found [-1,-1,2]</li>
+                            <li>i=1, nums[i]=-1: left=3, right=4, target=1, sum=0+1=1 == 1, found [-1,0,1]</li>
+                            <li>i=2, nums[i]=-1: Skip (duplicate of i=1)</li>
+                            <li>Continue...</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Problem 8: Medium -->
+                <div class="problem-card">
+                    <h3>Problem 8: Container With Most Water (Medium)</h3>
+                    <p><strong>Description:</strong> You are given an integer array <code>height</code> of length <code>n</code>. There are <code>n</code> vertical lines drawn such that the two endpoints of the <code>i</code>-th line are <code>(i, 0)</code> and <code>(i, height[i])</code>. Find two lines that together with the x-axis form a container, such that the container contains the most water. Return the maximum amount of water a container can store.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: height = [1,8,6,2,5,4,8,3,7]
+Output: 49
+Explanation: The above vertical lines are represented by array [1,8,6,2,5,4,8,3,7]. In this case, the max area of water the container can contain is 49.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol8')">Show Solution</button>
+                    <div id="sol8" class="solution-content">
+                        <h4>Solution:</h4>
+                        <p><strong>Approach:</strong> Use two pointers starting from both ends. The area is determined by the shorter line and the distance between lines. Move the pointer pointing to the shorter line inward, as moving the longer line cannot increase the area.</p>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+int maxArea(vector&lt;int&gt;& height) {
+    int left = 0;
+    int right = height.size() - 1;
+    int maxWater = 0;
+    
+    while (left < right) {
+        // Calculate current area
+        int width = right - left;
+        int currentArea = min(height[left], height[right]) * width;
+        maxWater = max(maxWater, currentArea);
+        
+        // Move the pointer with smaller height
+        if (height[left] < height[right]) {
+            left++;
+        } else {
+            right--;
+        }
+    }
+    
+    return maxWater;
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(n) - Single pass with two pointers</p>
+                        <p><strong>Space Complexity:</strong> O(1) - Constant space</p>
+                        <p><strong>Step-by-Step Simulation:</strong></p>
+                        <p>For height = [1,8,6,2,5,4,8,3,7]:</p>
+                        <ul>
+                            <li>left=0 (h=1), right=8 (h=7): area = min(1,7)*8 = 8, maxWater = 8, left++</li>
+                            <li>left=1 (h=8), right=8 (h=7): area = min(8,7)*7 = 49, maxWater = 49, right--</li>
+                            <li>left=1 (h=8), right=7 (h=3): area = min(8,3)*6 = 18, maxWater = 49, right--</li>
+                            <li>left=1 (h=8), right=6 (h=8): area = min(8,8)*5 = 40, maxWater = 49, left++</li>
+                            <li>Continue until left >= right...</li>
+                        </ul>
+                        <p><strong>Why this works:</strong> The area is limited by the shorter line. If we move the pointer with the longer line, the width decreases and the height can't increase (it's still limited by the shorter line), so the area can only decrease. Therefore, we should always move the pointer with the shorter line.</p>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            const button = solution.previousElementSibling;
+            
+            if (solution.classList.contains('show')) {
+                solution.classList.remove('show');
+                button.textContent = 'Show Solution';
+            } else {
+                solution.classList.add('show');
+                button.textContent = 'Hide Solution';
+            }
+        }
+    </script>
+</body>
+</html>

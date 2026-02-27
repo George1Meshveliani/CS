@@ -3,6 +3,7 @@
 ## Introduction
 - [`Introduction. Overview of Computer Science and Computer Organization`](https://george1meshveliani.github.io/CS/Introduction)
 - [`Arrays, Structs and Sorting`](https://george1meshveliani.github.io/CS/ArraysStructsSorting)
+- [`Arrays, Pointers and Functions`](https://george1meshveliani.github.io/CS/ArraysPointersFunctions)
 
 ## Algorithm Patterns
 
