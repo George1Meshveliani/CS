@@ -79,8 +79,23 @@
                 </ol>
 
                 <h3>Visual Representation</h3>
+                
+                <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 1rem; padding: 2rem; margin: 2rem 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
+                    <h4 style="margin-bottom: 1rem; color: #0369a1; font-weight: 700; font-size: 1.5rem; text-align: center;">Binary Search Animation</h4>
+                    <p style="text-align: center; color: #0c4a6e; margin-bottom: 1.5rem; font-size: 1rem;">Watch how binary search narrows down the search space step by step:</p>
+                    <div style="text-align: center; margin: 1.5rem 0;">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/8/83/Binary-search-work.gif" 
+                             alt="Binary Search Animation" 
+                             style="max-width: 100%; height: auto; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);"
+                             title="Binary Search Algorithm Animation - Source: Wikipedia">
+                    </div>
+                    <p style="text-align: center; color: #64748b; font-size: 0.875rem; margin-top: 1rem;">
+                        <em>Animation showing binary search finding target value 7 in a sorted array. Source: <a href="https://en.wikipedia.org/wiki/Binary_search#/media/File:Binary-search-work.gif" target="_blank" style="color: #0369a1;">Wikipedia - Binary Search</a></em>
+                    </p>
+                </div>
+
                 <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 2px solid #3b82f6; border-radius: 1rem; padding: 2.5rem; margin: 2rem 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
-                    <h4 style="margin-bottom: 2rem; color: #1e40af; font-weight: 700; font-size: 1.5rem; text-align: center;">Binary Search - Narrowing Search Space</h4>
+                    <h4 style="margin-bottom: 2rem; color: #1e40af; font-weight: 700; font-size: 1.5rem; text-align: center;">Binary Search - Detailed Visualization</h4>
                     <svg width="100%" height="420" viewBox="0 0 1000 420" style="max-width: 1000px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
                         <defs>
                             <linearGradient id="foundGradient" x1="0%" y1="0%" x2="0%" y2="100%">
@@ -233,6 +248,178 @@ int binarySearch(vector&lt;int&gt;& nums, int target) {
 
                 <h3>5. Finding Boundaries</h3>
                 <p>Binary search can find the first or last occurrence of an element, insertion points, or boundaries in sorted data - essential for many algorithms.</p>
+
+                <h2>Advanced Mathematical Theory</h2>
+                <p>This section provides a rigorous mathematical treatment of binary search, including formal algorithm descriptions, performance analysis, and complexity derivations. Reference: <a href="https://en.wikipedia.org/wiki/Binary_search" target="_blank">Wikipedia - Binary Search</a></p>
+
+                <h3>Formal Algorithm Description</h3>
+                <p>Given a sorted array \(A\) of \(n\) elements with values \(A_0, A_1, A_2, \ldots, A_{n-1}\) such that \(A_0 \leq A_1 \leq A_2 \leq \cdots \leq A_{n-1}\), and a target value \(T\), the binary search algorithm finds the index of \(T\) in \(A\) using the following procedure:</p>
+                
+                <div style="background-color: #f8fafc; border-left: 4px solid #3b82f6; padding: 1.5rem; margin: 1.5rem 0; border-radius: 0.5rem;">
+                    <ol style="margin: 0; padding-left: 1.5rem;">
+                        <li>Set \(L = 0\) and \(R = n - 1\)</li>
+                        <li>If \(L > R\), the search terminates as unsuccessful</li>
+                        <li>Set \(m = L + \left\lfloor \frac{R - L}{2} \right\rfloor\) (the position of the middle element)</li>
+                        <li>If \(A_m < T\), set \(L = m + 1\) and go to step 2</li>
+                        <li>If \(A_m > T\), set \(R = m - 1\) and go to step 2</li>
+                        <li>Now \(A_m = T\), the search is done; return \(m\)</li>
+                    </ol>
+                </div>
+
+                <p>The key mathematical property is that at each iteration, we eliminate half of the remaining search space. This gives us the logarithmic time complexity.</p>
+
+                <h3>Time Complexity Analysis</h3>
+                <h4>Worst-Case Analysis</h4>
+                <p>In the worst case, binary search continues until the search space is reduced to a single element. Let \(k\) be the number of iterations required.</p>
+                
+                <p>After each iteration, the search space is halved:</p>
+                <ul>
+                    <li>After iteration 1: at most \(\left\lceil \frac{n}{2} \right\rceil\) elements remain</li>
+                    <li>After iteration 2: at most \(\left\lceil \frac{n}{4} \right\rceil\) elements remain</li>
+                    <li>After iteration \(k\): at most \(\left\lceil \frac{n}{2^k} \right\rceil\) elements remain</li>
+                </ul>
+
+                <p>The algorithm terminates when at most 1 element remains:</p>
+                <p>\[\left\lceil \frac{n}{2^k} \right\rceil \leq 1\]</p>
+                
+                <p>This implies:</p>
+                <p>\[\frac{n}{2^k} \leq 1 \implies n \leq 2^k \implies k \geq \log_2(n)\]</p>
+                
+                <p>Since \(k\) must be an integer, we have:</p>
+                <p>\[k = \left\lceil \log_2(n) \right\rceil\]</p>
+                
+                <p>Therefore, the worst-case time complexity is \(O(\log n)\).</p>
+
+                <h4>Best-Case Analysis</h4>
+                <p>In the best case, the target element is found at the middle position in the first comparison. This gives us \(O(1)\) time complexity.</p>
+
+                <h4>Average-Case Analysis</h4>
+                <p>For successful searches, we need to calculate the expected number of comparisons. Let \(C(n)\) be the average number of comparisons for an array of size \(n\).</p>
+                
+                <p>For a successful search, the target can be at any position with equal probability. The number of comparisons needed to find an element at position \(i\) is equal to the depth of that position in the binary search tree representation, which is \(\lfloor \log_2(i) \rfloor + 1\).</p>
+                
+                <p>The average number of comparisons is:</p>
+                <p>\[C(n) = \frac{1}{n} \sum_{i=0}^{n-1} (\lfloor \log_2(i+1) \rfloor + 1)\]</p>
+                
+                <p>For large \(n\), this approximates to:</p>
+                <p>\[C(n) \approx \log_2(n) - 1 + \frac{1}{n}\]</p>
+                
+                <p>Therefore, the average-case time complexity is \(O(\log n)\).</p>
+
+                <h4>Mathematical Derivation of Average Case</h4>
+                <p>For a more precise analysis, consider that binary search can be represented as a binary tree where each node represents a comparison. The number of comparisons needed to find an element is the depth of that element in the tree plus 1.</p>
+                
+                <p>For an array of size \(n = 2^k - 1\) (a perfect binary tree), the average depth is:</p>
+                <p>\[\frac{1}{n} \sum_{d=0}^{k-1} d \cdot 2^d = \frac{(k-2)2^k + 2}{2^k - 1}\]</p>
+                
+                <p>For large \(k\), this simplifies to approximately \(k - 2 = \log_2(n) - 2\).</p>
+                
+                <p>For general \(n\), the average number of comparisons is approximately:</p>
+                <p>\[C(n) \approx \log_2(n) - 1\]</p>
+
+                <h3>Space Complexity Analysis</h3>
+                <p>Binary search uses only a constant amount of extra space regardless of the input size. The algorithm maintains three variables:</p>
+                <ul>
+                    <li>\(L\) (left pointer): \(O(1)\) space</li>
+                    <li>\(R\) (right pointer): \(O(1)\) space</li>
+                    <li>\(m\) (middle index): \(O(1)\) space</li>
+                </ul>
+                
+                <p>Therefore, the space complexity is \(O(1)\).</p>
+                
+                <p>Note: If implemented recursively, the space complexity becomes \(O(\log n)\) due to the call stack, but the iterative version is preferred for its constant space complexity.</p>
+
+                <h3>Mathematical Properties</h3>
+                <h4>Invariant Property</h4>
+                <p>Binary search maintains the following invariant throughout execution:</p>
+                <p>If the target \(T\) exists in the array, then \(A_L \leq T \leq A_R\) at all times (where \(L\) and \(R\) are the current search boundaries).</p>
+                
+                <p>This invariant ensures that we never eliminate the portion of the array containing the target.</p>
+
+                <h4>Monotonicity Property</h4>
+                <p>The search space reduction follows a monotonic pattern. At each step, either:</p>
+                <ul>
+                    <li>\(L\) increases (we eliminate the left half)</li>
+                    <li>\(R\) decreases (we eliminate the right half)</li>
+                </ul>
+                
+                <p>This ensures that \(L\) and \(R\) converge, and the algorithm terminates when \(L > R\).</p>
+
+                <h3>Comparison with Other Search Methods</h3>
+                <h4>Binary Search vs Linear Search</h4>
+                <table style="width: 100%; border-collapse: collapse; margin: 1.5rem 0;">
+                    <thead>
+                        <tr style="background-color: #3b82f6; color: white;">
+                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Metric</th>
+                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Linear Search</th>
+                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Binary Search</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Time Complexity</strong></td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">\(O(n)\)</td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">\(O(\log n)\)</td>
+                        </tr>
+                        <tr style="background-color: #f8fafc;">
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Space Complexity</strong></td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">\(O(1)\)</td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">\(O(1)\)</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Prerequisites</strong></td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">None</td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">Sorted array</td>
+                        </tr>
+                        <tr style="background-color: #f8fafc;">
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Comparisons (n=1M)</strong></td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">Up to 1,000,000</td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">At most 20</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Binary Search vs Hash Tables</h4>
+                <p>While hash tables offer \(O(1)\) average-case lookup, binary search has advantages:</p>
+                <ul>
+                    <li><strong>Range queries:</strong> Binary search can efficiently find elements in a range, while hash tables cannot</li>
+                    <li><strong>Memory efficiency:</strong> Binary search uses less memory overhead</li>
+                    <li><strong>Ordered operations:</strong> Binary search maintains sorted order, enabling operations like finding predecessor/successor</li>
+                    <li><strong>No hash collisions:</strong> Binary search has deterministic performance</li>
+                </ul>
+
+                <h3>Variations and Extensions</h3>
+                <h4>Exponential Search</h4>
+                <p>Exponential search extends binary search to unbounded lists. It first finds a range where the target might be, then performs binary search within that range.</p>
+                <p>Time complexity: \(O(\log i)\) where \(i\) is the position of the target.</p>
+
+                <h4>Interpolation Search</h4>
+                <p>Interpolation search uses the value of the target to estimate its position, rather than always checking the middle. For uniformly distributed data, it achieves \(O(\log \log n)\) average-case performance.</p>
+                <p>The position is estimated as:</p>
+                <p>\[pos = L + \frac{(R - L)(T - A_L)}{A_R - A_L}\]</p>
+
+                <h4>Fractional Cascading</h4>
+                <p>Fractional cascading is a technique that speeds up binary searches for the same value in multiple sorted arrays. It preprocesses the arrays to enable faster lookups.</p>
+
+                <h3>Optimality Proof</h3>
+                <p>Binary search is optimal for comparison-based search in sorted arrays. This can be proven using information theory:</p>
+                
+                <p>To identify one element among \(n\) possibilities, we need at least \(\log_2(n)\) bits of information. Each comparison provides at most 1 bit of information (the element is either less than, equal to, or greater than the target, giving us 3 possible outcomes, but in practice, we typically get 1 bit per comparison in the worst case).</p>
+                
+                <p>Therefore, any comparison-based search algorithm requires at least \(\lceil \log_2(n) \rceil\) comparisons in the worst case. Since binary search achieves this bound, it is optimal.</p>
+
+                <h3>Practical Considerations</h3>
+                <h4>Integer Overflow Prevention</h4>
+                <p>When calculating the middle index, using \((L + R) / 2\) can cause integer overflow for large arrays. The safe formula is:</p>
+                <p>\[m = L + \left\lfloor \frac{R - L}{2} \right\rfloor\]</p>
+                
+                <p>This is mathematically equivalent but prevents overflow.</p>
+
+                <h4>Branch Prediction</h4>
+                <p>Modern CPUs use branch prediction to improve performance. Binary search's unpredictable branches can hurt performance. Some implementations use branchless comparisons or rearrange code to improve branch prediction.</p>
+
+                <h4>Cache Performance</h4>
+                <p>Binary search has poor cache locality compared to linear search for small arrays, as it jumps around in memory. For very small arrays (typically less than 64 elements), linear search may be faster due to better cache performance.</p>
             </article>
         </section>
 
