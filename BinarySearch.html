@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Modified Binary Search Pattern - LeetCode Patterns</title>
+    <title>Binary Search - Complete Guide</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
@@ -23,31 +23,61 @@
         .solution-content.show { display: block; }
         .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; }
         .toggle-btn:hover { background-color: #2563eb; }
+        .difficulty-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 600; margin-left: 0.5rem; }
+        .difficulty-easy { background-color: #d1fae5; color: #065f46; }
+        .difficulty-medium { background-color: #fef3c7; color: #92400e; }
+        .difficulty-hard { background-color: #fee2e2; color: #991b1b; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
     <header class="bg-white shadow-md sticky top-0 z-10">
         <nav class="container mx-auto px-6 py-4">
-            <h1 class="text-2xl font-bold text-gray-900">Modified Binary Search Pattern</h1>
+            <h1 class="text-2xl font-bold text-gray-900">Binary Search - Complete Guide</h1>
         </nav>
     </header>
 
     <main class="container mx-auto px-6 py-12">
         <section id="pattern" class="mb-12">
             <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
-                <h1>Modified Binary Search Pattern</h1>
-                <p><strong>Modified Binary Search</strong> extends the classic binary search algorithm to handle variations like rotated arrays, finding boundaries, or searching in 2D matrices. The core principle remains: eliminate half of the search space at each step.</p>
+                <h1>Binary Search: Theory and Practice</h1>
+                <p><strong>Binary Search</strong> is one of the most fundamental and powerful algorithms in computer science. It efficiently finds an element in a sorted array by repeatedly dividing the search space in half. Understanding binary search deeply will help you solve many complex problems efficiently.</p>
 
-                <h2>When to Use This Pattern</h2>
+                <h2>What is Binary Search?</h2>
+                <p>Binary search is a divide-and-conquer algorithm that finds the position of a target value within a <strong>sorted</strong> array. Instead of checking every element (linear search), binary search eliminates half of the remaining elements at each step.</p>
+
+                <h3>The Core Idea</h3>
+                <p>Imagine you're looking for a word in a dictionary. You don't start from page 1 and read every word. Instead, you:</p>
+                <ol>
+                    <li>Open the dictionary to the middle</li>
+                    <li>Compare the word you're looking for with the word on that page</li>
+                    <li>If your word comes before, search the left half; if after, search the right half</li>
+                    <li>Repeat until you find the word or determine it's not in the dictionary</li>
+                </ol>
+                <p>This is exactly how binary search works!</p>
+
+                <h3>Why Binary Search is Important</h3>
                 <ul>
-                    <li>Searching in sorted or rotated sorted arrays</li>
-                    <li>Finding the first/last occurrence of an element</li>
-                    <li>Finding the minimum/maximum in rotated arrays</li>
-                    <li>Searching in 2D sorted matrices</li>
-                    <li>Finding boundaries or insertion points</li>
+                    <li><strong>Efficiency:</strong> O(log n) time complexity vs O(n) for linear search</li>
+                    <li><strong>Scalability:</strong> For 1 million elements, binary search needs ~20 comparisons vs 1 million for linear search</li>
+                    <li><strong>Foundation:</strong> Many advanced algorithms build upon binary search concepts</li>
+                    <li><strong>Real-world Applications:</strong> Database indexing, version control systems, game development, and more</li>
                 </ul>
 
-                <h2>Key Concepts</h2>
+                <h2>Understanding the Algorithm Step-by-Step</h2>
+                <h3>Prerequisites</h3>
+                <p><strong>The array must be sorted!</strong> Binary search only works on sorted data. If the array isn't sorted, you must sort it first (O(n log n)) or use a different approach.</p>
+
+                <h3>The Algorithm</h3>
+                <p>Binary search maintains two pointers: <code>left</code> and <code>right</code>, which define the current search space. At each step:</p>
+                <ol>
+                    <li>Calculate the middle index: <code>mid = (left + right) / 2</code></li>
+                    <li>Compare the element at <code>mid</code> with the target</li>
+                    <li>If equal, we found it!</li>
+                    <li>If target is smaller, search the left half: <code>right = mid - 1</code></li>
+                    <li>If target is larger, search the right half: <code>left = mid + 1</code></li>
+                    <li>Repeat until <code>left > right</code> (target not found)</li>
+                </ol>
+
                 <h3>Visual Representation</h3>
                 <div style="background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); border: 2px solid #3b82f6; border-radius: 1rem; padding: 2.5rem; margin: 2rem 0; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);">
                     <h4 style="margin-bottom: 2rem; color: #1e40af; font-weight: 700; font-size: 1.5rem; text-align: center;">Binary Search - Narrowing Search Space</h4>
@@ -80,13 +110,10 @@
                             </marker>
                         </defs>
                         
-                        <!-- Title -->
                         <text x="500" y="35" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Sorted Array: [1, 3, 5, 7, 9, 11, 13, 15] | Target: 7</text>
                         
-                        <!-- Step 1: Binary Search -->
                         <text x="500" y="75" text-anchor="middle" font-size="15" font-weight="700" fill="#1e40af">Step 1: left=0, right=7, mid=(0+7)/2=3</text>
                         <g transform="translate(100, 95)">
-                            <!-- Eliminated left half -->
                             <rect x="0" y="0" width="70" height="50" fill="url(#eliminatedGradient)" stroke="#cbd5e1" stroke-width="2" rx="8" opacity="0.6"/>
                             <text x="35" y="32" text-anchor="middle" font-size="18" font-weight="600" fill="#94a3b8">1</text>
                             <text x="35" y="68" text-anchor="middle" font-size="12" fill="#94a3b8">[0]</text>
@@ -99,12 +126,10 @@
                             <text x="195" y="32" text-anchor="middle" font-size="18" font-weight="600" fill="#94a3b8">5</text>
                             <text x="195" y="68" text-anchor="middle" font-size="12" fill="#94a3b8">[2]</text>
                             
-                            <!-- Found element -->
                             <rect x="240" y="0" width="70" height="50" fill="url(#foundGradient)" stroke="#059669" stroke-width="4" rx="8" filter="url(#foundGlow)"/>
                             <text x="275" y="32" text-anchor="middle" font-size="22" font-weight="700" fill="white">7</text>
                             <text x="275" y="68" text-anchor="middle" font-size="13" font-weight="700" fill="#059669">mid ✓</text>
                             
-                            <!-- Right half (not searched yet) -->
                             <rect x="320" y="0" width="70" height="50" fill="url(#searchGradient)" stroke="#3b82f6" stroke-width="2.5" rx="8" filter="url(#shadow5)"/>
                             <text x="355" y="32" text-anchor="middle" font-size="20" font-weight="700" fill="white">9</text>
                             <text x="355" y="68" text-anchor="middle" font-size="12" fill="#1e40af">[4]</text>
@@ -122,33 +147,27 @@
                             <text x="595" y="68" text-anchor="middle" font-size="12" fill="#1e40af">[7]</text>
                         </g>
                         
-                        <!-- Success message -->
                         <rect x="200" y="160" width="600" height="50" fill="#ecfdf5" stroke="#10b981" stroke-width="3" rx="10" filter="url(#shadow5)"/>
                         <text x="500" y="185" text-anchor="middle" font-size="18" font-weight="700" fill="#059669">✓ Target Found!</text>
                         <text x="500" y="205" text-anchor="middle" font-size="14" fill="#065f46">nums[3] = 7 == target (7)</text>
                         
-                        <!-- Search space reduction visualization -->
                         <text x="500" y="250" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Search Space Reduction</text>
                         <g transform="translate(100, 270)">
-                            <!-- Initial search space -->
                             <rect x="0" y="0" width="800" height="35" fill="url(#searchGradient)" stroke="#3b82f6" stroke-width="2.5" rx="8" filter="url(#shadow5)"/>
                             <text x="400" y="25" text-anchor="middle" font-size="14" font-weight="700" fill="white">Initial: 8 elements</text>
                             
                             <path d="M 400 40 L 400 55" stroke="#6b7280" stroke-width="3" marker-end="url(#searchArrow)"/>
                             <text x="400" y="50" text-anchor="middle" font-size="12" fill="#6b7280" font-weight="600">Compare mid, eliminate half</text>
                             
-                            <!-- After 1 step -->
                             <rect x="200" y="70" width="400" height="35" fill="url(#searchGradient)" stroke="#3b82f6" stroke-width="2.5" rx="8" filter="url(#shadow5)" opacity="0.8"/>
                             <text x="400" y="95" text-anchor="middle" font-size="14" font-weight="700" fill="white">After 1 step: 4 elements (eliminated left half)</text>
                             
                             <path d="M 400 110 L 400 125" stroke="#6b7280" stroke-width="3" marker-end="url(#searchArrow)"/>
                             
-                            <!-- After 2 steps -->
                             <rect x="300" y="140" width="200" height="35" fill="url(#searchGradient)" stroke="#3b82f6" stroke-width="2.5" rx="8" filter="url(#shadow5)" opacity="0.6"/>
                             <text x="400" y="165" text-anchor="middle" font-size="14" font-weight="700" fill="white">After 2 steps: 2 elements</text>
                         </g>
                         
-                        <!-- Complexity box -->
                         <rect x="100" y="320" width="800" height="70" fill="#eff6ff" stroke="#3b82f6" stroke-width="2" rx="10" filter="url(#shadow5)"/>
                         <text x="500" y="350" text-anchor="middle" font-size="16" font-weight="700" fill="#1e40af">Time Complexity Analysis</text>
                         <g transform="translate(150, 365)">
@@ -166,219 +185,185 @@
                         <p style="margin: 0.75rem 0 0 0; font-size: 0.95rem; color: #1e3a8a;"><strong>Space Complexity:</strong> O(1) - Only uses a few variables (left, right, mid)</p>
                     </div>
                 </div>
-                
-                <h3>Classic Binary Search</h3>
-                <pre><code>def binary_search(arr, target):
-    left, right = 0, len(arr) - 1
-    
-    while left <= right:
-        mid = (left + right) // 2
-        if arr[mid] == target:
-            return mid
-        elif arr[mid] < target:
-            left = mid + 1
-        else:
-            right = mid - 1
-    
-    return -1</code></pre>
 
-                <h3>Modified Variations</h3>
+                <h2>Classic Binary Search Implementation</h2>
+                <pre><code>#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+int binarySearch(vector&lt;int&gt;& nums, int target) {
+    int left = 0;
+    int right = nums.size() - 1;
+    
+    while (left <= right) {
+        // Calculate middle index (prevents overflow)
+        int mid = left + (right - left) / 2;
+        
+        if (nums[mid] == target) {
+            return mid;  // Found!
+        } else if (nums[mid] < target) {
+            left = mid + 1;  // Search right half
+        } else {
+            right = mid - 1;  // Search left half
+        }
+    }
+    
+    return -1;  // Not found
+}</code></pre>
+
+                <h3>Key Implementation Details</h3>
                 <ul>
-                    <li><strong>Rotated Arrays:</strong> Determine which half is sorted</li>
-                    <li><strong>Boundary Search:</strong> Find first/last occurrence</li>
-                    <li><strong>2D Search:</strong> Treat 2D matrix as 1D array</li>
+                    <li><strong>Mid Calculation:</strong> Use <code>left + (right - left) / 2</code> instead of <code>(left + right) / 2</code> to prevent integer overflow</li>
+                    <li><strong>Loop Condition:</strong> <code>left <= right</code> ensures we check all possible positions</li>
+                    <li><strong>Boundary Updates:</strong> <code>mid + 1</code> and <code>mid - 1</code> exclude the current mid from the next search</li>
                 </ul>
+
+                <h2>Real-World Applications</h2>
+                <h3>1. Dictionary/Phone Book Lookup</h3>
+                <p>When searching for a word in a sorted dictionary, binary search is the natural approach. For a dictionary with 1 million words, binary search finds any word in at most 20 comparisons.</p>
+
+                <h3>2. Database Indexing</h3>
+                <p>Database systems use B-trees (a generalization of binary search trees) to quickly locate records. When you query a database by a primary key, it uses binary search principles.</p>
+
+                <h3>3. Version Control Systems</h3>
+                <p>Git uses binary search to find when a bug was introduced. By checking out different commits and testing, it narrows down the problematic commit efficiently.</p>
+
+                <h3>4. Game Development</h3>
+                <p>In games, binary search can find the optimal difficulty level, locate items in sorted inventories, or determine collision boundaries.</p>
+
+                <h3>5. Finding Boundaries</h3>
+                <p>Binary search can find the first or last occurrence of an element, insertion points, or boundaries in sorted data - essential for many algorithms.</p>
             </article>
         </section>
 
         <section id="algorithm" class="mb-12">
             <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
-                <h1>Algorithm Section</h1>
-                
-                <h2>Rotated Array Search</h2>
-                <pre><code>function searchRotated(nums, target):
-    left = 0
-    right = length(nums) - 1
-    
-    while left <= right:
-        mid = (left + right) / 2
-        
-        if nums[mid] == target:
-            return mid
-        
-        # Left half is sorted
-        if nums[left] <= nums[mid]:
-            if nums[left] <= target < nums[mid]:
-                right = mid - 1
-            else:
-                left = mid + 1
-        # Right half is sorted
-        else:
-            if nums[mid] < target <= nums[right]:
-                left = mid + 1
-            else:
-                right = mid - 1
-    
-    return -1</code></pre>
+                <h2 class="section-title">Progressive Examples</h2>
 
-                <h2>Finding First Occurrence</h2>
-                <pre><code>function findFirst(nums, target):
-    left, right = 0, len(nums) - 1
-    result = -1
-    
-    while left <= right:
-        mid = (left + right) // 2
-        if nums[mid] == target:
-            result = mid
-            right = mid - 1  # Continue searching left
-        elif nums[mid] < target:
-            left = mid + 1
-        else:
-            right = mid - 1
-    
-    return result</code></pre>
-            </article>
-        </section>
-
-        <section id="problems" class="mb-12">
-            <div class="max-w-7xl mx-auto">
-                <h2 class="section-title text-center">Practice Problems</h2>
-                
-                <div class="problem-card">
-                    <h3 class="text-xl font-semibold mb-3">Problem 1: Search in Rotated Sorted Array (LeetCode #33)</h3>
-                    <p class="mb-4">There is an integer array nums sorted in ascending order (with distinct values). Given the array nums after possible rotation and an integer target, return the index of target if it is in nums, or -1 if it is not in nums.</p>
-                    <p><strong>Example:</strong></p>
-                    <pre><code>Input: nums = [4,5,6,7,0,1,2], target = 0
-Output: 4</code></pre>
-                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
-                    <div id="sol1" class="solution-content">
-                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
-                        <pre><code>#include &lt;vector&gt;
+                <h3>Level 1: Simple Binary Search</h3>
+                <p>Start with the classic problem: finding an element in a sorted array.</p>
+                <pre><code>#include &lt;vector&gt;
 using namespace std;
 
 int search(vector&lt;int&gt;& nums, int target) {
-    int left = 0;
-    int right = nums.size() - 1;
+    int left = 0, right = nums.size() - 1;
     
     while (left <= right) {
-        int mid = left + (right - left) / 2;  // Avoid overflow
+        int mid = left + (right - left) / 2;
+        
+        if (nums[mid] == target) return mid;
+        else if (nums[mid] < target) left = mid + 1;
+        else right = mid - 1;
+    }
+    
+    return -1;
+}</code></pre>
+                <p><strong>Example:</strong> nums = [1,3,5,7,9,11], target = 7</p>
+                <ul>
+                    <li>Step 1: mid=2, nums[2]=5 < 7, search right → left=3</li>
+                    <li>Step 2: mid=4, nums[4]=9 > 7, search left → right=3</li>
+                    <li>Step 3: mid=3, nums[3]=7 == 7, found at index 3!</li>
+                </ul>
+
+                <h3>Level 2: Finding Insertion Position</h3>
+                <p>Find where to insert an element to maintain sorted order.</p>
+                <pre><code>int searchInsert(vector&lt;int&gt;& nums, int target) {
+    int left = 0, right = nums.size() - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (nums[mid] == target) return mid;
+        else if (nums[mid] < target) left = mid + 1;
+        else right = mid - 1;
+    }
+    
+    // When loop exits, left is the insertion position
+    return left;
+}</code></pre>
+                <p><strong>Key Insight:</strong> When the loop exits, <code>left</code> points to the first position where <code>nums[left] >= target</code>, which is exactly where we should insert.</p>
+
+                <h3>Level 3: Finding Boundaries</h3>
+                <p>Find the first and last occurrence of a target in a sorted array with duplicates.</p>
+                <pre><code>// Find first occurrence
+int findFirst(vector&lt;int&gt;& nums, int target) {
+    int left = 0, right = nums.size() - 1;
+    int result = -1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
         
         if (nums[mid] == target) {
-            return mid;
+            result = mid;
+            right = mid - 1;  // Continue searching left
+        } else if (nums[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
         }
+    }
+    
+    return result;
+}
+
+// Find last occurrence
+int findLast(vector&lt;int&gt;& nums, int target) {
+    int left = 0, right = nums.size() - 1;
+    int result = -1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
         
-        // Left half is sorted
+        if (nums[mid] == target) {
+            result = mid;
+            left = mid + 1;  // Continue searching right
+        } else if (nums[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return result;
+}</code></pre>
+                <p><strong>Key Insight:</strong> When we find the target, we don't stop. Instead, we continue searching in the direction we want (left for first, right for last).</p>
+
+                <h3>Level 4: Rotated Sorted Array</h3>
+                <p>Search in an array that was sorted but then rotated.</p>
+                <pre><code>int searchRotated(vector&lt;int&gt;& nums, int target) {
+    int left = 0, right = nums.size() - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (nums[mid] == target) return mid;
+        
+        // Determine which half is sorted
         if (nums[left] <= nums[mid]) {
-            // Target is in sorted left half
+            // Left half is sorted
             if (nums[left] <= target && target < nums[mid]) {
-                right = mid - 1;
+                right = mid - 1;  // Target in sorted left half
             } else {
-                // Target is in unsorted right half
-                left = mid + 1;
+                left = mid + 1;   // Target in unsorted right half
             }
-        } 
-        // Right half is sorted
-        else {
-            // Target is in sorted right half
+        } else {
+            // Right half is sorted
             if (nums[mid] < target && target <= nums[right]) {
-                left = mid + 1;
+                left = mid + 1;   // Target in sorted right half
             } else {
-                // Target is in unsorted left half
-                right = mid - 1;
+                right = mid - 1;  // Target in unsorted left half
             }
         }
     }
     
     return -1;
 }</code></pre>
-                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
-                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
-                            <p><strong>Input:</strong> nums = [4,5,6,7,0,1,2], target = 0</p>
-                            <p style="margin-top: 0.5rem;"><strong>Iteration 1:</strong> left=0, right=6, mid=3</p>
-                            <p style="margin-left: 2rem;">nums[3]=7 != 0</p>
-                            <p style="margin-left: 2rem;">nums[0]=4 <= nums[3]=7, left half sorted</p>
-                            <p style="margin-left: 2rem;">4 <= 0 < 7? No, search right half</p>
-                            <p style="margin-left: 2rem;">left=4</p>
-                            <p style="margin-top: 0.5rem;"><strong>Iteration 2:</strong> left=4, right=6, mid=5</p>
-                            <p style="margin-left: 2rem;">nums[5]=1 != 0</p>
-                            <p style="margin-left: 2rem;">nums[4]=0 <= nums[5]=1, left half sorted</p>
-                            <p style="margin-left: 2rem;">0 <= 0 < 1? Yes, search left half</p>
-                            <p style="margin-left: 2rem;">right=4</p>
-                            <p style="margin-top: 0.5rem;"><strong>Iteration 3:</strong> left=4, right=4, mid=4</p>
-                            <p style="margin-left: 2rem;">nums[4]=0 == 0, found!</p>
-                            <p style="margin-top: 1rem;"><strong>Result:</strong> 4</p>
-                        </div>
-                        <p class="mt-4"><strong>Explanation:</strong> In a rotated array, one half is always sorted. We determine which half is sorted by comparing nums[left] with nums[mid]. If the target is in the sorted half, we search there using standard binary search. Otherwise, we search the other half. This allows us to eliminate half the search space at each step, maintaining O(log n) time complexity. The key insight is that we can always determine which half contains the target by checking if it's within the sorted half's range.</p>
-                        <p><strong>Time Complexity:</strong> O(log n)</p>
-                        <p><strong>Space Complexity:</strong> O(1)</p>
-                    </div>
-                </div>
+                <p><strong>Key Insight:</strong> In a rotated array, one half is always sorted. We check which half is sorted, then determine if the target is in that sorted half. This allows us to eliminate half the search space at each step.</p>
 
-                <div class="problem-card">
-                    <h3 class="text-xl font-semibold mb-3">Problem 2: Find Minimum in Rotated Sorted Array (LeetCode #153)</h3>
-                    <p class="mb-4">Suppose an array of length n sorted in ascending order is rotated between 1 and n times. Find the minimum element.</p>
-                    <p><strong>Example:</strong></p>
-                    <pre><code>Input: nums = [3,4,5,1,2]
-Output: 1</code></pre>
-                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
-                    <div id="sol2" class="solution-content">
-                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
-                        <pre><code>#include &lt;vector&gt;
-using namespace std;
-
-int findMin(vector&lt;int&gt;& nums) {
-    int left = 0;
-    int right = nums.size() - 1;
-    
-    while (left < right) {
-        int mid = left + (right - left) / 2;
-        
-        // Right half is unsorted, minimum is in right half
-        if (nums[mid] > nums[right]) {
-            left = mid + 1;
-        } 
-        // Left half is unsorted or both sorted, minimum is in left half (including mid)
-        else {
-            right = mid;
-        }
-    }
-    
-    return nums[left];
-}</code></pre>
-                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
-                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
-                            <p><strong>Input:</strong> nums = [3,4,5,1,2]</p>
-                            <p style="margin-top: 0.5rem;"><strong>Iteration 1:</strong> left=0, right=4, mid=2</p>
-                            <p style="margin-left: 2rem;">nums[2]=5 > nums[4]=2, right half unsorted</p>
-                            <p style="margin-left: 2rem;">left=3</p>
-                            <p style="margin-top: 0.5rem;"><strong>Iteration 2:</strong> left=3, right=4, mid=3</p>
-                            <p style="margin-left: 2rem;">nums[3]=1 <= nums[4]=2, left half sorted</p>
-                            <p style="margin-left: 2rem;">right=3</p>
-                            <p style="margin-top: 0.5rem;"><strong>Iteration 3:</strong> left=3, right=3, exit loop</p>
-                            <p style="margin-top: 1rem;"><strong>Result:</strong> nums[3] = 1</p>
-                        </div>
-                        <p class="mt-4"><strong>Explanation:</strong> The minimum is always in the unsorted half. If nums[mid] > nums[right], the right half is unsorted and contains the minimum. Otherwise, the minimum is in the left half (including mid). We use left < right (not <=) because we want to find the exact position. When left == right, we've found the minimum. This works because in a rotated sorted array, the minimum is always at the rotation point.</p>
-                        <p><strong>Time Complexity:</strong> O(log n)</p>
-                        <p><strong>Space Complexity:</strong> O(1)</p>
-                    </div>
-                </div>
-
-                <div class="problem-card">
-                    <h3 class="text-xl font-semibold mb-3">Problem 3: Search a 2D Matrix II (LeetCode #240)</h3>
-                    <p class="mb-4">Write an efficient algorithm that searches for a target value in an m x n integer matrix. Each row and column is sorted in ascending order.</p>
-                    <p><strong>Example:</strong></p>
-                    <pre><code>Input: matrix = [[1,4,7,11],[2,5,8,12],[3,6,9,16],[10,13,14,17]], target = 5
-Output: true</code></pre>
-                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
-                    <div id="sol3" class="solution-content">
-                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
-                        <pre><code>#include &lt;vector&gt;
-using namespace std;
-
-bool searchMatrix(vector&lt;vector&lt;int&gt;&gt;& matrix, int target) {
-    if (matrix.empty() || matrix[0].empty()) {
-        return false;
-    }
+                <h3>Level 5: Search in 2D Matrix</h3>
+                <p>Search in a matrix where each row and column is sorted.</p>
+                <pre><code>bool searchMatrix(vector&lt;vector&lt;int&gt;&gt;& matrix, int target) {
+    if (matrix.empty() || matrix[0].empty()) return false;
     
     int row = 0;
     int col = matrix[0].size() - 1;  // Start from top-right
@@ -387,50 +372,247 @@ bool searchMatrix(vector&lt;vector&lt;int&gt;&gt;& matrix, int target) {
         if (matrix[row][col] == target) {
             return true;
         } else if (matrix[row][col] > target) {
-            // Current element > target, all elements in this column are > target
-            col--;  // Move left
+            col--;  // All elements in this column are > target
         } else {
-            // Current element < target, all elements in this row are < target
-            row++;  // Move down
+            row++;  // All elements in this row are < target
         }
     }
     
     return false;
 }</code></pre>
-                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
-                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
-                            <p><strong>Input:</strong> matrix = [[1,4,7,11],[2,5,8,12],[3,6,9,16],[10,13,14,17]], target = 5</p>
-                            <p style="margin-top: 0.5rem;"><strong>Start:</strong> row=0, col=3, matrix[0][3]=11</p>
-                            <p>11 > 5, move left: col=2</p>
-                            <p><strong>row=0, col=2:</strong> matrix[0][2]=7</p>
-                            <p>7 > 5, move left: col=1</p>
-                            <p><strong>row=0, col=1:</strong> matrix[0][1]=4</p>
-                            <p>4 < 5, move down: row=1</p>
-                            <p><strong>row=1, col=1:</strong> matrix[1][1]=5</p>
-                            <p>5 == 5, found!</p>
-                            <p style="margin-top: 1rem;"><strong>Result:</strong> true</p>
-                        </div>
-                        <p class="mt-4"><strong>Explanation:</strong> We start from the top-right corner. If the current element is greater than target, all elements in that column are greater (since columns are sorted), so we move left. If it's smaller, all elements in that row are smaller (since rows are sorted), so we move down. This eliminates one row or column at each step, ensuring we find the target efficiently or determine it doesn't exist.</p>
-                        <p><strong>Time Complexity:</strong> O(m + n)</p>
+                <p><strong>Key Insight:</strong> Starting from top-right, we can eliminate an entire row or column at each step, similar to binary search eliminating half the search space.</p>
+            </article>
+        </section>
+
+        <section id="problems" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h2 class="section-title">LeetCode Problems</h2>
+                <p>Practice problems organized by difficulty. Click "Show Solution" to see detailed explanations.</p>
+
+                <h3 style="color: #059669; font-size: 1.75rem; margin-top: 2rem;">Easy Problems</h3>
+
+                <!-- Problem 1 -->
+                <div class="problem-card">
+                    <h3>Problem 1: Binary Search <span class="difficulty-badge difficulty-easy">Easy</span></h3>
+                    <p><strong>LeetCode #704:</strong> Given an array of integers <code>nums</code> which is sorted in ascending order, and an integer <code>target</code>, write a function to search <code>target</code> in <code>nums</code>. If <code>target</code> exists, then return its index. Otherwise, return <code>-1</code>.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [-1,0,3,5,9,12], target = 9
+Output: 4
+Explanation: 9 exists in nums and its index is 4</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol1')">Show Solution</button>
+                    <div id="sol1" class="solution-content">
+                        <h4>Solution:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int search(vector&lt;int&gt;& nums, int target) {
+    int left = 0;
+    int right = nums.size() - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (nums[mid] == target) {
+            return mid;
+        } else if (nums[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return -1;
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(log n)</p>
                         <p><strong>Space Complexity:</strong> O(1)</p>
                     </div>
                 </div>
 
+                <!-- Problem 2 -->
                 <div class="problem-card">
-                    <h3 class="text-xl font-semibold mb-3">Problem 4: Find First and Last Position (LeetCode #34)</h3>
-                    <p class="mb-4">Given an array of integers nums sorted in non-decreasing order, find the starting and ending position of a given target value.</p>
+                    <h3>Problem 2: Search Insert Position <span class="difficulty-badge difficulty-easy">Easy</span></h3>
+                    <p><strong>LeetCode #35:</strong> Given a sorted array of distinct integers and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order.</p>
                     <p><strong>Example:</strong></p>
-                    <pre><code>Input: nums = [5,7,7,8,8,10], target = 8
-Output: [3,4]</code></pre>
+                    <pre><code>Input: nums = [1,3,5,6], target = 5
+Output: 2
+
+Input: nums = [1,3,5,6], target = 2
+Output: 1</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol2')">Show Solution</button>
+                    <div id="sol2" class="solution-content">
+                        <h4>Solution:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int searchInsert(vector&lt;int&gt;& nums, int target) {
+    int left = 0;
+    int right = nums.size() - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (nums[mid] == target) {
+            return mid;
+        } else if (nums[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return left;  // left is the insertion position
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(log n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <!-- Problem 3 -->
+                <div class="problem-card">
+                    <h3>Problem 3: First Bad Version <span class="difficulty-badge difficulty-easy">Easy</span></h3>
+                    <p><strong>LeetCode #278:</strong> You are a product manager and currently leading a team to develop a new product. Unfortunately, the latest version of your product fails the quality check. Since each version is developed based on the previous version, all the versions after a bad version are also bad. Find the first bad version.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: n = 5, bad = 4
+Output: 4
+Explanation: call isBadVersion(3) -> false
+             call isBadVersion(5) -> true
+             call isBadVersion(4) -> true
+             Then 4 is the first bad version.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol3')">Show Solution</button>
+                    <div id="sol3" class="solution-content">
+                        <h4>Solution:</h4>
+                        <pre><code>// The API isBadVersion is defined for you.
+// bool isBadVersion(int version);
+
+class Solution {
+public:
+    int firstBadVersion(int n) {
+        int left = 1;
+        int right = n;
+        
+        while (left < right) {
+            int mid = left + (right - left) / 2;
+            
+            if (isBadVersion(mid)) {
+                right = mid;  // First bad is at mid or before
+            } else {
+                left = mid + 1;  // First bad is after mid
+            }
+        }
+        
+        return left;
+    }
+};</code></pre>
+                        <p><strong>Time Complexity:</strong> O(log n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <!-- Problem 4 -->
+                <div class="problem-card">
+                    <h3>Problem 4: Sqrt(x) <span class="difficulty-badge difficulty-easy">Easy</span></h3>
+                    <p><strong>LeetCode #69:</strong> Given a non-negative integer <code>x</code>, compute and return the square root of <code>x</code>. Since the return type is an integer, the decimal digits are truncated, and only the integer part of the result is returned.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: x = 4
+Output: 2
+
+Input: x = 8
+Output: 2
+Explanation: The square root of 8 is 2.82842..., and since the decimal part is truncated, 2 is returned.</code></pre>
                     <button class="toggle-btn" onclick="toggleSolution('sol4')">Show Solution</button>
                     <div id="sol4" class="solution-content">
-                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                        <h4>Solution:</h4>
+                        <pre><code>class Solution {
+public:
+    int mySqrt(int x) {
+        if (x < 2) return x;
+        
+        int left = 1;
+        int right = x / 2;
+        
+        while (left <= right) {
+            long mid = left + (right - left) / 2;
+            long square = mid * mid;
+            
+            if (square == x) {
+                return mid;
+            } else if (square < x) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        
+        return right;  // Return the smaller value
+    }
+};</code></pre>
+                        <p><strong>Time Complexity:</strong> O(log x)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <!-- Problem 5 -->
+                <div class="problem-card">
+                    <h3>Problem 5: Valid Perfect Square <span class="difficulty-badge difficulty-easy">Easy</span></h3>
+                    <p><strong>LeetCode #367:</strong> Given a positive integer <code>num</code>, write a function which returns True if <code>num</code> is a perfect square else False.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: num = 16
+Output: true
+
+Input: num = 14
+Output: false</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
+                    <div id="sol5" class="solution-content">
+                        <h4>Solution:</h4>
+                        <pre><code>class Solution {
+public:
+    bool isPerfectSquare(int num) {
+        if (num < 2) return true;
+        
+        long left = 1;
+        long right = num / 2;
+        
+        while (left <= right) {
+            long mid = left + (right - left) / 2;
+            long square = mid * mid;
+            
+            if (square == num) {
+                return true;
+            } else if (square < num) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+        
+        return false;
+    }
+};</code></pre>
+                        <p><strong>Time Complexity:</strong> O(log num)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <h3 style="color: #d97706; font-size: 1.75rem; margin-top: 2rem;">Medium Problems</h3>
+
+                <!-- Problem 6 -->
+                <div class="problem-card">
+                    <h3>Problem 6: Find First and Last Position <span class="difficulty-badge difficulty-medium">Medium</span></h3>
+                    <p><strong>LeetCode #34:</strong> Given an array of integers <code>nums</code> sorted in non-decreasing order, find the starting and ending position of a given <code>target</code> value. If <code>target</code> is not found in the array, return <code>[-1, -1]</code>.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [5,7,7,8,8,10], target = 8
+Output: [3,4]
+
+Input: nums = [5,7,7,8,8,10], target = 6
+Output: [-1,-1]</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol6')">Show Solution</button>
+                    <div id="sol6" class="solution-content">
+                        <h4>Solution:</h4>
                         <pre><code>#include &lt;vector&gt;
 using namespace std;
 
 int findFirst(vector&lt;int&gt;& nums, int target) {
-    int left = 0;
-    int right = nums.size() - 1;
+    int left = 0, right = nums.size() - 1;
     int result = -1;
     
     while (left <= right) {
@@ -450,8 +632,7 @@ int findFirst(vector&lt;int&gt;& nums, int target) {
 }
 
 int findLast(vector&lt;int&gt;& nums, int target) {
-    int left = 0;
-    int right = nums.size() - 1;
+    int left = 0, right = nums.size() - 1;
     int result = -1;
     
     while (left <= right) {
@@ -473,40 +654,28 @@ int findLast(vector&lt;int&gt;& nums, int target) {
 vector&lt;int&gt; searchRange(vector&lt;int&gt;& nums, int target) {
     return {findFirst(nums, target), findLast(nums, target)};
 }</code></pre>
-                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
-                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
-                            <p><strong>Input:</strong> nums = [5,7,7,8,8,10], target = 8</p>
-                            <p style="margin-top: 0.5rem;"><strong>Finding First Occurrence:</strong></p>
-                            <p>left=0, right=5, mid=2, nums[2]=7 < 8, left=3</p>
-                            <p>left=3, right=5, mid=4, nums[4]=8 == 8, result=4, right=3</p>
-                            <p>left=3, right=3, mid=3, nums[3]=8 == 8, result=3, right=2</p>
-                            <p>left=3, right=2, exit, first=3</p>
-                            <p style="margin-top: 0.5rem;"><strong>Finding Last Occurrence:</strong></p>
-                            <p>left=0, right=5, mid=2, nums[2]=7 < 8, left=3</p>
-                            <p>left=3, right=5, mid=4, nums[4]=8 == 8, result=4, left=5</p>
-                            <p>left=5, right=5, mid=5, nums[5]=10 > 8, right=4</p>
-                            <p>left=5, right=4, exit, last=4</p>
-                            <p style="margin-top: 1rem;"><strong>Result:</strong> [3, 4]</p>
-                        </div>
-                        <p class="mt-4"><strong>Explanation:</strong> We perform two binary searches. For the first occurrence, when we find target, we continue searching left to find an earlier occurrence. For the last occurrence, when we find target, we continue searching right to find a later occurrence. This ensures we find the boundaries of the target value. The key is to continue searching in the appropriate direction even after finding a match.</p>
                         <p><strong>Time Complexity:</strong> O(log n)</p>
                         <p><strong>Space Complexity:</strong> O(1)</p>
                     </div>
                 </div>
 
+                <!-- Problem 7 -->
                 <div class="problem-card">
-                    <h3 class="text-xl font-semibold mb-3">Problem 5: Search Insert Position (LeetCode #35)</h3>
-                    <p class="mb-4">Given a sorted array of distinct integers and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order.</p>
+                    <h3>Problem 7: Search in Rotated Sorted Array <span class="difficulty-badge difficulty-medium">Medium</span></h3>
+                    <p><strong>LeetCode #33:</strong> There is an integer array <code>nums</code> sorted in ascending order (with distinct values). Given the array <code>nums</code> after possible rotation and an integer <code>target</code>, return the index of <code>target</code> if it is in <code>nums</code>, or <code>-1</code> if it is not in <code>nums</code>.</p>
                     <p><strong>Example:</strong></p>
-                    <pre><code>Input: nums = [1,3,5,6], target = 5
-Output: 2</code></pre>
-                    <button class="toggle-btn" onclick="toggleSolution('sol5')">Show Solution</button>
-                    <div id="sol5" class="solution-content">
-                        <h4 class="font-semibold mt-4 mb-2">Solution in C++:</h4>
+                    <pre><code>Input: nums = [4,5,6,7,0,1,2], target = 0
+Output: 4
+
+Input: nums = [4,5,6,7,0,1,2], target = 3
+Output: -1</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol7')">Show Solution</button>
+                    <div id="sol7" class="solution-content">
+                        <h4>Solution:</h4>
                         <pre><code>#include &lt;vector&gt;
 using namespace std;
 
-int searchInsert(vector&lt;int&gt;& nums, int target) {
+int search(vector&lt;int&gt;& nums, int target) {
     int left = 0;
     int right = nums.size() - 1;
     
@@ -515,53 +684,398 @@ int searchInsert(vector&lt;int&gt;& nums, int target) {
         
         if (nums[mid] == target) {
             return mid;
-        } else if (nums[mid] < target) {
+        }
+        
+        // Left half is sorted
+        if (nums[left] <= nums[mid]) {
+            if (nums[left] <= target && target < nums[mid]) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        } 
+        // Right half is sorted
+        else {
+            if (nums[mid] < target && target <= nums[right]) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+    }
+    
+    return -1;
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(log n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <!-- Problem 8 -->
+                <div class="problem-card">
+                    <h3>Problem 8: Find Minimum in Rotated Sorted Array <span class="difficulty-badge difficulty-medium">Medium</span></h3>
+                    <p><strong>LeetCode #153:</strong> Suppose an array of length <code>n</code> sorted in ascending order is rotated between <code>1</code> and <code>n</code> times. Find the minimum element.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [3,4,5,1,2]
+Output: 1
+
+Input: nums = [4,5,6,7,0,1,2]
+Output: 0</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol8')">Show Solution</button>
+                    <div id="sol8" class="solution-content">
+                        <h4>Solution:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int findMin(vector&lt;int&gt;& nums) {
+    int left = 0;
+    int right = nums.size() - 1;
+    
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+        
+        // Right half is unsorted, minimum is in right half
+        if (nums[mid] > nums[right]) {
+            left = mid + 1;
+        } 
+        // Left half is unsorted or both sorted, minimum is in left half
+        else {
+            right = mid;
+        }
+    }
+    
+    return nums[left];
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(log n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <!-- Problem 9 -->
+                <div class="problem-card">
+                    <h3>Problem 9: Search a 2D Matrix <span class="difficulty-badge difficulty-medium">Medium</span></h3>
+                    <p><strong>LeetCode #74:</strong> Write an efficient algorithm that searches for a value <code>target</code> in an <code>m x n</code> integer matrix <code>matrix</code>. This matrix has the following properties: Integers in each row are sorted from left to right. The first integer of each row is greater than the last integer of the previous row.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: matrix = [[1,3,5,7],[10,11,16,20],[23,30,34,60]], target = 3
+Output: true</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol9')">Show Solution</button>
+                    <div id="sol9" class="solution-content">
+                        <h4>Solution:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+bool searchMatrix(vector&lt;vector&lt;int&gt;&gt;& matrix, int target) {
+    int m = matrix.size();
+    int n = matrix[0].size();
+    
+    int left = 0;
+    int right = m * n - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        int row = mid / n;
+        int col = mid % n;
+        int value = matrix[row][col];
+        
+        if (value == target) {
+            return true;
+        } else if (value < target) {
             left = mid + 1;
         } else {
             right = mid - 1;
         }
     }
     
-    // When loop exits, left points to insertion position
-    // left is the first position where nums[left] >= target
+    return false;
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(log(m*n))</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <!-- Problem 10 -->
+                <div class="problem-card">
+                    <h3>Problem 10: Search a 2D Matrix II <span class="difficulty-badge difficulty-medium">Medium</span></h3>
+                    <p><strong>LeetCode #240:</strong> Write an efficient algorithm that searches for a <code>target</code> value in an <code>m x n</code> integer matrix <code>matrix</code>. Each row and column is sorted in ascending order.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: matrix = [[1,4,7,11],[2,5,8,12],[3,6,9,16],[10,13,14,17]], target = 5
+Output: true</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol10')">Show Solution</button>
+                    <div id="sol10" class="solution-content">
+                        <h4>Solution:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+bool searchMatrix(vector&lt;vector&lt;int&gt;&gt;& matrix, int target) {
+    if (matrix.empty() || matrix[0].empty()) {
+        return false;
+    }
+    
+    int row = 0;
+    int col = matrix[0].size() - 1;  // Start from top-right
+    
+    while (row < matrix.size() && col >= 0) {
+        if (matrix[row][col] == target) {
+            return true;
+        } else if (matrix[row][col] > target) {
+            col--;  // All elements in this column are > target
+        } else {
+            row++;  // All elements in this row are < target
+        }
+    }
+    
+    return false;
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(m + n)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <h3 style="color: #dc2626; font-size: 1.75rem; margin-top: 2rem;">Hard Problems</h3>
+
+                <!-- Problem 11 -->
+                <div class="problem-card">
+                    <h3>Problem 11: Find Minimum in Rotated Sorted Array II <span class="difficulty-badge difficulty-hard">Hard</span></h3>
+                    <p><strong>LeetCode #154:</strong> Suppose an array of length <code>n</code> sorted in ascending order is rotated between <code>1</code> and <code>n</code> times. The array may contain duplicates. Find the minimum element.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [2,2,2,0,1]
+Output: 0
+
+Input: nums = [1,3,5]
+Output: 1</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol11')">Show Solution</button>
+                    <div id="sol11" class="solution-content">
+                        <h4>Solution:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int findMin(vector&lt;int&gt;& nums) {
+    int left = 0;
+    int right = nums.size() - 1;
+    
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+        
+        if (nums[mid] > nums[right]) {
+            left = mid + 1;
+        } else if (nums[mid] < nums[right]) {
+            right = mid;
+        } else {
+            // nums[mid] == nums[right], can't determine which half
+            right--;  // Eliminate duplicate
+        }
+    }
+    
+    return nums[left];
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(n) worst case (when all elements are duplicates), O(log n) average</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <!-- Problem 12 -->
+                <div class="problem-card">
+                    <h3>Problem 12: Search in Rotated Sorted Array II <span class="difficulty-badge difficulty-hard">Hard</span></h3>
+                    <p><strong>LeetCode #81:</strong> There is an integer array <code>nums</code> sorted in non-decreasing order (not necessarily with distinct values). Given the array <code>nums</code> after the rotation and an integer <code>target</code>, return <code>true</code> if <code>target</code> is in <code>nums</code>, or <code>false</code> if it is not in <code>nums</code>.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [2,5,6,0,0,1,2], target = 0
+Output: true
+
+Input: nums = [2,5,6,0,0,1,2], target = 3
+Output: false</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol12')">Show Solution</button>
+                    <div id="sol12" class="solution-content">
+                        <h4>Solution:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+bool search(vector&lt;int&gt;& nums, int target) {
+    int left = 0;
+    int right = nums.size() - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (nums[mid] == target) {
+            return true;
+        }
+        
+        // Handle duplicates
+        if (nums[left] == nums[mid] && nums[mid] == nums[right]) {
+            left++;
+            right--;
+            continue;
+        }
+        
+        // Left half is sorted
+        if (nums[left] <= nums[mid]) {
+            if (nums[left] <= target && target < nums[mid]) {
+                right = mid - 1;
+            } else {
+                left = mid + 1;
+            }
+        } 
+        // Right half is sorted
+        else {
+            if (nums[mid] < target && target <= nums[right]) {
+                left = mid + 1;
+            } else {
+                right = mid - 1;
+            }
+        }
+    }
+    
+    return false;
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(n) worst case, O(log n) average</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <!-- Problem 13 -->
+                <div class="problem-card">
+                    <h3>Problem 13: Find Peak Element <span class="difficulty-badge difficulty-hard">Hard</span></h3>
+                    <p><strong>LeetCode #162:</strong> A peak element is an element that is strictly greater than its neighbors. Given an integer array <code>nums</code>, find a peak element, and return its index. If the array contains multiple peaks, return the index to any of the peaks.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [1,2,3,1]
+Output: 2
+Explanation: 3 is a peak element and your function should return the index number 2.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol13')">Show Solution</button>
+                    <div id="sol13" class="solution-content">
+                        <h4>Solution:</h4>
+                        <pre><code>#include &lt;vector&gt;
+using namespace std;
+
+int findPeakElement(vector&lt;int&gt;& nums) {
+    int left = 0;
+    int right = nums.size() - 1;
+    
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+        
+        // If slope is increasing, peak is on the right
+        if (nums[mid] < nums[mid + 1]) {
+            left = mid + 1;
+        } 
+        // If slope is decreasing, peak is on the left (including mid)
+        else {
+            right = mid;
+        }
+    }
+    
     return left;
 }</code></pre>
-                        <h4 class="font-semibold mt-4 mb-2">Step-by-Step Simulation:</h4>
-                        <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 0.5rem; padding: 1.5rem; margin: 1rem 0; font-family: monospace; font-size: 0.9rem;">
-                            <p><strong>Input:</strong> nums = [1,3,5,6], target = 5</p>
-                            <p style="margin-top: 0.5rem;"><strong>Iteration 1:</strong> left=0, right=3, mid=1</p>
-                            <p style="margin-left: 2rem;">nums[1]=3 < 5, left=2</p>
-                            <p style="margin-top: 0.5rem;"><strong>Iteration 2:</strong> left=2, right=3, mid=2</p>
-                            <p style="margin-left: 2rem;">nums[2]=5 == 5, found! Return 2</p>
-                            <p style="margin-top: 1rem;"><strong>Example 2:</strong> target = 2</p>
-                            <p><strong>Iteration 1:</strong> left=0, right=3, mid=1</p>
-                            <p style="margin-left: 2rem;">nums[1]=3 > 2, right=0</p>
-                            <p><strong>Iteration 2:</strong> left=0, right=0, mid=0</p>
-                            <p style="margin-left: 2rem;">nums[0]=1 < 2, left=1</p>
-                            <p style="margin-left: 2rem;">left=1, right=0, exit loop</p>
-                            <p style="margin-top: 1rem;"><strong>Result:</strong> 1 (insert at index 1)</p>
-                        </div>
-                        <p class="mt-4"><strong>Explanation:</strong> Standard binary search. If we find the target, return its index. If not, when the loop ends, left will be at the position where target should be inserted. This is because left always points to the first element >= target (or end of array). The invariant is maintained: all elements to the left of 'left' are < target, and all elements at or to the right of 'left' are >= target.</p>
                         <p><strong>Time Complexity:</strong> O(log n)</p>
                         <p><strong>Space Complexity:</strong> O(1)</p>
                     </div>
                 </div>
-            </div>
+
+                <!-- Problem 14 -->
+                <div class="problem-card">
+                    <h3>Problem 14: Find K Closest Elements <span class="difficulty-badge difficulty-hard">Hard</span></h3>
+                    <p><strong>LeetCode #658:</strong> Given a sorted integer array <code>arr</code>, two integers <code>k</code> and <code>x</code>, return the <code>k</code> closest integers to <code>x</code> in the array. The result should also be sorted in ascending order.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: arr = [1,2,3,4,5], k = 4, x = 3
+Output: [1,2,3,4]</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol14')">Show Solution</button>
+                    <div id="sol14" class="solution-content">
+                        <h4>Solution:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+vector&lt;int&gt; findClosestElements(vector&lt;int&gt;& arr, int k, int x) {
+    int left = 0;
+    int right = arr.size() - k;
+    
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+        
+        // If x is closer to arr[mid+k], shrink window from left
+        if (x - arr[mid] > arr[mid + k] - x) {
+            left = mid + 1;
+        } else {
+            right = mid;
+        }
+    }
+    
+    return vector&lt;int&gt;(arr.begin() + left, arr.begin() + left + k);
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(log(n - k) + k)</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <!-- Problem 15 -->
+                <div class="problem-card">
+                    <h3>Problem 15: Split Array Largest Sum <span class="difficulty-badge difficulty-hard">Hard</span></h3>
+                    <p><strong>LeetCode #410:</strong> Given an integer array <code>nums</code> and an integer <code>k</code>, split <code>nums</code> into <code>k</code> non-empty subarrays such that the largest sum of any subarray is minimized. Return the minimized largest sum of the split.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre><code>Input: nums = [7,2,5,10,8], k = 2
+Output: 18
+Explanation: There are four ways to split nums into two subarrays.
+The best way is to split it into [7,2,5] and [10,8], where the largest sum among the two subarrays is only 18.</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('sol15')">Show Solution</button>
+                    <div id="sol15" class="solution-content">
+                        <h4>Solution:</h4>
+                        <pre><code>#include &lt;vector&gt;
+#include &lt;algorithm&gt;
+#include &lt;numeric&gt;
+using namespace std;
+
+bool canSplit(vector&lt;int&gt;& nums, int maxSum, int k) {
+    int count = 1;
+    int currentSum = 0;
+    
+    for (int num : nums) {
+        if (currentSum + num > maxSum) {
+            count++;
+            currentSum = num;
+            if (count > k) return false;
+        } else {
+            currentSum += num;
+        }
+    }
+    
+    return true;
+}
+
+int splitArray(vector&lt;int&gt;& nums, int k) {
+    int left = *max_element(nums.begin(), nums.end());
+    int right = accumulate(nums.begin(), nums.end(), 0);
+    
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+        
+        if (canSplit(nums, mid, k)) {
+            right = mid;
+        } else {
+            left = mid + 1;
+        }
+    }
+    
+    return left;
+}</code></pre>
+                        <p><strong>Time Complexity:</strong> O(n * log(sum))</p>
+                        <p><strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+            </article>
         </section>
     </main>
-
-    <footer class="bg-gray-800 text-white mt-12 py-6">
-        <div class="container mx-auto text-center">
-            <p>&copy; George Meshveliani - CST Department. All rights reserved.</p>
-        </div>
-    </footer>
 
     <script>
         function toggleSolution(id) {
             const solution = document.getElementById(id);
-            solution.classList.toggle('show');
-            const btn = event.target;
-            btn.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+            const button = solution.previousElementSibling;
+            
+            if (solution.classList.contains('show')) {
+                solution.classList.remove('show');
+                button.textContent = 'Show Solution';
+            } else {
+                solution.classList.add('show');
+                button.textContent = 'Hide Solution';
+            }
         }
     </script>
 </body>
