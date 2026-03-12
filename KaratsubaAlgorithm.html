@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karatsuba Algorithm: Fast Multiplication</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .code-block { background-color: #1f2937; color: #10b981; padding: 1.5rem; border-radius: 0.5rem; margin: 1rem 0; font-family: 'Courier New', monospace; overflow-x: auto; }
+        .step-box { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #3b82f6; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .math-box { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 5px solid #f59e0b; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-900">Karatsuba Algorithm: Fast Integer Multiplication</h1>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="introduction" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Karatsuba Algorithm: Divide and Conquer Multiplication</h1>
+                <p>The <strong>Karatsuba algorithm</strong> is a fast multiplication algorithm discovered by Anatoly Karatsuba in 1960. It uses a divide-and-conquer approach to multiply two n-digit numbers in O(n<sup>log₂3</sup>) ≈ O(n<sup>1.585</sup>) time, which is faster than the traditional O(n²) schoolbook method.</p>
+
+                <h2>Table of Contents</h2>
+                <ol>
+                    <li><a href="#problem">The Problem</a></li>
+                    <li><a href="#naive">Naive Approach</a></li>
+                    <li><a href="#karatsuba">Karatsuba Algorithm</a></li>
+                    <li><a href="#visualization">Visual Representation</a></li>
+                    <li><a href="#implementation">Implementation</a></li>
+                    <li><a href="#complexity">Complexity Analysis</a></li>
+                    <li><a href="#comparison">Comparison with Other Methods</a></li>
+                </ol>
+
+                <h2 id="problem">1. The Problem</h2>
+                <p>Given two n-digit numbers, multiply them efficiently. For very large numbers (like in cryptography), traditional multiplication becomes too slow.</p>
+                
+                <div class="step-box">
+                    <h4>Example</h4>
+                    <p>Multiply: <strong>1234 × 5678</strong></p>
+                    <p>Traditional method requires 16 multiplications (4×4 digit pairs).</p>
+                </div>
+
+                <h2 id="naive">2. Naive Approach</h2>
+                <p>The schoolbook method multiplies each digit of the first number with each digit of the second number:</p>
+                
+                <div class="math-box">
+                    <p><strong>For numbers x and y with n digits each:</strong></p>
+                    <p>Time Complexity: <strong>O(n²)</strong></p>
+                    <p>Space Complexity: <strong>O(n)</strong></p>
+                    <p>For n = 1000 digits: ~1,000,000 operations</p>
+                </div>
+
+                <h2 id="karatsuba">3. Karatsuba Algorithm</h2>
+                
+                <h3>The Key Insight</h3>
+                <p>Instead of computing 4 multiplications, Karatsuba computes only 3 multiplications by cleverly combining results.</p>
+
+                <h3>Mathematical Foundation</h3>
+                <p>Given two n-digit numbers x and y, split them into halves:</p>
+                
+                <div class="math-box">
+                    <p><strong>x = a × 10<sup>n/2</sup> + b</strong></p>
+                    <p><strong>y = c × 10<sup>n/2</sup> + d</strong></p>
+                    <p>Where a, b, c, d are n/2-digit numbers</p>
+                </div>
+
+                <h3>Traditional Multiplication</h3>
+                <div class="math-box">
+                    <p><strong>x × y = (a × 10<sup>n/2</sup> + b) × (c × 10<sup>n/2</sup> + d)</strong></p>
+                    <p><strong>= ac × 10<sup>n</sup> + (ad + bc) × 10<sup>n/2</sup> + bd</strong></p>
+                    <p>This requires <strong>4 multiplications:</strong> ac, ad, bc, bd</p>
+                </div>
+
+                <h3>Karatsuba's Trick</h3>
+                <p>Notice that: <strong>(a + b)(c + d) = ac + ad + bc + bd</strong></p>
+                <p>Therefore: <strong>ad + bc = (a + b)(c + d) - ac - bd</strong></p>
+                
+                <div class="math-box">
+                    <p><strong>Karatsuba Formula:</strong></p>
+                    <p><strong>x × y = ac × 10<sup>n</sup> + [(a + b)(c + d) - ac - bd] × 10<sup>n/2</sup> + bd</strong></p>
+                    <p>This requires only <strong>3 multiplications:</strong></p>
+                    <ol>
+                        <li><strong>ac</strong></li>
+                        <li><strong>bd</strong></li>
+                        <li><strong>(a + b)(c + d)</strong></li>
+                    </ol>
+                </div>
+
+                <h2 id="visualization">4. Visual Representation</h2>
+                
+                <h3>Step-by-Step Example: 1234 × 5678</h3>
+                <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 1rem; padding: 2rem; margin: 2rem 0;">
+                    <svg width="100%" height="800" viewBox="0 0 1000 800" style="max-width: 1000px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                        <defs>
+                            <linearGradient id="inputGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="splitGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+                            </linearGradient>
+                            <linearGradient id="multGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+                            </linearGradient>
+                            <filter id="shadow">
+                                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+                            </filter>
+                        </defs>
+                        
+                        <text x="500" y="30" text-anchor="middle" font-size="22" font-weight="700" fill="#1e293b">Karatsuba Algorithm: 1234 × 5678</text>
+                        
+                        <!-- Input -->
+                        <rect x="300" y="60" width="200" height="50" fill="url(#inputGrad)" stroke="#1e40af" stroke-width="3" rx="8" filter="url(#shadow)"/>
+                        <text x="400" y="90" text-anchor="middle" font-size="20" font-weight="700" fill="white">x = 1234</text>
+                        
+                        <rect x="500" y="60" width="200" height="50" fill="url(#inputGrad)" stroke="#1e40af" stroke-width="3" rx="8" filter="url(#shadow)"/>
+                        <text x="600" y="90" text-anchor="middle" font-size="20" font-weight="700" fill="white">y = 5678</text>
+                        
+                        <!-- Split -->
+                        <text x="500" y="150" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Split into halves (n=4, n/2=2):</text>
+                        
+                        <rect x="200" y="180" width="120" height="40" fill="url(#splitGrad)" stroke="#059669" stroke-width="2" rx="5"/>
+                        <text x="260" y="205" text-anchor="middle" font-size="16" font-weight="700" fill="white">a = 12</text>
+                        
+                        <rect x="340" y="180" width="120" height="40" fill="url(#splitGrad)" stroke="#059669" stroke-width="2" rx="5"/>
+                        <text x="400" y="205" text-anchor="middle" font-size="16" font-weight="700" fill="white">b = 34</text>
+                        
+                        <rect x="540" y="180" width="120" height="40" fill="url(#splitGrad)" stroke="#059669" stroke-width="2" rx="5"/>
+                        <text x="600" y="205" text-anchor="middle" font-size="16" font-weight="700" fill="white">c = 56</text>
+                        
+                        <rect x="680" y="180" width="120" height="40" fill="url(#splitGrad)" stroke="#059669" stroke-width="2" rx="5"/>
+                        <text x="740" y="205" text-anchor="middle" font-size="16" font-weight="700" fill="white">d = 78</text>
+                        
+                        <!-- Multiplications -->
+                        <text x="500" y="280" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Compute 3 Multiplications:</text>
+                        
+                        <!-- ac -->
+                        <rect x="150" y="310" width="200" height="60" fill="url(#multGrad)" stroke="#d97706" stroke-width="3" rx="8" filter="url(#shadow)"/>
+                        <text x="250" y="335" text-anchor="middle" font-size="16" font-weight="700" fill="white">z₀ = a × c</text>
+                        <text x="250" y="355" text-anchor="middle" font-size="18" font-weight="700" fill="white">= 12 × 56 = 672</text>
+                        
+                        <!-- bd -->
+                        <rect x="400" y="310" width="200" height="60" fill="url(#multGrad)" stroke="#d97706" stroke-width="3" rx="8" filter="url(#shadow)"/>
+                        <text x="500" y="335" text-anchor="middle" font-size="16" font-weight="700" fill="white">z₂ = b × d</text>
+                        <text x="500" y="355" text-anchor="middle" font-size="18" font-weight="700" fill="white">= 34 × 78 = 2652</text>
+                        
+                        <!-- (a+b)(c+d) -->
+                        <rect x="650" y="310" width="200" height="60" fill="url(#multGrad)" stroke="#d97706" stroke-width="3" rx="8" filter="url(#shadow)"/>
+                        <text x="750" y="335" text-anchor="middle" font-size="16" font-weight="700" fill="white">z₁ = (a+b)(c+d)</text>
+                        <text x="750" y="355" text-anchor="middle" font-size="18" font-weight="700" fill="white">= 46 × 134 = 6164</text>
+                        
+                        <!-- Calculation -->
+                        <text x="500" y="420" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Calculate: z₁ - z₀ - z₂ = ad + bc</text>
+                        <rect x="300" y="440" width="400" height="50" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" rx="5"/>
+                        <text x="500" y="470" text-anchor="middle" font-size="18" font-weight="700" fill="#92400e">6164 - 672 - 2652 = 2840</text>
+                        
+                        <!-- Final result -->
+                        <text x="500" y="540" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">Final Result:</text>
+                        <rect x="200" y="560" width="600" height="80" fill="#ecfdf5" stroke="#10b981" stroke-width="3" rx="8" filter="url(#shadow)"/>
+                        <text x="500" y="590" text-anchor="middle" font-size="16" fill="#059669">x × y = z₀ × 10⁴ + (z₁ - z₀ - z₂) × 10² + z₂</text>
+                        <text x="500" y="615" text-anchor="middle" font-size="18" font-weight="700" fill="#059669">= 672 × 10000 + 2840 × 100 + 2652</text>
+                        <text x="500" y="640" text-anchor="middle" font-size="20" font-weight="700" fill="#065f46">= 7,006,652</text>
+                        
+                        <!-- Verification -->
+                        <rect x="200" y="680" width="600" height="50" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" rx="5"/>
+                        <text x="500" y="705" text-anchor="middle" font-size="14" fill="#475569">✓ Verification: 1234 × 5678 = 7,006,652</text>
+                    </svg>
+                </div>
+
+                <h3>Recursive Tree Visualization</h3>
+                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 1rem; padding: 2rem; margin: 2rem 0;">
+                    <svg width="100%" height="600" viewBox="0 0 1000 600" style="max-width: 1000px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                        <defs>
+                            <linearGradient id="nodeGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+                            </linearGradient>
+                            <filter id="shadow">
+                                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+                            </filter>
+                        </defs>
+                        
+                        <text x="500" y="30" text-anchor="middle" font-size="20" font-weight="700" fill="#1e293b">Recursive Call Tree</text>
+                        
+                        <!-- Level 0 -->
+                        <rect x="400" y="60" width="200" height="50" fill="url(#nodeGrad)" stroke="#1e40af" stroke-width="3" rx="8" filter="url(#shadow)"/>
+                        <text x="500" y="90" text-anchor="middle" font-size="16" font-weight="700" fill="white">1234 × 5678</text>
+                        <text x="500" y="110" text-anchor="middle" font-size="12" fill="white">n=4</text>
+                        
+                        <!-- Level 1 -->
+                        <path d="M 500 110 L 250 180" stroke="#64748b" stroke-width="2"/>
+                        <rect x="150" y="180" width="200" height="50" fill="#10b981" stroke="#059669" stroke-width="2" rx="8"/>
+                        <text x="250" y="210" text-anchor="middle" font-size="14" font-weight="700" fill="white">12 × 56 (ac)</text>
+                        <text x="250" y="230" text-anchor="middle" font-size="11" fill="white">n=2</text>
+                        
+                        <path d="M 500 110 L 500 180" stroke="#64748b" stroke-width="2"/>
+                        <rect x="400" y="180" width="200" height="50" fill="#10b981" stroke="#059669" stroke-width="2" rx="8"/>
+                        <text x="500" y="210" text-anchor="middle" font-size="14" font-weight="700" fill="white">(46 × 134)</text>
+                        <text x="500" y="230" text-anchor="middle" font-size="11" fill="white">n=2</text>
+                        
+                        <path d="M 500 110 L 750 180" stroke="#64748b" stroke-width="2"/>
+                        <rect x="650" y="180" width="200" height="50" fill="#10b981" stroke="#059669" stroke-width="2" rx="8"/>
+                        <text x="750" y="210" text-anchor="middle" font-size="14" font-weight="700" fill="white">34 × 78 (bd)</text>
+                        <text x="750" y="230" text-anchor="middle" font-size="11" fill="white">n=2</text>
+                        
+                        <!-- Level 2 (for ac) -->
+                        <path d="M 250 230 L 150 300" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <rect x="50" y="300" width="200" height="40" fill="#f59e0b" stroke="#d97706" stroke-width="2" rx="5"/>
+                        <text x="150" y="325" text-anchor="middle" font-size="12" font-weight="700" fill="white">1 × 5 (n=1)</text>
+                        
+                        <path d="M 250 230 L 250 300" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <rect x="150" y="300" width="200" height="40" fill="#f59e0b" stroke="#d97706" stroke-width="2" rx="5"/>
+                        <text x="250" y="325" text-anchor="middle" font-size="12" font-weight="700" fill="white">(3 × 11) (n=1)</text>
+                        
+                        <path d="M 250 230 L 350 300" stroke="#64748b" stroke-width="1.5" stroke-dasharray="3,3"/>
+                        <rect x="250" y="300" width="200" height="40" fill="#f59e0b" stroke="#d97706" stroke-width="2" rx="5"/>
+                        <text x="350" y="325" text-anchor="middle" font-size="12" font-weight="700" fill="white">2 × 6 (n=1)</text>
+                        
+                        <!-- Base case -->
+                        <rect x="350" y="400" width="300" height="50" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="8"/>
+                        <text x="500" y="425" text-anchor="middle" font-size="14" font-weight="700" fill="#059669">Base Case: n = 1</text>
+                        <text x="500" y="445" text-anchor="middle" font-size="12" fill="#065f46">Direct multiplication (O(1))</text>
+                        
+                        <!-- Complexity -->
+                        <rect x="50" y="480" width="900" height="80" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" rx="8"/>
+                        <text x="500" y="510" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Recurrence Relation: T(n) = 3T(n/2) + O(n)</text>
+                        <text x="500" y="535" text-anchor="middle" font-size="14" fill="#475569">At each level: 3 recursive calls on n/2 digits + O(n) for additions/subtractions</text>
+                        <text x="500" y="555" text-anchor="middle" font-size="14" fill="#475569">Solution: T(n) = O(n<sup>log₂3</sup>) ≈ O(n<sup>1.585</sup>)</text>
+                    </svg>
+                </div>
+
+                <h2 id="implementation">5. Implementation</h2>
+                
+                <h3>Complete C++ Implementation</h3>
+                <div class="code-block">
+#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;algorithm&gt;
+using namespace std;
+
+// Helper function to add two numbers as strings
+string addStrings(string num1, string num2) {
+    int i = num1.length() - 1;
+    int j = num2.length() - 1;
+    int carry = 0;
+    string result = "";
+    
+    while (i >= 0 || j >= 0 || carry > 0) {
+        int digit1 = (i >= 0) ? (num1[i] - '0') : 0;
+        int digit2 = (j >= 0) ? (num2[j] - '0') : 0;
+        int sum = digit1 + digit2 + carry;
+        
+        result = char(sum % 10 + '0') + result;
+        carry = sum / 10;
+        i--; j--;
+    }
+    
+    return result;
+}
+
+// Helper function to subtract two numbers as strings (assumes num1 >= num2)
+string subtractStrings(string num1, string num2) {
+    int i = num1.length() - 1;
+    int j = num2.length() - 1;
+    int borrow = 0;
+    string result = "";
+    
+    while (i >= 0) {
+        int digit1 = (num1[i] - '0') - borrow;
+        int digit2 = (j >= 0) ? (num2[j] - '0') : 0;
+        
+        if (digit1 < digit2) {
+            digit1 += 10;
+            borrow = 1;
+        } else {
+            borrow = 0;
+        }
+        
+        result = char(digit1 - digit2 + '0') + result;
+        i--; j--;
+    }
+    
+    // Remove leading zeros
+    while (result.length() > 1 && result[0] == '0') {
+        result = result.substr(1);
+    }
+    
+    return result;
+}
+
+// Helper function to multiply by power of 10
+string multiplyByPowerOf10(string num, int power) {
+    return num + string(power, '0');
+}
+
+// Karatsuba multiplication
+string karatsuba(string x, string y) {
+    // Make both strings same length
+    int n = max(x.length(), y.length());
+    while (x.length() < n) x = "0" + x;
+    while (y.length() < n) y = "0" + y;
+    
+    // Base case: if numbers are small, use direct multiplication
+    if (n == 1) {
+        int product = (x[0] - '0') * (y[0] - '0');
+        return to_string(product);
+    }
+    
+    // Split into halves
+    int mid = n / 2;
+    string a = x.substr(0, n - mid);
+    string b = x.substr(n - mid);
+    string c = y.substr(0, n - mid);
+    string d = y.substr(n - mid);
+    
+    // Recursive calls: 3 multiplications
+    string z0 = karatsuba(a, c);  // ac
+    string z2 = karatsuba(b, d);  // bd
+    string z1 = karatsuba(addStrings(a, b), addStrings(c, d));  // (a+b)(c+d)
+    
+    // Calculate z1 - z0 - z2 = ad + bc
+    string ad_plus_bc = subtractStrings(subtractStrings(z1, z0), z2);
+    
+    // Result: z0 * 10^(2*mid) + (ad+bc) * 10^mid + z2
+    string term1 = multiplyByPowerOf10(z0, 2 * mid);
+    string term2 = multiplyByPowerOf10(ad_plus_bc, mid);
+    string result = addStrings(addStrings(term1, term2), z2);
+    
+    // Remove leading zeros
+    while (result.length() > 1 && result[0] == '0') {
+        result = result.substr(1);
+    }
+    
+    return result;
+}
+
+int main() {
+    string x = "1234";
+    string y = "5678";
+    
+    cout << "Multiplying: " << x << " × " << y << endl;
+    string result = karatsuba(x, y);
+    cout << "Result: " << result << endl;
+    cout << "Expected: " << (1234LL * 5678LL) << endl;
+    
+    // Large number example
+    x = "3141592653589793238462643383279502884197169399375105820974944592";
+    y = "2718281828459045235360287471352662497757247093699959574966967627";
+    
+    cout << "\nLarge number multiplication:" << endl;
+    result = karatsuba(x, y);
+    cout << "Result length: " << result.length() << " digits" << endl;
+    cout << "First 50 digits: " << result.substr(0, 50) << "..." << endl;
+    
+    return 0;
+}
+                </div>
+
+                <h3>Simplified Integer Version (for smaller numbers)</h3>
+                <div class="code-block">
+#include &lt;iostream&gt;
+#include &lt;cmath&gt;
+using namespace std;
+
+long long karatsuba(long long x, long long y) {
+    // Base case
+    if (x < 10 || y < 10) {
+        return x * y;
+    }
+    
+    // Calculate number of digits
+    int n = max((int)log10(x) + 1, (int)log10(y) + 1);
+    int m = n / 2;
+    long long power = pow(10, m);
+    
+    // Split numbers
+    long long a = x / power;
+    long long b = x % power;
+    long long c = y / power;
+    long long d = y % power;
+    
+    // Three recursive multiplications
+    long long z0 = karatsuba(a, c);
+    long long z2 = karatsuba(b, d);
+    long long z1 = karatsuba(a + b, c + d);
+    
+    // Result
+    return z0 * power * power + (z1 - z0 - z2) * power + z2;
+}
+
+int main() {
+    long long x = 1234;
+    long long y = 5678;
+    
+    cout << "Karatsuba: " << karatsuba(x, y) << endl;
+    cout << "Direct: " << x * y << endl;
+    
+    return 0;
+}
+                </div>
+
+                <h2 id="complexity">6. Complexity Analysis</h2>
+                
+                <h3>Time Complexity</h3>
+                <div class="math-box">
+                    <p><strong>Recurrence Relation:</strong> T(n) = 3T(n/2) + O(n)</p>
+                    <p>Where:</p>
+                    <ul>
+                        <li>3T(n/2): Three recursive calls on half-sized numbers</li>
+                        <li>O(n): Time for additions, subtractions, and shifts</li>
+                    </ul>
+                    <p><strong>Solution using Master Theorem:</strong></p>
+                    <p>T(n) = O(n<sup>log₂3</sup>) ≈ O(n<sup>1.585</sup>)</p>
+                </div>
+
+                <h3>Space Complexity</h3>
+                <div class="step-box">
+                    <p><strong>O(log n)</strong> - Depth of recursion tree</p>
+                    <p>Each recursive call uses O(n) space for string operations, but space is reused.</p>
+                </div>
+
+                <h3>Comparison Table</h3>
+                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                    <thead>
+                        <tr style="background-color: #3b82f6; color: white;">
+                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Method</th>
+                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Time Complexity</th>
+                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">n=1000</th>
+                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">n=10000</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Schoolbook</strong></td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">O(n²)</td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">1,000,000</td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">100,000,000</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Karatsuba</strong></td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">O(n<sup>1.585</sup>)</td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">~34,000</td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">~1,000,000</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Toom-Cook</strong></td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">O(n<sup>1.465</sup>)</td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">~22,000</td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">~500,000</td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>FFT-based</strong></td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">O(n log n)</td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">~10,000</td>
+                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">~133,000</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h2 id="comparison">7. Comparison with Other Methods</h2>
+                
+                <h3>When to Use Karatsuba</h3>
+                <ul>
+                    <li><strong>Advantages:</strong> Faster than schoolbook for large numbers, relatively simple to implement</li>
+                    <li><strong>Disadvantages:</strong> Overhead for small numbers, not as fast as FFT-based methods for very large numbers</li>
+                    <li><strong>Best for:</strong> Numbers with 100-10,000 digits</li>
+                </ul>
+
+                <h3>Real-World Applications</h3>
+                <ul>
+                    <li><strong>Cryptography:</strong> RSA encryption, large prime number generation</li>
+                    <li><strong>Arbitrary Precision Arithmetic:</strong> Mathematical libraries, scientific computing</li>
+                    <li><strong>Computer Algebra Systems:</strong> Symbolic computation, polynomial multiplication</li>
+                </ul>
+
+                <h2>Summary</h2>
+                <p>The Karatsuba algorithm demonstrates the power of divide-and-conquer:</p>
+                <ol>
+                    <li>Reduces 4 multiplications to 3 using algebraic manipulation</li>
+                    <li>Achieves O(n<sup>1.585</sup>) time complexity vs O(n²) for schoolbook</li>
+                    <li>Uses recursion to handle large numbers efficiently</li>
+                    <li>Essential for cryptographic and high-precision arithmetic applications</li>
+                </ol>
+            </article>
+        </section>
+    </main>
+
+    <footer class="bg-white border-t mt-12 py-6">
+        <div class="container mx-auto px-6 text-center text-gray-600">
+            <p>&copy; 2024 Computer Science Fundamentals. All rights reserved.</p>
+        </div>
+    </footer>
+</body>
+</html>

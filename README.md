@@ -28,3 +28,18 @@
 - [`Dynamic Programming`](https://george1meshveliani.github.io/CS/DynamicProgramming)
 - [`Backtracking`](https://george1meshveliani.github.io/CS/Backtracking)
 - [`Greedy Algorithms`](https://george1meshveliani.github.io/CS/GreedyAlgorithms)
+
+## Advanced Topics
+
+### System Administration
+- [`Linux Administration: Cloud Server & Domain Management`](https://george1meshveliani.github.io/CS/LinuxAdministration)
+
+### C++ Programming
+- [`C++ Advanced: Multi-dimensional Arrays, Structures, Stack & Queue`](https://george1meshveliani.github.io/CS/CppAdvanced)
+
+### Algorithms
+- [`Karatsuba Algorithm: Fast Integer Multiplication`](https://george1meshveliani.github.io/CS/KaratsubaAlgorithm)
+
+### Dynamic Programming Problems
+- [`Knapsack Problem: 0/1 Knapsack with DP`](https://george1meshveliani.github.io/CS/KnapsackProblem)
+- [`Floyd-Warshall Algorithm: All-Pairs Shortest Paths`](https://george1meshveliani.github.io/CS/FloydWarshall)
