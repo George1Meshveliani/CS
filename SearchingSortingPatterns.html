@@ -1,0 +1,1256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Searching, Sorting and Pattern Matching Algorithms</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .code-block { background-color: #1f2937; color: #d1d5db; padding: 1.5rem; border-radius: 0.5rem; margin: 1rem 0; font-family: 'Courier New', monospace; overflow-x: auto; font-size: 0.95rem; line-height: 1.8; white-space: pre; tab-size: 4; }
+        .cmd { background-color: #111827; color: #4ade80; padding: 1.5rem; border-radius: 0.5rem; margin: 1rem 0; font-family: 'Courier New', monospace; overflow-x: auto; font-size: 0.95rem; line-height: 1.8; white-space: pre; tab-size: 4; }
+        .step-box { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #3b82f6; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .math-box { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 5px solid #f59e0b; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .insight-box { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 5px solid #10b981; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .warn-box { background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%); border-left: 5px solid #f97316; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .sim-btn { background-color: #3b82f6; color: white; padding: 0.6rem 1.4rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; font-size: 1rem; margin: 0.3rem; transition: background 0.2s; }
+        .sim-btn:hover { background-color: #1d4ed8; }
+        .sim-btn:disabled { background-color: #9ca3af; cursor: not-allowed; }
+        .sim-btn.secondary { background-color: #6366f1; }
+        .sim-btn.secondary:hover { background-color: #4338ca; }
+        .sim-btn.danger { background-color: #ef4444; }
+        .sim-btn.danger:hover { background-color: #b91c1c; }
+        .sim-container { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 1rem; padding: 1.5rem; margin: 1.5rem 0; }
+        .sim-log { background: #1f2937; color: #d1d5db; border-radius: 0.5rem; padding: 1rem; min-height: 120px; font-family: 'Courier New', monospace; font-size: 0.9rem; line-height: 1.7; overflow-y: auto; max-height: 300px; }
+        .highlight-green { color: #34d399; font-weight: 700; }
+        .highlight-yellow { color: #fbbf24; font-weight: 700; }
+        .highlight-blue { color: #60a5fa; font-weight: 700; }
+        .highlight-red { color: #f87171; font-weight: 700; }
+        table.styled { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        table.styled thead tr { background-color: #3b82f6; color: white; }
+        table.styled th, table.styled td { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; text-align: left; }
+        table.styled tbody tr:nth-child(even) { background-color: #f1f5f9; }
+        .nav-link { display: block; padding: 0.5rem 1rem; color: #374151; border-radius: 0.375rem; font-weight: 500; transition: background 0.15s; }
+        .nav-link:hover { background-color: #eff6ff; color: #2563eb; }
+        .array-cell { display: inline-block; width: 48px; height: 48px; line-height: 48px; text-align: center; border: 2px solid #6b7280; border-radius: 6px; font-weight: 700; font-size: 1.1rem; margin: 2px; transition: all 0.3s; }
+        .cell-default { background: #e5e7eb; color: #111827; }
+        .cell-active { background: #3b82f6; color: white; border-color: #1d4ed8; }
+        .cell-found { background: #10b981; color: white; border-color: #059669; }
+        .cell-pivot { background: #f59e0b; color: white; border-color: #d97706; }
+        .cell-sorted { background: #6366f1; color: white; border-color: #4338ca; }
+        .cell-compare { background: #ef4444; color: white; border-color: #b91c1c; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- HEADER -->
+<header class="bg-white shadow-md sticky top-0 z-10">
+    <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+        <h1 class="text-xl font-bold text-gray-900">Searching, Sorting &amp; Pattern Matching</h1>
+        <a href="index.html" class="text-sm text-blue-600 hover:underline">← Back to Index</a>
+    </nav>
+</header>
+
+<!-- TABLE OF CONTENTS -->
+<div class="container mx-auto px-6 py-6">
+    <div class="bg-white rounded-lg shadow p-6 mb-8">
+        <h2 class="text-lg font-bold mb-3 text-gray-700">Contents</h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-1">
+            <a href="#linux-tools" class="nav-link">1. Linux CLI Tools</a>
+            <a href="#binary-search" class="nav-link">2. Binary Search</a>
+            <a href="#bubble-sort" class="nav-link">3. Bubble Sort O(n²)</a>
+            <a href="#selection-sort" class="nav-link">4. Selection Sort O(n²)</a>
+            <a href="#merge-sort" class="nav-link">5. Merge Sort O(n log n)</a>
+            <a href="#heap-sort" class="nav-link">6. Heap Sort O(n log n)</a>
+            <a href="#kmp" class="nav-link">7. KMP Pattern Matching</a>
+            <a href="#complexity" class="nav-link">8. Complexity Comparison</a>
+        </div>
+    </div>
+</div>
+
+<main class="container mx-auto px-6 pb-16">
+
+<!-- ===== SECTION 1: LINUX CLI TOOLS ===== -->
+<section id="linux-tools" class="mb-16">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h1>Linux CLI Tools for Search &amp; Processing</h1>
+        <p>Linux provides powerful command-line tools for searching files, filtering text, and sorting data. These are essential daily tools for any developer or sysadmin — they operate on streams of text and can be composed via pipes (<code>|</code>) to build complex data pipelines without writing a single line of C++.</p>
+
+        <!-- find -->
+        <h2>find — Filesystem Search</h2>
+        <p><code>find</code> recursively searches the directory tree for files matching given criteria: name pattern, type, size, modification time, permissions, etc.</p>
+
+        <div class="step-box">
+            <strong>Syntax:</strong> <code>find [path] [expression]</code><br>
+            The expression is a combination of tests, actions, and operators evaluated left-to-right.
+        </div>
+
+        <div class="cmd"># Find all .cpp files under current directory
+find . -name "*.cpp"
+
+# Find files modified in the last 7 days
+find /home/george -mtime -7 -type f
+
+# Find files larger than 100 MB
+find /var/log -size +100M -type f
+
+# Find and execute: delete all .o object files
+find . -name "*.o" -exec rm {} \;
+
+# Find files owned by root with SUID bit set (security audit)
+find / -user root -perm -4000 -type f 2>/dev/null
+
+# Find directories named "build" and list their sizes
+find . -type d -name "build" -exec du -sh {} \;
+
+# Case-insensitive search for README files
+find . -iname "readme*"
+
+# Find empty files
+find . -empty -type f</div>
+
+        <!-- sort -->
+        <h2>sort — Sort Lines of Text</h2>
+        <p><code>sort</code> sorts lines from stdin or files. It supports numeric sorting, reverse order, sorting by specific fields (columns), and uniqueness filtering.</p>
+
+        <div class="cmd"># Sort a file alphabetically
+sort names.txt
+
+# Sort numerically (important! "10" < "9" lexicographically)
+sort -n scores.txt
+
+# Sort in reverse order
+sort -r -n scores.txt
+
+# Sort by 2nd field (column), using comma as delimiter
+sort -t',' -k2 -n data.csv
+
+# Remove duplicate lines (equivalent to sort | uniq)
+sort -u words.txt
+
+# Sort by file size (human-readable) — combine with du
+du -sh /usr/* | sort -h
+
+# Sort processes by CPU usage (field 3)
+ps aux | sort -k3 -rn | head -10
+
+# Multi-key sort: first by field 2, then by field 1
+sort -k2,2 -k1,1 employees.txt</div>
+
+        <!-- grep / egrep / fgrep -->
+        <h2>grep, egrep, fgrep — Pattern Search in Text</h2>
+        <p>The grep family searches for lines matching a pattern. They differ in what kind of patterns they accept:</p>
+
+        <table class="styled">
+            <thead><tr><th>Command</th><th>Pattern Type</th><th>Equivalent to</th><th>Use When</th></tr></thead>
+            <tbody>
+                <tr><td><code>grep</code></td><td>Basic Regular Expressions (BRE)</td><td><code>grep -G</code></td><td>Simple patterns, BRE syntax</td></tr>
+                <tr><td><code>egrep</code></td><td>Extended Regular Expressions (ERE)</td><td><code>grep -E</code></td><td>Groups <code>()</code>, alternation <code>|</code>, <code>+</code>, <code>?</code></td></tr>
+                <tr><td><code>fgrep</code></td><td>Fixed strings (no regex)</td><td><code>grep -F</code></td><td>Literal string search, fastest</td></tr>
+            </tbody>
+        </table>
+
+        <div class="cmd"># grep: basic pattern search
+grep "error" /var/log/syslog
+grep -i "error" file.txt          # case insensitive
+grep -n "TODO" *.cpp               # show line numbers
+grep -r "malloc" /usr/include/     # recursive
+grep -v "^#" config.txt            # invert: lines NOT matching (skip comments)
+grep -c "warning" build.log        # count matching lines
+grep -l "main" *.cpp               # list filenames that match
+grep -A3 -B1 "segfault" syslog     # 3 lines after, 1 before match
+
+# egrep (grep -E): extended regex — no need to escape +, ?, |, ()
+egrep "error|warning|fatal" app.log
+egrep "^[0-9]{4}-[0-9]{2}-[0-9]{2}" logfile.txt   # ISO date at start
+egrep "(GET|POST|PUT|DELETE) /api" access.log
+egrep "\b[A-Z]{2,}\b" document.txt                  # words ALL CAPS
+
+# fgrep (grep -F): literal string, no special regex chars interpreted
+fgrep "std::vector<int>" *.cpp     # searches the literal string including <>
+fgrep -f patterns.txt bigfile.txt  # match multiple fixed strings from file
+
+# Practical pipeline examples
+cat /etc/passwd | grep -v "^#" | cut -d: -f1 | sort
+find . -name "*.log" | xargs grep -l "OOM"
+ps aux | grep nginx | grep -v grep</div>
+
+        <div class="insight-box">
+            <strong>Performance tip:</strong> <code>fgrep</code> is fastest for literal strings because it uses the Boyer-Moore-Horspool algorithm internally rather than building an NFA/DFA. For searching millions of lines for a fixed string, prefer <code>fgrep</code> over <code>grep</code>.
+        </div>
+
+        <!-- SVG: pipe diagram -->
+        <h3>Composing Tools with Pipes</h3>
+        <div style="background: #f0f9ff; border: 2px solid #0ea5e9; border-radius: 1rem; padding: 1.5rem; margin: 1.5rem 0;">
+            <svg width="100%" height="160" viewBox="0 0 900 160" style="max-width:900px; display:block; margin:0 auto;">
+                <defs>
+                    <marker id="arr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto">
+                        <polygon points="0 0, 8 3, 0 6" fill="#0ea5e9"/>
+                    </marker>
+                </defs>
+                <!-- boxes -->
+                <rect x="10" y="55" width="150" height="50" rx="10" fill="#1e3a5f" />
+                <text x="85" y="78" text-anchor="middle" fill="white" font-size="13" font-weight="bold">find . -name</text>
+                <text x="85" y="96" text-anchor="middle" fill="#4ade80" font-size="13">"*.log"</text>
+
+                <line x1="160" y1="80" x2="205" y2="80" stroke="#0ea5e9" stroke-width="3" marker-end="url(#arr)"/>
+                <text x="182" y="72" text-anchor="middle" fill="#0369a1" font-size="12">pipe</text>
+
+                <rect x="208" y="55" width="160" height="50" rx="10" fill="#1e3a5f"/>
+                <text x="288" y="78" text-anchor="middle" fill="white" font-size="13" font-weight="bold">xargs grep -l</text>
+                <text x="288" y="96" text-anchor="middle" fill="#4ade80" font-size="13">"OutOfMemory"</text>
+
+                <line x1="368" y1="80" x2="413" y2="80" stroke="#0ea5e9" stroke-width="3" marker-end="url(#arr)"/>
+                <text x="390" y="72" text-anchor="middle" fill="#0369a1" font-size="12">pipe</text>
+
+                <rect x="416" y="55" width="160" height="50" rx="10" fill="#1e3a5f"/>
+                <text x="496" y="78" text-anchor="middle" fill="white" font-size="13" font-weight="bold">sort -u</text>
+                <text x="496" y="96" text-anchor="middle" fill="#4ade80" font-size="13">(unique filenames)</text>
+
+                <line x1="576" y1="80" x2="621" y2="80" stroke="#0ea5e9" stroke-width="3" marker-end="url(#arr)"/>
+                <text x="598" y="72" text-anchor="middle" fill="#0369a1" font-size="12">pipe</text>
+
+                <rect x="624" y="55" width="160" height="50" rx="10" fill="#166534"/>
+                <text x="704" y="78" text-anchor="middle" fill="white" font-size="13" font-weight="bold">wc -l</text>
+                <text x="704" y="96" text-anchor="middle" fill="#4ade80" font-size="13">(count results)</text>
+
+                <text x="450" y="145" text-anchor="middle" fill="#374151" font-size="13">find . -name "*.log" | xargs grep -l "OutOfMemory" | sort -u | wc -l</text>
+            </svg>
+        </div>
+    </article>
+</section>
+
+<!-- ===== SECTION 2: BINARY SEARCH ===== -->
+<section id="binary-search" class="mb-16">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h1>Binary Search</h1>
+        <p>Binary search finds a target in a <strong>sorted</strong> array by repeatedly halving the search space. Each comparison eliminates half the remaining candidates, giving \(O(\log n)\) time — searching 1 billion elements requires at most 30 comparisons.</p>
+
+        <div class="math-box">
+            <strong>Recurrence:</strong><br>
+            \[T(n) = T\!\left(\frac{n}{2}\right) + O(1) \implies T(n) = O(\log n)\]
+            At each step: \(\text{mid} = \left\lfloor\frac{\text{lo} + \text{hi}}{2}\right\rfloor\)<br>
+            — If <code>arr[mid] == target</code>: found.<br>
+            — If <code>arr[mid] &lt; target</code>: search right half: <code>lo = mid + 1</code><br>
+            — If <code>arr[mid] &gt; target</code>: search left half: <code>hi = mid - 1</code>
+        </div>
+
+        <!-- SVG Binary search trace -->
+        <h3>Visual Trace: searching 37 in sorted array</h3>
+        <div style="background:#f0f9ff; border:2px solid #3b82f6; border-radius:1rem; padding:1.5rem; margin:1.5rem 0; overflow-x:auto;">
+            <svg width="860" height="300" viewBox="0 0 860 300" style="min-width:700px; display:block; margin:0 auto;">
+                <defs>
+                    <marker id="darr" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+                        <polygon points="0 0,7 3,0 6" fill="#ef4444"/>
+                    </marker>
+                </defs>
+                <!-- Array values: [2,7,13,19,24,31,37,45,52,60] indices 0-9 -->
+                <!-- Step labels -->
+                <text x="10" y="30" font-size="14" font-weight="bold" fill="#1e3a5f">Array (sorted): target = 37</text>
+
+                <!-- Row 1: initial -->
+                <text x="10" y="75" font-size="12" fill="#374151">Step 1:</text>
+                <text x="75" y="75" font-size="11" fill="#6b7280">lo=0, hi=9, mid=4 → arr[4]=24 &lt; 37 → lo=5</text>
+                <!-- cells -->
+                <g transform="translate(0,80)">
+                    <!-- indices -->
+                    <text x="100" y="-5" text-anchor="middle" fill="#9ca3af" font-size="10">0</text>
+                    <text x="150" y="-5" text-anchor="middle" fill="#9ca3af" font-size="10">1</text>
+                    <text x="200" y="-5" text-anchor="middle" fill="#9ca3af" font-size="10">2</text>
+                    <text x="250" y="-5" text-anchor="middle" fill="#9ca3af" font-size="10">3</text>
+                    <text x="300" y="-5" text-anchor="middle" fill="#9ca3af" font-size="10">4</text>
+                    <text x="350" y="-5" text-anchor="middle" fill="#9ca3af" font-size="10">5</text>
+                    <text x="400" y="-5" text-anchor="middle" fill="#9ca3af" font-size="10">6</text>
+                    <text x="450" y="-5" text-anchor="middle" fill="#9ca3af" font-size="10">7</text>
+                    <text x="500" y="-5" text-anchor="middle" fill="#9ca3af" font-size="10">8</text>
+                    <text x="550" y="-5" text-anchor="middle" fill="#9ca3af" font-size="10">9</text>
+                    <!-- cells -->
+                    <rect x="75" y="0" width="46" height="36" rx="5" fill="#e5e7eb" stroke="#9ca3af"/>
+                    <text x="98" y="23" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">2</text>
+                    <rect x="125" y="0" width="46" height="36" rx="5" fill="#e5e7eb" stroke="#9ca3af"/>
+                    <text x="148" y="23" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">7</text>
+                    <rect x="175" y="0" width="46" height="36" rx="5" fill="#e5e7eb" stroke="#9ca3af"/>
+                    <text x="198" y="23" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">13</text>
+                    <rect x="225" y="0" width="46" height="36" rx="5" fill="#e5e7eb" stroke="#9ca3af"/>
+                    <text x="248" y="23" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">19</text>
+                    <!-- mid cell -->
+                    <rect x="275" y="0" width="46" height="36" rx="5" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+                    <text x="298" y="23" text-anchor="middle" fill="white" font-weight="bold" font-size="14">24</text>
+                    <rect x="325" y="0" width="46" height="36" rx="5" fill="#e5e7eb" stroke="#9ca3af"/>
+                    <text x="348" y="23" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">31</text>
+                    <rect x="375" y="0" width="46" height="36" rx="5" fill="#e5e7eb" stroke="#9ca3af"/>
+                    <text x="398" y="23" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">37</text>
+                    <rect x="425" y="0" width="46" height="36" rx="5" fill="#e5e7eb" stroke="#9ca3af"/>
+                    <text x="448" y="23" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">45</text>
+                    <rect x="475" y="0" width="46" height="36" rx="5" fill="#e5e7eb" stroke="#9ca3af"/>
+                    <text x="498" y="23" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">52</text>
+                    <rect x="525" y="0" width="46" height="36" rx="5" fill="#e5e7eb" stroke="#9ca3af"/>
+                    <text x="548" y="23" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">60</text>
+                    <!-- mid label -->
+                    <text x="298" y="52" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="bold">mid</text>
+                    <!-- lo bracket -->
+                    <text x="98" y="52" text-anchor="middle" fill="#3b82f6" font-size="11">lo</text>
+                    <text x="548" y="52" text-anchor="middle" fill="#3b82f6" font-size="11">hi</text>
+                </g>
+
+                <!-- Step 2 -->
+                <text x="10" y="175" font-size="12" fill="#374151">Step 2:</text>
+                <text x="75" y="175" font-size="11" fill="#6b7280">lo=5, hi=9, mid=7 → arr[7]=45 &gt; 37 → hi=6</text>
+                <g transform="translate(0,180)">
+                    <rect x="75" y="0" width="46" height="36" rx="5" fill="#d1d5db" stroke="#9ca3af" opacity="0.4"/>
+                    <text x="98" y="23" text-anchor="middle" fill="#9ca3af" font-weight="bold" font-size="14">2</text>
+                    <rect x="125" y="0" width="46" height="36" rx="5" fill="#d1d5db" stroke="#9ca3af" opacity="0.4"/>
+                    <text x="148" y="23" text-anchor="middle" fill="#9ca3af" font-weight="bold" font-size="14">7</text>
+                    <rect x="175" y="0" width="46" height="36" rx="5" fill="#d1d5db" stroke="#9ca3af" opacity="0.4"/>
+                    <text x="198" y="23" text-anchor="middle" fill="#9ca3af" font-weight="bold" font-size="14">13</text>
+                    <rect x="225" y="0" width="46" height="36" rx="5" fill="#d1d5db" stroke="#9ca3af" opacity="0.4"/>
+                    <text x="248" y="23" text-anchor="middle" fill="#9ca3af" font-weight="bold" font-size="14">19</text>
+                    <rect x="275" y="0" width="46" height="36" rx="5" fill="#d1d5db" stroke="#9ca3af" opacity="0.4"/>
+                    <text x="298" y="23" text-anchor="middle" fill="#9ca3af" font-weight="bold" font-size="14">24</text>
+                    <rect x="325" y="0" width="46" height="36" rx="5" fill="#e5e7eb" stroke="#9ca3af"/>
+                    <text x="348" y="23" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">31</text>
+                    <rect x="375" y="0" width="46" height="36" rx="5" fill="#e5e7eb" stroke="#9ca3af"/>
+                    <text x="398" y="23" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">37</text>
+                    <!-- mid = 7 = 45 -->
+                    <rect x="425" y="0" width="46" height="36" rx="5" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/>
+                    <text x="448" y="23" text-anchor="middle" fill="white" font-weight="bold" font-size="14">45</text>
+                    <rect x="475" y="0" width="46" height="36" rx="5" fill="#e5e7eb" stroke="#9ca3af"/>
+                    <text x="498" y="23" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">52</text>
+                    <rect x="525" y="0" width="46" height="36" rx="5" fill="#e5e7eb" stroke="#9ca3af"/>
+                    <text x="548" y="23" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">60</text>
+                    <text x="448" y="52" text-anchor="middle" fill="#ef4444" font-size="11" font-weight="bold">mid</text>
+                    <text x="348" y="52" text-anchor="middle" fill="#3b82f6" font-size="11">lo</text>
+                    <text x="548" y="52" text-anchor="middle" fill="#3b82f6" font-size="11">hi</text>
+                </g>
+
+                <!-- Step 3 -->
+                <text x="10" y="270" font-size="12" fill="#374151">Step 3:</text>
+                <text x="75" y="270" font-size="11" fill="#16a34a" font-weight="bold">lo=5, hi=6, mid=5 → arr[5]=31 &lt; 37 → lo=6; mid=6 → arr[6]=37 ✓ FOUND at index 6</text>
+            </svg>
+        </div>
+
+        <!-- Interactive Binary Search -->
+        <h3>Interactive Simulation</h3>
+        <div class="sim-container">
+            <div style="margin-bottom:1rem;">
+                <label style="font-weight:600;">Target value: </label>
+                <input id="bs-target" type="number" value="37" style="width:80px; padding:0.4rem; border:2px solid #d1d5db; border-radius:6px; font-size:1rem; text-align:center;"/>
+                <button class="sim-btn" onclick="bsStart()">Search</button>
+                <button class="sim-btn secondary" onclick="bsNext()" id="bs-next-btn" disabled>Next Step</button>
+                <button class="sim-btn danger" onclick="bsReset()">Reset</button>
+            </div>
+            <div id="bs-array-display" style="margin:1rem 0; min-height:60px;"></div>
+            <div class="sim-log" id="bs-log">Click "Search" to begin binary search.</div>
+        </div>
+
+        <!-- C++ code -->
+        <h3>C++ Implementation</h3>
+        <div class="code-block"><span style="color:#60a5fa">// Binary Search — iterative and recursive versions
+// Time: O(log n)  |  Space: O(1) iterative, O(log n) recursive
+</span>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+<span style="color:#fbbf24">// Iterative — preferred (no call stack overhead)
+</span>int binarySearch(const vector&lt;int&gt;&amp; arr, int target) {
+    int lo = 0, hi = (int)arr.size() - 1;
+    while (lo &lt;= hi) {
+        int mid = lo + (hi - lo) / 2;  <span style="color:#4ade80">// avoids overflow vs (lo+hi)/2</span>
+        if (arr[mid] == target) return mid;
+        else if (arr[mid] &lt; target) lo = mid + 1;
+        else                        hi = mid - 1;
+    }
+    return -1;  <span style="color:#4ade80">// not found</span>
+}
+
+<span style="color:#fbbf24">// Recursive variant
+</span>int binarySearchRec(const vector&lt;int&gt;&amp; arr, int target, int lo, int hi) {
+    if (lo &gt; hi) return -1;
+    int mid = lo + (hi - lo) / 2;
+    if (arr[mid] == target) return mid;
+    if (arr[mid] &lt; target) return binarySearchRec(arr, target, mid + 1, hi);
+    return binarySearchRec(arr, target, lo, mid - 1);
+}
+
+<span style="color:#fbbf24">// Lower bound: first index where arr[i] >= target (like std::lower_bound)
+</span>int lowerBound(const vector&lt;int&gt;&amp; arr, int target) {
+    int lo = 0, hi = (int)arr.size();
+    while (lo &lt; hi) {
+        int mid = lo + (hi - lo) / 2;
+        if (arr[mid] &lt; target) lo = mid + 1;
+        else hi = mid;
+    }
+    return lo;
+}
+
+int main() {
+    vector&lt;int&gt; arr = {2, 7, 13, 19, 24, 31, 37, 45, 52, 60};
+    int idx = binarySearch(arr, 37);
+    cout &lt;&lt; "Found 37 at index: " &lt;&lt; idx &lt;&lt; endl;  <span style="color:#4ade80">// 6</span>
+    cout &lt;&lt; "Not found: " &lt;&lt; binarySearch(arr, 100) &lt;&lt; endl;  <span style="color:#4ade80">// -1</span>
+    cout &lt;&lt; "Lower bound of 25: " &lt;&lt; lowerBound(arr, 25) &lt;&lt; endl;  <span style="color:#4ade80">// 5</span>
+}</div>
+    </article>
+</section>
+
+<!-- ===== SECTION 3: BUBBLE SORT ===== -->
+<section id="bubble-sort" class="mb-16">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h1>Bubble Sort — O(n²)</h1>
+        <p>Bubble sort repeatedly passes through the array, comparing adjacent pairs and swapping them if out of order. The largest unsorted element "bubbles up" to its correct position each pass. Simple to implement but impractical for large data.</p>
+
+        <div class="math-box">
+            <strong>Complexity Analysis:</strong><br>
+            Pass 1 makes \(n-1\) comparisons, pass 2 makes \(n-2\), ..., total:
+            \[\sum_{i=1}^{n-1} i = \frac{n(n-1)}{2} = O(n^2)\]
+            Best case (already sorted, with early-exit flag): \(O(n)\)<br>
+            Worst case (reversed): \(O(n^2)\) &nbsp;|&nbsp; Stable: <strong>Yes</strong>
+        </div>
+
+        <!-- SVG: bubble sort passes -->
+        <h3>Visual: Sorting [64, 34, 25, 12, 22, 11, 90]</h3>
+        <div style="background:#fefce8; border:2px solid #f59e0b; border-radius:1rem; padding:1.5rem; margin:1.5rem 0; overflow-x:auto;">
+            <svg width="700" height="400" viewBox="0 0 700 400" style="min-width:600px; display:block; margin:0 auto;">
+                <!-- Pass 0: [64,34,25,12,22,11,90] -->
+                <text x="10" y="30" font-size="13" font-weight="bold" fill="#1e3a5f">Pass 0 (initial):</text>
+                <g transform="translate(160,10)">
+                    <rect x="0"  y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="25"  y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">64</text>
+                    <rect x="55" y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="80"  y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">34</text>
+                    <rect x="110" y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="135" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">25</text>
+                    <rect x="165" y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="190" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">12</text>
+                    <rect x="220" y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="245" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">22</text>
+                    <rect x="275" y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="300" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">11</text>
+                    <rect x="330" y="10" width="50" height="36" rx="6" fill="#f97316"/><text x="355" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">90</text>
+                </g>
+
+                <!-- After pass 1: [34,25,12,22,11,64,90] -->
+                <text x="10" y="100" font-size="13" font-weight="bold" fill="#1e3a5f">After pass 1:</text>
+                <g transform="translate(160,80)">
+                    <rect x="0"  y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="25"  y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">34</text>
+                    <rect x="55" y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="80"  y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">25</text>
+                    <rect x="110" y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="135" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">12</text>
+                    <rect x="165" y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="190" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">22</text>
+                    <rect x="220" y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="245" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">11</text>
+                    <rect x="275" y="10" width="50" height="36" rx="6" fill="#6366f1"/><text x="300" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">64</text>
+                    <rect x="330" y="10" width="50" height="36" rx="6" fill="#6366f1"/><text x="355" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">90</text>
+                </g>
+
+                <!-- After pass 2: [25,12,22,11,34,64,90] -->
+                <text x="10" y="175" font-size="13" font-weight="bold" fill="#1e3a5f">After pass 2:</text>
+                <g transform="translate(160,155)">
+                    <rect x="0"  y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="25"  y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">25</text>
+                    <rect x="55" y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="80"  y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">12</text>
+                    <rect x="110" y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="135" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">22</text>
+                    <rect x="165" y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="190" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">11</text>
+                    <rect x="220" y="10" width="50" height="36" rx="6" fill="#6366f1"/><text x="245" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">34</text>
+                    <rect x="275" y="10" width="50" height="36" rx="6" fill="#6366f1"/><text x="300" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">64</text>
+                    <rect x="330" y="10" width="50" height="36" rx="6" fill="#6366f1"/><text x="355" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">90</text>
+                </g>
+
+                <!-- After pass 3: [12,11,22,25,34,64,90] -->
+                <text x="10" y="255" font-size="13" font-weight="bold" fill="#1e3a5f">After pass 3:</text>
+                <g transform="translate(160,235)">
+                    <rect x="0"  y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="25"  y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">12</text>
+                    <rect x="55" y="10" width="50" height="36" rx="6" fill="#3b82f6"/><text x="80"  y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">11</text>
+                    <rect x="110" y="10" width="50" height="36" rx="6" fill="#6366f1"/><text x="135" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">22</text>
+                    <rect x="165" y="10" width="50" height="36" rx="6" fill="#6366f1"/><text x="190" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">25</text>
+                    <rect x="220" y="10" width="50" height="36" rx="6" fill="#6366f1"/><text x="245" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">34</text>
+                    <rect x="275" y="10" width="50" height="36" rx="6" fill="#6366f1"/><text x="300" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">64</text>
+                    <rect x="330" y="10" width="50" height="36" rx="6" fill="#6366f1"/><text x="355" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">90</text>
+                </g>
+
+                <!-- Final -->
+                <text x="10" y="338" font-size="13" font-weight="bold" fill="#166534">Sorted:</text>
+                <g transform="translate(160,318)">
+                    <rect x="0"  y="10" width="50" height="36" rx="6" fill="#10b981"/><text x="25"  y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">11</text>
+                    <rect x="55" y="10" width="50" height="36" rx="6" fill="#10b981"/><text x="80"  y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">12</text>
+                    <rect x="110" y="10" width="50" height="36" rx="6" fill="#10b981"/><text x="135" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">22</text>
+                    <rect x="165" y="10" width="50" height="36" rx="6" fill="#10b981"/><text x="190" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">25</text>
+                    <rect x="220" y="10" width="50" height="36" rx="6" fill="#10b981"/><text x="245" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">34</text>
+                    <rect x="275" y="10" width="50" height="36" rx="6" fill="#10b981"/><text x="300" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">64</text>
+                    <rect x="330" y="10" width="50" height="36" rx="6" fill="#10b981"/><text x="355" y="33" text-anchor="middle" fill="white" font-weight="bold" font-size="15">90</text>
+                </g>
+                <text x="350" y="390" text-anchor="middle" fill="#374151" font-size="12">Purple = in final position. Orange = bubble reaching its place.</text>
+            </svg>
+        </div>
+
+        <div class="code-block"><span style="color:#60a5fa">// Bubble Sort with early-exit optimization
+// Time: O(n²) worst/avg, O(n) best  |  Space: O(1)  |  Stable: Yes
+</span>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+void bubbleSort(vector&lt;int&gt;&amp; arr) {
+    int n = arr.size();
+    for (int i = 0; i &lt; n - 1; i++) {
+        bool swapped = false;  <span style="color:#4ade80">// early-exit optimization</span>
+        for (int j = 0; j &lt; n - 1 - i; j++) {  <span style="color:#4ade80">// n-1-i: last i elements are sorted</span>
+            if (arr[j] &gt; arr[j + 1]) {
+                swap(arr[j], arr[j + 1]);
+                swapped = true;
+            }
+        }
+        if (!swapped) break;  <span style="color:#4ade80">// no swaps in this pass → already sorted</span>
+    }
+}
+
+int main() {
+    vector&lt;int&gt; arr = {64, 34, 25, 12, 22, 11, 90};
+    bubbleSort(arr);
+    for (int x : arr) cout &lt;&lt; x &lt;&lt; " ";  <span style="color:#4ade80">// 11 12 22 25 34 64 90</span>
+}</div>
+    </article>
+</section>
+
+<!-- ===== SECTION 4: SELECTION SORT ===== -->
+<section id="selection-sort" class="mb-16">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h1>Selection Sort — O(n²)</h1>
+        <p>Selection sort divides the array into sorted (left) and unsorted (right) parts. Each pass <em>selects</em> the minimum element from the unsorted portion and swaps it into its correct position. Unlike bubble sort, it makes at most \(n-1\) swaps — useful when write operations are costly.</p>
+
+        <div class="math-box">
+            \[\text{Comparisons} = \sum_{i=0}^{n-2}(n-1-i) = \frac{n(n-1)}{2} = O(n^2)\]
+            Swaps: exactly \(n-1\) — much fewer than bubble sort's \(O(n^2)\) swaps.<br>
+            Best = Worst = \(O(n^2)\) &nbsp;|&nbsp; Stable: <strong>No</strong> (can skip equal elements)
+        </div>
+
+        <div style="background:#f0fdf4; border:2px solid #10b981; border-radius:1rem; padding:1.5rem; margin:1.5rem 0; overflow-x:auto;">
+            <svg width="700" height="350" viewBox="0 0 700 350" style="min-width:600px; display:block; margin:0 auto;">
+                <!-- Array: [64, 25, 12, 22, 11] for brevity -->
+                <text x="10" y="22" font-size="13" font-weight="bold" fill="#1e3a5f">Array: [64, 25, 12, 22, 11]</text>
+
+                <!-- Pass 1: min=11 at index 4, swap with index 0 -->
+                <text x="10" y="55" font-size="12" fill="#374151">Pass 1: find min in [0..4] = 11 @ idx 4 → swap with idx 0</text>
+                <g transform="translate(160,38)">
+                    <rect x="0"  y="5" width="46" height="34" rx="5" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/><text x="23" y="27" text-anchor="middle" fill="white" font-weight="bold" font-size="14">64</text>
+                    <rect x="50" y="5" width="46" height="34" rx="5" fill="#e5e7eb"/><text x="73" y="27" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">25</text>
+                    <rect x="100" y="5" width="46" height="34" rx="5" fill="#e5e7eb"/><text x="123" y="27" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">12</text>
+                    <rect x="150" y="5" width="46" height="34" rx="5" fill="#e5e7eb"/><text x="173" y="27" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">22</text>
+                    <rect x="200" y="5" width="46" height="34" rx="5" fill="#f59e0b" stroke="#d97706" stroke-width="2"/><text x="223" y="27" text-anchor="middle" fill="white" font-weight="bold" font-size="14">11</text>
+                    <text x="23" y="52" text-anchor="middle" fill="#ef4444" font-size="11">swap</text>
+                    <text x="223" y="52" text-anchor="middle" fill="#f59e0b" font-size="11">min</text>
+                </g>
+
+                <!-- After pass 1 -->
+                <text x="10" y="120" font-size="12" fill="#374151">After pass 1: [<span style="fill:#10b981">11</span>, 25, 12, 22, 64]</text>
+                <g transform="translate(160,103)">
+                    <rect x="0"  y="5" width="46" height="34" rx="5" fill="#10b981"/><text x="23" y="27" text-anchor="middle" fill="white" font-weight="bold" font-size="14">11</text>
+                    <rect x="50" y="5" width="46" height="34" rx="5" fill="#e5e7eb"/><text x="73" y="27" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">25</text>
+                    <rect x="100" y="5" width="46" height="34" rx="5" fill="#e5e7eb"/><text x="123" y="27" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">12</text>
+                    <rect x="150" y="5" width="46" height="34" rx="5" fill="#e5e7eb"/><text x="173" y="27" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">22</text>
+                    <rect x="200" y="5" width="46" height="34" rx="5" fill="#e5e7eb"/><text x="223" y="27" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">64</text>
+                </g>
+
+                <!-- Pass 2: min=12 at idx 2 swap with idx 1 -->
+                <text x="10" y="185" font-size="12" fill="#374151">Pass 2: find min in [1..4] = 12 @ idx 2 → swap with idx 1</text>
+                <g transform="translate(160,168)">
+                    <rect x="0"  y="5" width="46" height="34" rx="5" fill="#10b981"/><text x="23" y="27" text-anchor="middle" fill="white" font-weight="bold" font-size="14">11</text>
+                    <rect x="50" y="5" width="46" height="34" rx="5" fill="#ef4444" stroke="#b91c1c" stroke-width="2"/><text x="73" y="27" text-anchor="middle" fill="white" font-weight="bold" font-size="14">25</text>
+                    <rect x="100" y="5" width="46" height="34" rx="5" fill="#f59e0b" stroke="#d97706" stroke-width="2"/><text x="123" y="27" text-anchor="middle" fill="white" font-weight="bold" font-size="14">12</text>
+                    <rect x="150" y="5" width="46" height="34" rx="5" fill="#e5e7eb"/><text x="173" y="27" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">22</text>
+                    <rect x="200" y="5" width="46" height="34" rx="5" fill="#e5e7eb"/><text x="223" y="27" text-anchor="middle" fill="#374151" font-weight="bold" font-size="14">64</text>
+                    <text x="73" y="52" text-anchor="middle" fill="#ef4444" font-size="11">swap</text>
+                    <text x="123" y="52" text-anchor="middle" fill="#f59e0b" font-size="11">min</text>
+                </g>
+
+                <!-- After all passes -->
+                <text x="10" y="260" font-size="12" fill="#166534" font-weight="bold">Passes 3,4: place 22, 25 → Final sorted array:</text>
+                <g transform="translate(160,243)">
+                    <rect x="0"  y="5" width="46" height="34" rx="5" fill="#10b981"/><text x="23" y="27" text-anchor="middle" fill="white" font-weight="bold" font-size="14">11</text>
+                    <rect x="50" y="5" width="46" height="34" rx="5" fill="#10b981"/><text x="73" y="27" text-anchor="middle" fill="white" font-weight="bold" font-size="14">12</text>
+                    <rect x="100" y="5" width="46" height="34" rx="5" fill="#10b981"/><text x="123" y="27" text-anchor="middle" fill="white" font-weight="bold" font-size="14">22</text>
+                    <rect x="150" y="5" width="46" height="34" rx="5" fill="#10b981"/><text x="173" y="27" text-anchor="middle" fill="white" font-weight="bold" font-size="14">25</text>
+                    <rect x="200" y="5" width="46" height="34" rx="5" fill="#10b981"/><text x="223" y="27" text-anchor="middle" fill="white" font-weight="bold" font-size="14">64</text>
+                </g>
+                <text x="350" y="330" text-anchor="middle" fill="#374151" font-size="12">Red = swap target position | Orange = minimum found | Green = in final position</text>
+            </svg>
+        </div>
+
+        <div class="code-block"><span style="color:#60a5fa">// Selection Sort
+// Time: O(n²) always  |  Space: O(1)  |  Stable: No
+</span>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+void selectionSort(vector&lt;int&gt;&amp; arr) {
+    int n = arr.size();
+    for (int i = 0; i &lt; n - 1; i++) {
+        int minIdx = i;  <span style="color:#4ade80">// assume current position has minimum</span>
+        for (int j = i + 1; j &lt; n; j++) {
+            if (arr[j] &lt; arr[minIdx]) {
+                minIdx = j;  <span style="color:#4ade80">// found smaller element</span>
+            }
+        }
+        if (minIdx != i) {
+            swap(arr[i], arr[minIdx]);  <span style="color:#4ade80">// at most n-1 swaps total</span>
+        }
+    }
+}
+
+int main() {
+    vector&lt;int&gt; arr = {64, 25, 12, 22, 11};
+    selectionSort(arr);
+    for (int x : arr) cout &lt;&lt; x &lt;&lt; " ";  <span style="color:#4ade80">// 11 12 22 25 64</span>
+}</div>
+    </article>
+</section>
+
+<!-- ===== SECTION 5: MERGE SORT ===== -->
+<section id="merge-sort" class="mb-16">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h1>Merge Sort — O(n log n)</h1>
+        <p>Merge sort is a classic divide-and-conquer sorting algorithm. It recursively splits the array in half until subarrays of size 1, then merges adjacent sorted halves. The merge step is the key operation — it takes two sorted arrays and produces a single sorted array in \(O(n)\) time.</p>
+
+        <div class="math-box">
+            <strong>Master Theorem:</strong>
+            \[T(n) = 2T\!\left(\frac{n}{2}\right) + O(n) \implies T(n) = O(n \log n)\]
+            \(a=2,\ b=2,\ f(n)=n,\ \log_b a = 1\) → Case 2: \(f(n) = \Theta(n^1)\) → \(T(n) = \Theta(n \log n)\)<br>
+            Space: \(O(n)\) auxiliary for the merge step. Stable: <strong>Yes</strong>.
+        </div>
+
+        <!-- Recursion tree SVG -->
+        <h3>Recursion Tree: [38, 27, 43, 3, 9, 82, 10]</h3>
+        <div style="background:#f5f3ff; border:2px solid #6366f1; border-radius:1rem; padding:1.5rem; margin:1.5rem 0; overflow-x:auto;">
+            <svg width="760" height="380" viewBox="0 0 760 380" style="min-width:700px; display:block; margin:0 auto;">
+                <defs>
+                    <marker id="marr" markerWidth="7" markerHeight="6" refX="7" refY="3" orient="auto">
+                        <polygon points="0 0,7 3,0 6" fill="#6366f1"/>
+                    </marker>
+                </defs>
+                <!-- Level 0 -->
+                <rect x="240" y="10" width="280" height="38" rx="8" fill="#1e1b4b"/>
+                <text x="380" y="34" text-anchor="middle" fill="white" font-size="13" font-weight="bold">38 27 43 3 | 9 82 10</text>
+                <!-- Level 1 arrows -->
+                <line x1="310" y1="48" x2="170" y2="98" stroke="#6366f1" stroke-width="2" marker-end="url(#marr)"/>
+                <line x1="450" y1="48" x2="590" y2="98" stroke="#6366f1" stroke-width="2" marker-end="url(#marr)"/>
+                <!-- Level 1 -->
+                <rect x="70" y="100" width="200" height="36" rx="8" fill="#312e81"/>
+                <text x="170" y="123" text-anchor="middle" fill="white" font-size="13">38 27 | 43 3</text>
+                <rect x="490" y="100" width="190" height="36" rx="8" fill="#312e81"/>
+                <text x="585" y="123" text-anchor="middle" fill="white" font-size="13">9 82 | 10</text>
+                <!-- Level 2 arrows -->
+                <line x1="130" y1="136" x2="80" y2="186" stroke="#6366f1" stroke-width="1.5" marker-end="url(#marr)"/>
+                <line x1="210" y1="136" x2="250" y2="186" stroke="#6366f1" stroke-width="1.5" marker-end="url(#marr)"/>
+                <line x1="545" y1="136" x2="505" y2="186" stroke="#6366f1" stroke-width="1.5" marker-end="url(#marr)"/>
+                <line x1="625" y1="136" x2="670" y2="186" stroke="#6366f1" stroke-width="1.5" marker-end="url(#marr)"/>
+                <!-- Level 2 -->
+                <rect x="30" y="188" width="105" height="34" rx="8" fill="#4338ca"/>
+                <text x="82" y="210" text-anchor="middle" fill="white" font-size="13">38 | 27</text>
+                <rect x="200" y="188" width="105" height="34" rx="8" fill="#4338ca"/>
+                <text x="252" y="210" text-anchor="middle" fill="white" font-size="13">43 | 3</text>
+                <rect x="460" y="188" width="80" height="34" rx="8" fill="#4338ca"/>
+                <text x="500" y="210" text-anchor="middle" fill="white" font-size="13">9 | 82</text>
+                <rect x="640" y="188" width="60" height="34" rx="8" fill="#4338ca"/>
+                <text x="670" y="210" text-anchor="middle" fill="white" font-size="13">10</text>
+                <!-- Level 3 arrows -->
+                <line x1="65" y1="222" x2="40" y2="262" stroke="#6366f1" stroke-width="1.5" marker-end="url(#marr)"/>
+                <line x1="100" y1="222" x2="125" y2="262" stroke="#6366f1" stroke-width="1.5" marker-end="url(#marr)"/>
+                <line x1="235" y1="222" x2="210" y2="262" stroke="#6366f1" stroke-width="1.5" marker-end="url(#marr)"/>
+                <line x1="270" y1="222" x2="295" y2="262" stroke="#6366f1" stroke-width="1.5" marker-end="url(#marr)"/>
+                <line x1="485" y1="222" x2="460" y2="262" stroke="#6366f1" stroke-width="1.5" marker-end="url(#marr)"/>
+                <line x1="515" y1="222" x2="540" y2="262" stroke="#6366f1" stroke-width="1.5" marker-end="url(#marr)"/>
+                <!-- Leaves -->
+                <rect x="20" y="264" width="40" height="30" rx="6" fill="#7c3aed"/>
+                <text x="40" y="284" text-anchor="middle" fill="white" font-size="14" font-weight="bold">38</text>
+                <rect x="105" y="264" width="40" height="30" rx="6" fill="#7c3aed"/>
+                <text x="125" y="284" text-anchor="middle" fill="white" font-size="14" font-weight="bold">27</text>
+                <rect x="190" y="264" width="40" height="30" rx="6" fill="#7c3aed"/>
+                <text x="210" y="284" text-anchor="middle" fill="white" font-size="14" font-weight="bold">43</text>
+                <rect x="275" y="264" width="40" height="30" rx="6" fill="#7c3aed"/>
+                <text x="295" y="284" text-anchor="middle" fill="white" font-size="14" font-weight="bold">3</text>
+                <rect x="440" y="264" width="40" height="30" rx="6" fill="#7c3aed"/>
+                <text x="460" y="284" text-anchor="middle" fill="white" font-size="14" font-weight="bold">9</text>
+                <rect x="520" y="264" width="40" height="30" rx="6" fill="#7c3aed"/>
+                <text x="540" y="284" text-anchor="middle" fill="white" font-size="14" font-weight="bold">82</text>
+
+                <!-- Merge arrows up -->
+                <text x="82" y="325" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">merge→[27,38]</text>
+                <text x="252" y="325" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">merge→[3,43]</text>
+                <text x="490" y="325" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">merge→[9,82]</text>
+
+                <text x="170" y="355" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">merge→[3,27,38,43]</text>
+                <text x="560" y="355" text-anchor="middle" fill="#10b981" font-size="12" font-weight="bold">merge→[9,10,82]</text>
+
+                <text x="380" y="378" text-anchor="middle" fill="#f59e0b" font-size="13" font-weight="bold">Final: merge→[3, 9, 10, 27, 38, 43, 82]</text>
+            </svg>
+        </div>
+
+        <div class="code-block"><span style="color:#60a5fa">// Merge Sort — divide and conquer
+// Time: O(n log n) always  |  Space: O(n)  |  Stable: Yes
+</span>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+<span style="color:#fbbf24">// Merge two sorted halves arr[lo..mid] and arr[mid+1..hi]
+</span>void merge(vector&lt;int&gt;&amp; arr, int lo, int mid, int hi) {
+    vector&lt;int&gt; left(arr.begin() + lo, arr.begin() + mid + 1);
+    vector&lt;int&gt; right(arr.begin() + mid + 1, arr.begin() + hi + 1);
+
+    int i = 0, j = 0, k = lo;
+    while (i &lt; (int)left.size() &amp;&amp; j &lt; (int)right.size()) {
+        if (left[i] &lt;= right[j]) arr[k++] = left[i++];  <span style="color:#4ade80">// &lt;= makes it stable</span>
+        else                     arr[k++] = right[j++];
+    }
+    while (i &lt; (int)left.size())  arr[k++] = left[i++];
+    while (j &lt; (int)right.size()) arr[k++] = right[j++];
+}
+
+void mergeSort(vector&lt;int&gt;&amp; arr, int lo, int hi) {
+    if (lo &gt;= hi) return;  <span style="color:#4ade80">// base case: single element</span>
+    int mid = lo + (hi - lo) / 2;
+    mergeSort(arr, lo, mid);       <span style="color:#4ade80">// sort left half</span>
+    mergeSort(arr, mid + 1, hi);   <span style="color:#4ade80">// sort right half</span>
+    merge(arr, lo, mid, hi);       <span style="color:#4ade80">// merge sorted halves</span>
+}
+
+<span style="color:#fbbf24">// Bottom-up iterative merge sort (no recursion stack)
+</span>void mergeSortIterative(vector&lt;int&gt;&amp; arr) {
+    int n = arr.size();
+    for (int width = 1; width &lt; n; width *= 2) {
+        for (int lo = 0; lo &lt; n - width; lo += 2 * width) {
+            int mid = lo + width - 1;
+            int hi = min(lo + 2 * width - 1, n - 1);
+            merge(arr, lo, mid, hi);
+        }
+    }
+}
+
+int main() {
+    vector&lt;int&gt; arr = {38, 27, 43, 3, 9, 82, 10};
+    mergeSort(arr, 0, arr.size() - 1);
+    for (int x : arr) cout &lt;&lt; x &lt;&lt; " ";  <span style="color:#4ade80">// 3 9 10 27 38 43 82</span>
+}</div>
+    </article>
+</section>
+
+<!-- ===== SECTION 6: HEAP SORT ===== -->
+<section id="heap-sort" class="mb-16">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h1>Heap Sort — O(n log n)</h1>
+        <p>Heap sort exploits the <strong>max-heap</strong> property: the parent is always ≥ its children. It first builds a max-heap from the array (<em>heapify</em>), then repeatedly extracts the maximum element (root) and places it at the end. Unlike merge sort, heap sort is <strong>in-place</strong> with \(O(1)\) extra space.</p>
+
+        <div class="math-box">
+            <strong>Two phases:</strong><br>
+            1. <em>Build max-heap:</em> \(O(n)\) — heapify from \(\lfloor n/2 \rfloor - 1\) down to 0<br>
+            2. <em>Extract max n−1 times:</em> each sift-down is \(O(\log n)\) → total \(O(n \log n)\)<br>
+            Stable: <strong>No</strong> &nbsp;|&nbsp; In-place: <strong>Yes</strong> &nbsp;|&nbsp; Worst = Best = \(O(n \log n)\)
+        </div>
+
+        <!-- Heap structure SVG -->
+        <h3>Max-Heap: Array [4, 10, 3, 5, 1] → after build-heap</h3>
+        <div style="background:#fff7ed; border:2px solid #f97316; border-radius:1rem; padding:1.5rem; margin:1.5rem 0; overflow-x:auto;">
+            <svg width="680" height="300" viewBox="0 0 680 300" style="min-width:600px; display:block; margin:0 auto;">
+                <defs>
+                    <marker id="harr" markerWidth="7" markerHeight="5" refX="7" refY="2.5" orient="auto">
+                        <polygon points="0 0,7 2.5,0 5" fill="#f97316"/>
+                    </marker>
+                </defs>
+                <!-- BEFORE: tree structure [4,10,3,5,1] -->
+                <text x="10" y="22" font-size="12" font-weight="bold" fill="#92400e">Before heapify: [4, 10, 3, 5, 1]</text>
+                <!-- Tree nodes -->
+                <circle cx="160" cy="60" r="24" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/>
+                <text x="160" y="66" text-anchor="middle" fill="#374151" font-weight="bold" font-size="15">4</text>
+                <text x="160" y="88" text-anchor="middle" fill="#6b7280" font-size="10">idx 0</text>
+
+                <line x1="140" y1="78" x2="95" y2="118" stroke="#9ca3af" stroke-width="2"/>
+                <line x1="180" y1="78" x2="225" y2="118" stroke="#9ca3af" stroke-width="2"/>
+
+                <circle cx="80" cy="135" r="24" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/>
+                <text x="80" y="141" text-anchor="middle" fill="#374151" font-weight="bold" font-size="15">10</text>
+                <text x="80" y="163" text-anchor="middle" fill="#6b7280" font-size="10">idx 1</text>
+
+                <circle cx="240" cy="135" r="24" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/>
+                <text x="240" y="141" text-anchor="middle" fill="#374151" font-weight="bold" font-size="15">3</text>
+                <text x="240" y="163" text-anchor="middle" fill="#6b7280" font-size="10">idx 2</text>
+
+                <line x1="63" y1="153" x2="35" y2="193" stroke="#9ca3af" stroke-width="2"/>
+                <line x1="97" y1="153" x2="125" y2="193" stroke="#9ca3af" stroke-width="2"/>
+
+                <circle cx="22" cy="208" r="24" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/>
+                <text x="22" y="214" text-anchor="middle" fill="#374151" font-weight="bold" font-size="15">5</text>
+                <text x="22" y="236" text-anchor="middle" fill="#6b7280" font-size="10">idx 3</text>
+
+                <circle cx="138" cy="208" r="24" fill="#e5e7eb" stroke="#9ca3af" stroke-width="2"/>
+                <text x="138" y="214" text-anchor="middle" fill="#374151" font-weight="bold" font-size="15">1</text>
+                <text x="138" y="236" text-anchor="middle" fill="#6b7280" font-size="10">idx 4</text>
+
+                <!-- AFTER: [10, 5, 3, 4, 1] -->
+                <text x="370" y="22" font-size="12" font-weight="bold" fill="#166534">After build-heap: [10, 5, 3, 4, 1]</text>
+                <circle cx="520" cy="60" r="24" fill="#f97316" stroke="#c2410c" stroke-width="2"/>
+                <text x="520" y="66" text-anchor="middle" fill="white" font-weight="bold" font-size="15">10</text>
+                <text x="520" y="88" text-anchor="middle" fill="#6b7280" font-size="10">max</text>
+
+                <line x1="500" y1="78" x2="455" y2="118" stroke="#f97316" stroke-width="2"/>
+                <line x1="540" y1="78" x2="585" y2="118" stroke="#f97316" stroke-width="2"/>
+
+                <circle cx="440" cy="135" r="24" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
+                <text x="440" y="141" text-anchor="middle" fill="#92400e" font-weight="bold" font-size="15">5</text>
+                <circle cx="600" cy="135" r="24" fill="#fde68a" stroke="#d97706" stroke-width="2"/>
+                <text x="600" y="141" text-anchor="middle" fill="#92400e" font-weight="bold" font-size="15">3</text>
+
+                <line x1="423" y1="153" x2="395" y2="193" stroke="#d97706" stroke-width="2"/>
+                <line x1="457" y1="153" x2="485" y2="193" stroke="#d97706" stroke-width="2"/>
+
+                <circle cx="382" cy="208" r="24" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+                <text x="382" y="214" text-anchor="middle" fill="#92400e" font-weight="bold" font-size="15">4</text>
+                <circle cx="498" cy="208" r="24" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+                <text x="498" y="214" text-anchor="middle" fill="#92400e" font-weight="bold" font-size="15">1</text>
+
+                <!-- Array representations -->
+                <text x="160" y="275" text-anchor="middle" fill="#374151" font-size="12">Array: [4, 10, 3, 5, 1]</text>
+                <text x="490" y="275" text-anchor="middle" fill="#166534" font-size="12">Array: [10, 5, 3, 4, 1] ✓ max-heap</text>
+                <text x="340" y="295" text-anchor="middle" fill="#6b7280" font-size="11">Parent(i) = (i-1)/2  |  Left(i) = 2i+1  |  Right(i) = 2i+2</text>
+            </svg>
+        </div>
+
+        <div class="code-block"><span style="color:#60a5fa">// Heap Sort
+// Time: O(n log n) always  |  Space: O(1)  |  Stable: No
+</span>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+<span style="color:#fbbf24">// Sift down: maintain max-heap property for subtree rooted at index i
+// n = current heap size (shrinks as we extract max elements)
+</span>void heapify(vector&lt;int&gt;&amp; arr, int n, int i) {
+    int largest = i;        <span style="color:#4ade80">// assume root is largest</span>
+    int left  = 2 * i + 1;
+    int right = 2 * i + 2;
+
+    if (left  &lt; n &amp;&amp; arr[left]  &gt; arr[largest]) largest = left;
+    if (right &lt; n &amp;&amp; arr[right] &gt; arr[largest]) largest = right;
+
+    if (largest != i) {
+        swap(arr[i], arr[largest]);
+        heapify(arr, n, largest);  <span style="color:#4ade80">// recursively fix affected subtree</span>
+    }
+}
+
+void heapSort(vector&lt;int&gt;&amp; arr) {
+    int n = arr.size();
+
+    <span style="color:#fbbf24">// Phase 1: Build max-heap — O(n)
+    // Start from last non-leaf: floor(n/2)-1
+</span>    for (int i = n / 2 - 1; i &gt;= 0; i--) {
+        heapify(arr, n, i);
+    }
+
+    <span style="color:#fbbf24">// Phase 2: Extract max n-1 times — O(n log n)
+</span>    for (int i = n - 1; i &gt; 0; i--) {
+        swap(arr[0], arr[i]);  <span style="color:#4ade80">// move current max to sorted end</span>
+        heapify(arr, i, 0);   <span style="color:#4ade80">// restore heap with size i</span>
+    }
+}
+
+int main() {
+    vector&lt;int&gt; arr = {64, 34, 25, 12, 22, 11, 90};
+    heapSort(arr);
+    for (int x : arr) cout &lt;&lt; x &lt;&lt; " ";  <span style="color:#4ade80">// 11 12 22 25 34 64 90</span>
+}</div>
+    </article>
+</section>
+
+<!-- ===== SECTION 7: KMP ===== -->
+<section id="kmp" class="mb-16">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h1>KMP — Knuth-Morris-Pratt Pattern Matching</h1>
+        <p>Naive pattern matching checks every possible position in the text, giving \(O(nm)\) time where \(n\) = text length, \(m\) = pattern length. KMP (1977) achieves \(O(n + m)\) by <em>never backtracking</em> in the text. It pre-computes a <strong>failure function</strong> (also called the partial match table / LPS array) from the pattern, which tells us: if a mismatch occurs after matching \(k\) characters, how far back in the pattern can we jump without re-checking characters we already matched?</p>
+
+        <div class="math-box">
+            <strong>LPS Array (Longest Proper Prefix which is also Suffix):</strong><br>
+            For pattern \(P\), \(\text{lps}[i]\) = length of longest proper prefix of \(P[0..i]\) that is also a suffix.<br>
+            Example: \(P = \texttt{"ABABCABAB"}\)<br>
+            \[\text{lps} = [0, 0, 1, 2, 0, 1, 2, 3, 4]\]
+            When mismatch at pattern position \(j\): instead of restarting at \(j=0\), jump to \(j = \text{lps}[j-1]\).
+        </div>
+
+        <!-- LPS table visual -->
+        <h3>LPS Array Construction: pattern = "ABABCABAB"</h3>
+        <div style="background:#f5f3ff; border:2px solid #6366f1; border-radius:1rem; padding:1.5rem; margin:1.5rem 0; overflow-x:auto;">
+            <svg width="700" height="200" viewBox="0 0 700 200" style="min-width:600px; display:block; margin:0 auto;">
+                <!-- Header -->
+                <text x="10" y="28" font-size="13" font-weight="bold" fill="#1e1b4b">Pattern:</text>
+                <text x="10" y="75" font-size="13" font-weight="bold" fill="#1e1b4b">Index:</text>
+                <text x="10" y="122" font-size="13" font-weight="bold" fill="#1e1b4b">LPS:</text>
+
+                <!-- Pattern chars -->
+                <g>
+                    <rect x="90" y="10" width="52" height="36" rx="6" fill="#4338ca"/><text x="116" y="33" text-anchor="middle" fill="white" font-size="16" font-weight="bold">A</text>
+                    <rect x="147" y="10" width="52" height="36" rx="6" fill="#4338ca"/><text x="173" y="33" text-anchor="middle" fill="white" font-size="16" font-weight="bold">B</text>
+                    <rect x="204" y="10" width="52" height="36" rx="6" fill="#7c3aed"/><text x="230" y="33" text-anchor="middle" fill="white" font-size="16" font-weight="bold">A</text>
+                    <rect x="261" y="10" width="52" height="36" rx="6" fill="#7c3aed"/><text x="287" y="33" text-anchor="middle" fill="white" font-size="16" font-weight="bold">B</text>
+                    <rect x="318" y="10" width="52" height="36" rx="6" fill="#374151"/><text x="344" y="33" text-anchor="middle" fill="white" font-size="16" font-weight="bold">C</text>
+                    <rect x="375" y="10" width="52" height="36" rx="6" fill="#4338ca"/><text x="401" y="33" text-anchor="middle" fill="white" font-size="16" font-weight="bold">A</text>
+                    <rect x="432" y="10" width="52" height="36" rx="6" fill="#4338ca"/><text x="458" y="33" text-anchor="middle" fill="white" font-size="16" font-weight="bold">B</text>
+                    <rect x="489" y="10" width="52" height="36" rx="6" fill="#7c3aed"/><text x="515" y="33" text-anchor="middle" fill="white" font-size="16" font-weight="bold">A</text>
+                    <rect x="546" y="10" width="52" height="36" rx="6" fill="#7c3aed"/><text x="572" y="33" text-anchor="middle" fill="white" font-size="16" font-weight="bold">B</text>
+                </g>
+                <!-- Indices -->
+                <g fill="#6b7280" font-size="13">
+                    <text x="116" y="78" text-anchor="middle">0</text>
+                    <text x="173" y="78" text-anchor="middle">1</text>
+                    <text x="230" y="78" text-anchor="middle">2</text>
+                    <text x="287" y="78" text-anchor="middle">3</text>
+                    <text x="344" y="78" text-anchor="middle">4</text>
+                    <text x="401" y="78" text-anchor="middle">5</text>
+                    <text x="458" y="78" text-anchor="middle">6</text>
+                    <text x="515" y="78" text-anchor="middle">7</text>
+                    <text x="572" y="78" text-anchor="middle">8</text>
+                </g>
+                <!-- LPS values -->
+                <g>
+                    <rect x="90" y="95" width="52" height="36" rx="6" fill="#d1fae5" stroke="#10b981"/><text x="116" y="118" text-anchor="middle" fill="#065f46" font-size="16" font-weight="bold">0</text>
+                    <rect x="147" y="95" width="52" height="36" rx="6" fill="#d1fae5" stroke="#10b981"/><text x="173" y="118" text-anchor="middle" fill="#065f46" font-size="16" font-weight="bold">0</text>
+                    <rect x="204" y="95" width="52" height="36" rx="6" fill="#a7f3d0" stroke="#10b981"/><text x="230" y="118" text-anchor="middle" fill="#065f46" font-size="16" font-weight="bold">1</text>
+                    <rect x="261" y="95" width="52" height="36" rx="6" fill="#a7f3d0" stroke="#10b981"/><text x="287" y="118" text-anchor="middle" fill="#065f46" font-size="16" font-weight="bold">2</text>
+                    <rect x="318" y="95" width="52" height="36" rx="6" fill="#d1fae5" stroke="#10b981"/><text x="344" y="118" text-anchor="middle" fill="#065f46" font-size="16" font-weight="bold">0</text>
+                    <rect x="375" y="95" width="52" height="36" rx="6" fill="#a7f3d0" stroke="#10b981"/><text x="401" y="118" text-anchor="middle" fill="#065f46" font-size="16" font-weight="bold">1</text>
+                    <rect x="432" y="95" width="52" height="36" rx="6" fill="#6ee7b7" stroke="#059669"/><text x="458" y="118" text-anchor="middle" fill="#065f46" font-size="16" font-weight="bold">2</text>
+                    <rect x="489" y="95" width="52" height="36" rx="6" fill="#34d399" stroke="#059669"/><text x="515" y="118" text-anchor="middle" fill="#065f46" font-size="16" font-weight="bold">3</text>
+                    <rect x="546" y="95" width="52" height="36" rx="6" fill="#10b981" stroke="#059669"/><text x="572" y="118" text-anchor="middle" fill="white" font-size="16" font-weight="bold">4</text>
+                </g>
+                <text x="350" y="160" text-anchor="middle" fill="#374151" font-size="12">Purple = prefix "AB" | Blue = "A" single char | lps[8]=4 means "ABAB" is both prefix and suffix</text>
+                <text x="350" y="178" text-anchor="middle" fill="#374151" font-size="12">On mismatch at j=4 (after matching "ABAB"), jump to lps[3]=2 → resume matching from pattern[2]</text>
+            </svg>
+        </div>
+
+        <!-- Interactive KMP sim -->
+        <h3>Interactive KMP Search</h3>
+        <div class="sim-container">
+            <div style="margin-bottom:0.75rem; display:flex; flex-wrap:wrap; gap:0.5rem; align-items:center;">
+                <span style="font-weight:600;">Text:</span>
+                <input id="kmp-text" type="text" value="ABABDABACDABABCABAB" style="padding:0.4rem 0.6rem; border:2px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:1rem; width:260px;"/>
+                <span style="font-weight:600;">Pattern:</span>
+                <input id="kmp-pattern" type="text" value="ABABCABAB" style="padding:0.4rem 0.6rem; border:2px solid #d1d5db; border-radius:6px; font-family:monospace; font-size:1rem; width:180px;"/>
+                <button class="sim-btn" onclick="kmpStart()">Search</button>
+                <button class="sim-btn secondary" onclick="kmpNext()" id="kmp-next-btn" disabled>Next Step</button>
+                <button class="sim-btn danger" onclick="kmpReset()">Reset</button>
+            </div>
+            <div id="kmp-display" style="margin:1rem 0; min-height:70px; font-family:monospace; font-size:1rem; overflow-x:auto;"></div>
+            <div class="sim-log" id="kmp-log">Enter text and pattern, then click "Search".</div>
+        </div>
+
+        <!-- C++ code -->
+        <h3>C++ Implementation</h3>
+        <div class="code-block"><span style="color:#60a5fa">// KMP Pattern Matching
+// Time: O(n + m)  |  Space: O(m) for LPS array
+</span>
+#include &lt;iostream&gt;
+#include &lt;vector&gt;
+#include &lt;string&gt;
+using namespace std;
+
+<span style="color:#fbbf24">// Build LPS (Longest Proper Prefix which is also Suffix) array
+</span>vector&lt;int&gt; buildLPS(const string&amp; pattern) {
+    int m = pattern.size();
+    vector&lt;int&gt; lps(m, 0);
+    int len = 0;  <span style="color:#4ade80">// length of previous longest prefix-suffix</span>
+    int i = 1;
+
+    while (i &lt; m) {
+        if (pattern[i] == pattern[len]) {
+            lps[i++] = ++len;
+        } else if (len &gt; 0) {
+            len = lps[len - 1];  <span style="color:#4ade80">// try shorter prefix — key insight!</span>
+        } else {
+            lps[i++] = 0;
+        }
+    }
+    return lps;
+}
+
+<span style="color:#fbbf24">// KMP search: returns all starting positions of pattern in text
+</span>vector&lt;int&gt; kmpSearch(const string&amp; text, const string&amp; pattern) {
+    int n = text.size(), m = pattern.size();
+    vector&lt;int&gt; lps = buildLPS(pattern);
+    vector&lt;int&gt; matches;
+
+    int i = 0;  <span style="color:#4ade80">// index into text</span>
+    int j = 0;  <span style="color:#4ade80">// index into pattern</span>
+
+    while (i &lt; n) {
+        if (text[i] == pattern[j]) {
+            i++; j++;
+        }
+        if (j == m) {
+            matches.push_back(i - j);  <span style="color:#4ade80">// match found at position i-m</span>
+            j = lps[j - 1];            <span style="color:#4ade80">// continue searching for more</span>
+        } else if (i &lt; n &amp;&amp; text[i] != pattern[j]) {
+            if (j &gt; 0) j = lps[j - 1]; <span style="color:#4ade80">// shift pattern, don't backtrack text</span>
+            else        i++;
+        }
+    }
+    return matches;
+}
+
+int main() {
+    string text    = "ABABDABACDABABCABAB";
+    string pattern = "ABABCABAB";
+
+    vector&lt;int&gt; lps = buildLPS(pattern);
+    cout &lt;&lt; "LPS array: ";
+    for (int v : lps) cout &lt;&lt; v &lt;&lt; " ";
+    cout &lt;&lt; endl;  <span style="color:#4ade80">// 0 0 1 2 0 1 2 3 4</span>
+
+    vector&lt;int&gt; matches = kmpSearch(text, pattern);
+    if (matches.empty()) {
+        cout &lt;&lt; "Pattern not found." &lt;&lt; endl;
+    } else {
+        for (int pos : matches) {
+            cout &lt;&lt; "Pattern found at index: " &lt;&lt; pos &lt;&lt; endl;
+        }
+    }
+    <span style="color:#4ade80">// Output: Pattern found at index: 10</span>
+}</div>
+    </article>
+</section>
+
+<!-- ===== SECTION 8: COMPLEXITY TABLE ===== -->
+<section id="complexity" class="mb-16">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h1>Algorithm Complexity Comparison</h1>
+        <table class="styled">
+            <thead>
+                <tr>
+                    <th>Algorithm</th>
+                    <th>Best Case</th>
+                    <th>Average Case</th>
+                    <th>Worst Case</th>
+                    <th>Space</th>
+                    <th>Stable</th>
+                    <th>Notes</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td><strong>Binary Search</strong></td><td>\(O(1)\)</td><td>\(O(\log n)\)</td><td>\(O(\log n)\)</td><td>\(O(1)\)</td><td>N/A</td><td>Requires sorted array</td></tr>
+                <tr><td><strong>Bubble Sort</strong></td><td>\(O(n)\)</td><td>\(O(n^2)\)</td><td>\(O(n^2)\)</td><td>\(O(1)\)</td><td>Yes</td><td>Early exit optimization</td></tr>
+                <tr><td><strong>Selection Sort</strong></td><td>\(O(n^2)\)</td><td>\(O(n^2)\)</td><td>\(O(n^2)\)</td><td>\(O(1)\)</td><td>No</td><td>Fewest swaps: \(O(n)\)</td></tr>
+                <tr><td><strong>Merge Sort</strong></td><td>\(O(n \log n)\)</td><td>\(O(n \log n)\)</td><td>\(O(n \log n)\)</td><td>\(O(n)\)</td><td>Yes</td><td>Best for linked lists</td></tr>
+                <tr><td><strong>Heap Sort</strong></td><td>\(O(n \log n)\)</td><td>\(O(n \log n)\)</td><td>\(O(n \log n)\)</td><td>\(O(1)\)</td><td>No</td><td>Guaranteed in-place</td></tr>
+                <tr><td><strong>KMP Search</strong></td><td>\(O(n)\)</td><td>\(O(n + m)\)</td><td>\(O(n + m)\)</td><td>\(O(m)\)</td><td>N/A</td><td>Never backtracks in text</td></tr>
+                <tr style="background:#fef3c7;"><td><strong>std::sort (C++)</strong></td><td>\(O(n \log n)\)</td><td>\(O(n \log n)\)</td><td>\(O(n \log n)\)</td><td>\(O(\log n)\)</td><td>No</td><td>Introsort: quicksort + heapsort + insertion</td></tr>
+                <tr style="background:#fef3c7;"><td><strong>std::stable_sort</strong></td><td>\(O(n \log n)\)</td><td>\(O(n \log n)\)</td><td>\(O(n \log n)\)</td><td>\(O(n)\)</td><td>Yes</td><td>Merge sort variant</td></tr>
+            </tbody>
+        </table>
+
+        <!-- Practical guidance -->
+        <div class="insight-box" style="margin-top:2rem;">
+            <strong>When to use which algorithm in practice:</strong>
+            <ul style="margin-top:0.5rem;">
+                <li><strong>Binary search</strong> — whenever your data is or can be kept sorted (e.g., lookup in a sorted config file, range queries).</li>
+                <li><strong>Bubble/Selection sort</strong> — small arrays (&lt;20 elements), teaching, embedded systems where code size matters. Never in production on large data.</li>
+                <li><strong>Merge sort</strong> — when stability is required, or when sorting linked lists (doesn't need random access).</li>
+                <li><strong>Heap sort</strong> — when you need guaranteed \(O(n \log n)\) with \(O(1)\) extra space, e.g., real-time systems.</li>
+                <li><strong>KMP</strong> — single-pattern search in a long text stream; prefer Aho-Corasick for multi-pattern search.</li>
+                <li><strong>std::sort</strong> — default choice in C++ for almost all sorting needs.</li>
+            </ul>
+        </div>
+    </article>
+</section>
+
+</main>
+
+<footer class="bg-white border-t border-gray-200 py-8 text-center text-gray-500">
+    <p>Fundamentals of Computer Science &mdash; Searching, Sorting &amp; Pattern Matching</p>
+</footer>
+
+<!-- ===== JAVASCRIPT ===== -->
+<script>
+// ---- Binary Search Simulation ----
+const BS_ARR = [2, 7, 13, 19, 24, 31, 37, 45, 52, 60];
+let bsLo, bsHi, bsTarget, bsDone;
+
+function bsRenderArray(lo, hi, mid, found) {
+    let html = '';
+    BS_ARR.forEach((v, i) => {
+        let cls = 'array-cell cell-default';
+        if (found !== undefined && i === found) cls = 'array-cell cell-found';
+        else if (mid !== undefined && i === mid) cls = 'array-cell cell-active';
+        else if (lo !== undefined && hi !== undefined && (i < lo || i > hi)) {
+            cls = 'array-cell'; // grayed
+            html += `<span class="${cls}" style="background:#e5e7eb;color:#9ca3af;border-color:#d1d5db;">${v}</span>`;
+            return;
+        }
+        html += `<span class="${cls}">${v}</span>`;
+    });
+    // index labels below
+    html += '<div style="display:flex;margin-top:4px;">';
+    BS_ARR.forEach((_, i) => {
+        html += `<span style="display:inline-block;width:52px;text-align:center;font-size:11px;color:#9ca3af;">${i}</span>`;
+    });
+    html += '</div>';
+    document.getElementById('bs-array-display').innerHTML = html;
+}
+
+function bsLog(msg) {
+    const log = document.getElementById('bs-log');
+    log.innerHTML += msg + '\n';
+    log.scrollTop = log.scrollHeight;
+}
+
+function bsStart() {
+    bsTarget = parseInt(document.getElementById('bs-target').value);
+    bsLo = 0; bsHi = BS_ARR.length - 1; bsDone = false;
+    document.getElementById('bs-log').innerHTML = '';
+    bsLog(`<span class="highlight-blue">Searching for ${bsTarget} in [${BS_ARR.join(', ')}]</span>`);
+    bsRenderArray(bsLo, bsHi, undefined, undefined);
+    document.getElementById('bs-next-btn').disabled = false;
+}
+
+function bsNext() {
+    if (bsDone) return;
+    if (bsLo > bsHi) {
+        bsLog(`<span class="highlight-red">lo(${bsLo}) > hi(${bsHi}) — ${bsTarget} NOT FOUND (returns -1)</span>`);
+        bsDone = true;
+        document.getElementById('bs-next-btn').disabled = true;
+        bsRenderArray(0, -1, undefined, undefined);
+        return;
+    }
+    const mid = bsLo + Math.floor((bsHi - bsLo) / 2);
+    bsRenderArray(bsLo, bsHi, mid, undefined);
+    bsLog(`lo=${bsLo}, hi=${bsHi} → mid=${mid}, arr[${mid}]=${BS_ARR[mid]}`);
+    if (BS_ARR[mid] === bsTarget) {
+        bsLog(`<span class="highlight-green">✓ arr[${mid}] == ${bsTarget} — FOUND at index ${mid}!</span>`);
+        bsRenderArray(bsLo, bsHi, undefined, mid);
+        bsDone = true;
+        document.getElementById('bs-next-btn').disabled = true;
+    } else if (BS_ARR[mid] < bsTarget) {
+        bsLog(`  arr[${mid}]=${BS_ARR[mid]} < ${bsTarget} → search right: lo = ${mid+1}`);
+        bsLo = mid + 1;
+    } else {
+        bsLog(`  arr[${mid}]=${BS_ARR[mid]} > ${bsTarget} → search left: hi = ${mid-1}`);
+        bsHi = mid - 1;
+    }
+}
+
+function bsReset() {
+    document.getElementById('bs-log').innerHTML = 'Click "Search" to begin binary search.';
+    document.getElementById('bs-array-display').innerHTML = '';
+    document.getElementById('bs-next-btn').disabled = true;
+    bsDone = true;
+}
+
+// ---- KMP Simulation ----
+let kmpTextStr, kmpPatStr, kmpLPS, kmpI, kmpJ, kmpDone, kmpMatches;
+
+function buildLPSjs(pat) {
+    const m = pat.length;
+    const lps = new Array(m).fill(0);
+    let len = 0, i = 1;
+    while (i < m) {
+        if (pat[i] === pat[len]) { lps[i++] = ++len; }
+        else if (len > 0) { len = lps[len - 1]; }
+        else { lps[i++] = 0; }
+    }
+    return lps;
+}
+
+function kmpLog(msg) {
+    const el = document.getElementById('kmp-log');
+    el.innerHTML += msg + '\n';
+    el.scrollTop = el.scrollHeight;
+}
+
+function kmpRender() {
+    const textEl = document.getElementById('kmp-display');
+    // Text row
+    let textHTML = '<div style="margin-bottom:6px;"><strong>Text:&nbsp;&nbsp;&nbsp;</strong>';
+    for (let i = 0; i < kmpTextStr.length; i++) {
+        let bg = '#e5e7eb', color = '#111';
+        // highlight matched so far
+        if (kmpJ > 0 && i >= kmpI - kmpJ && i < kmpI) { bg = '#fde68a'; }
+        if (kmpMatches.some(m => i >= m && i < m + kmpPatStr.length)) { bg = '#6ee7b7'; }
+        if (i === kmpI) { bg = '#3b82f6'; color = '#fff'; }
+        textHTML += `<span style="display:inline-block;width:22px;height:28px;line-height:28px;text-align:center;border-radius:4px;margin:1px;background:${bg};color:${color};font-weight:bold;">${kmpTextStr[i]}</span>`;
+    }
+    textHTML += '</div>';
+    // Pattern row aligned under current position
+    let patHTML = '<div><strong>Pattern: </strong>';
+    const offset = kmpI - kmpJ;
+    for (let s = 0; s < offset; s++) {
+        patHTML += '<span style="display:inline-block;width:22px;"></span>';
+    }
+    for (let j2 = 0; j2 < kmpPatStr.length; j2++) {
+        let bg = '#e5e7eb', color = '#111';
+        if (j2 < kmpJ) { bg = '#fde68a'; }
+        if (j2 === kmpJ && !kmpDone) { bg = '#ef4444'; color = '#fff'; }
+        patHTML += `<span style="display:inline-block;width:22px;height:28px;line-height:28px;text-align:center;border-radius:4px;margin:1px;background:${bg};color:${color};font-weight:bold;">${kmpPatStr[j2]}</span>`;
+    }
+    patHTML += '</div>';
+    textEl.innerHTML = textHTML + patHTML;
+}
+
+function kmpStart() {
+    kmpTextStr = document.getElementById('kmp-text').value.toUpperCase();
+    kmpPatStr  = document.getElementById('kmp-pattern').value.toUpperCase();
+    if (!kmpPatStr || !kmpTextStr) return;
+    kmpLPS = buildLPSjs(kmpPatStr);
+    kmpI = 0; kmpJ = 0; kmpDone = false; kmpMatches = [];
+    document.getElementById('kmp-log').innerHTML = '';
+    kmpLog(`<span class="highlight-blue">Text: "${kmpTextStr}" (n=${kmpTextStr.length})</span>`);
+    kmpLog(`<span class="highlight-yellow">Pattern: "${kmpPatStr}" (m=${kmpPatStr.length})</span>`);
+    kmpLog(`LPS array: [${kmpLPS.join(', ')}]`);
+    kmpLog('─'.repeat(50));
+    document.getElementById('kmp-next-btn').disabled = false;
+    kmpRender();
+}
+
+function kmpNext() {
+    if (kmpDone) return;
+    const n = kmpTextStr.length, m = kmpPatStr.length;
+    if (kmpI >= n) {
+        kmpDone = true;
+        document.getElementById('kmp-next-btn').disabled = true;
+        if (kmpMatches.length === 0) {
+            kmpLog(`<span class="highlight-red">Search complete — pattern NOT found.</span>`);
+        } else {
+            kmpLog(`<span class="highlight-green">Search complete — found at positions: [${kmpMatches.join(', ')}]</span>`);
+        }
+        return;
+    }
+    if (kmpTextStr[kmpI] === kmpPatStr[kmpJ]) {
+        kmpLog(`  text[${kmpI}]='${kmpTextStr[kmpI]}' == pattern[${kmpJ}]='${kmpPatStr[kmpJ]}' ✓ i++, j++`);
+        kmpI++; kmpJ++;
+        kmpRender();
+        if (kmpJ === m) {
+            const pos = kmpI - kmpJ;
+            kmpMatches.push(pos);
+            kmpLog(`<span class="highlight-green">★ MATCH found at index ${pos}!</span>`);
+            kmpLog(`  Shift: j = lps[${kmpJ-1}] = ${kmpLPS[kmpJ-1]}`);
+            kmpJ = kmpLPS[kmpJ - 1];
+            kmpRender();
+        }
+    } else {
+        if (kmpJ > 0) {
+            kmpLog(`  Mismatch: text[${kmpI}]='${kmpTextStr[kmpI]}' ≠ pattern[${kmpJ}]='${kmpPatStr[kmpJ]}'`);
+            kmpLog(`  <span class="highlight-yellow">Shift: j = lps[${kmpJ-1}] = ${kmpLPS[kmpJ-1]} (no backtrack in text!)</span>`);
+            kmpJ = kmpLPS[kmpJ - 1];
+        } else {
+            kmpLog(`  Mismatch at j=0: text[${kmpI}]='${kmpTextStr[kmpI]}' ≠ pattern[0]='${kmpPatStr[0]}' → i++`);
+            kmpI++;
+        }
+        kmpRender();
+    }
+}
+
+function kmpReset() {
+    document.getElementById('kmp-log').innerHTML = 'Enter text and pattern, then click "Search".';
+    document.getElementById('kmp-display').innerHTML = '';
+    document.getElementById('kmp-next-btn').disabled = true;
+    kmpDone = true;
+}
+</script>
+</body>
+</html>

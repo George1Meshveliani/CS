@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C++ Problems: Arrays, Pointers &amp; Binary Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2, .section-title { font-size: 2.25rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.5rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.125rem; line-height: 1.75; }
+        .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .code-block { background-color: #1f2937; color: #d1d5db; padding: 1.5rem; border-radius: 0.5rem; margin: 1rem 0; font-family: 'Courier New', monospace; overflow-x: auto; font-size: 0.95rem; line-height: 1.8; white-space: pre; tab-size: 4; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border-left: 4px solid #3b82f6; }
+        .problem-card.easy { border-left-color: #10b981; }
+        .problem-card.medium { border-left-color: #f59e0b; }
+        .problem-card.hard { border-left-color: #ef4444; }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        .toggle-btn:hover { background-color: #2563eb; }
+        .difficulty-badge { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 600; margin-left: 0.5rem; }
+        .difficulty-easy { background-color: #d1fae5; color: #065f46; }
+        .difficulty-medium { background-color: #fef3c7; color: #92400e; }
+        .difficulty-hard { background-color: #fee2e2; color: #991b1b; }
+        .theory-box { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #3b82f6; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .insight-box { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 5px solid #10b981; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-900">C++ Problems: Arrays, Pointers &amp; Binary Search</h1>
+            <div class="text-sm text-gray-500">Practice Problems</div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section id="introduction" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>C++ Programming Problems</h1>
+                <p>This page contains carefully selected C++ problems covering <strong>Arrays</strong>, <strong>Pointers</strong>, and <strong>Binary Search</strong>. Each problem includes theory, examples, and complete solutions.</p>
+
+                <h2>Table of Contents</h2>
+                <ol>
+                    <li><a href="#arrays-theory">Arrays: Theory & Concepts</a></li>
+                    <li><a href="#arrays-problems">Array Problems</a></li>
+                    <li><a href="#pointers-theory">Pointers: Theory & Concepts</a></li>
+                    <li><a href="#pointers-problems">Pointer Problems</a></li>
+                    <li><a href="#binary-search-theory">Binary Search: Theory & Concepts</a></li>
+                    <li><a href="#binary-search-problems">Binary Search Problems</a></li>
+                </ol>
+
+                <!-- ===== ARRAYS THEORY ===== -->
+                <h2 id="arrays-theory">1. Arrays: Theory & Concepts</h2>
+                
+                <h3>What is an Array?</h3>
+                <p>An <strong>array</strong> is a collection of elements of the same type stored in contiguous memory locations. Arrays provide O(1) random access but have fixed size (in C++).</p>
+
+                <div class="theory-box">
+                    <h4>Key Properties</h4>
+                    <ul>
+                        <li><strong>Declaration:</strong> <code>int arr[10];</code> or <code>int arr[] = {1, 2, 3};</code></li>
+                        <li><strong>Indexing:</strong> Zero-based (first element at index 0)</li>
+                        <li><strong>Memory:</strong> Contiguous block, size = <code>n × sizeof(type)</code></li>
+                        <li><strong>Access:</strong> O(1) via index, O(n) for search</li>
+                        <li><strong>Size:</strong> Fixed at compile time (static arrays)</li>
+                    </ul>
+                </div>
+
+                <h3>Array Operations</h3>
+                <div class="code-block">
+<span style="color:#86efac;">// Basic array operations</span>
+int arr[5] = {10, 20, 30, 40, 50};
+
+<span style="color:#fde68a;">// Access: O(1)</span>
+int val = arr[2];        <span style="color:#fde68a;">// 30</span>
+arr[3] = 99;             <span style="color:#fde68a;">// Modify</span>
+
+<span style="color:#fde68a;">// Traversal: O(n)</span>
+for (int i = 0; i < 5; i++)
+    cout << arr[i] << " ";
+
+<span style="color:#fde68a;">// Search: O(n)</span>
+bool found = false;
+for (int i = 0; i < 5; i++)
+    if (arr[i] == 30) { found = true; break; }
+                </div>
+
+                <div class="insight-box">
+                    <h4>Common Array Patterns</h4>
+                    <ul>
+                        <li><strong>Two Pointers:</strong> Start from both ends, move towards center</li>
+                        <li><strong>Sliding Window:</strong> Maintain a window of elements</li>
+                        <li><strong>Prefix Sum:</strong> Precompute cumulative sums for range queries</li>
+                        <li><strong>In-place Operations:</strong> Modify array without extra space</li>
+                    </ul>
+                </div>
+
+                <!-- ===== ARRAYS PROBLEMS ===== -->
+                <h2 id="arrays-problems">2. Array Problems</h2>
+
+                <div class="problem-card easy">
+                    <h3>Problem 1: Find Maximum Element <span class="difficulty-badge difficulty-easy">Easy</span></h3>
+                    <p><strong>Problem:</strong> Given an array of integers, find the maximum element.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: arr = [3, 7, 2, 9, 1]
+Output: 9</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('arr1')">Show Solution</button>
+                    <div id="arr1" class="solution-content">
+                        <h4>Solution:</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+int findMax(int arr[], int n) {
+    int maxVal = INT_MIN;
+    for (int i = 0; i < n; i++) {
+        if (arr[i] > maxVal)
+            maxVal = arr[i];
+    }
+    return maxVal;
+}
+
+<span style="color:#86efac;">// Alternative: using pointer</span>
+int findMaxPtr(int* arr, int n) {
+    int maxVal = *arr;  <span style="color:#fde68a;">// first element</span>
+    for (int i = 1; i < n; i++) {
+        if (*(arr + i) > maxVal)
+            maxVal = *(arr + i);
+    }
+    return maxVal;
+}
+
+int main() {
+    int arr[] = {3, 7, 2, 9, 1};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    cout << "Max: " << findMax(arr, n) << endl;
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(n) | <strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card easy">
+                    <h3>Problem 2: Reverse Array <span class="difficulty-badge difficulty-easy">Easy</span></h3>
+                    <p><strong>Problem:</strong> Reverse an array in-place (without using extra array).</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: arr = [1, 2, 3, 4, 5]
+Output: [5, 4, 3, 2, 1]</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('arr2')">Show Solution</button>
+                    <div id="arr2" class="solution-content">
+                        <h4>Solution: Two Pointers Technique</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+using namespace std;
+
+void reverseArray(int arr[], int n) {
+    int left = 0, right = n - 1;
+    while (left < right) {
+        <span style="color:#fde68a;">// Swap elements</span>
+        int temp = arr[left];
+        arr[left] = arr[right];
+        arr[right] = temp;
+        left++;
+        right--;
+    }
+}
+
+<span style="color:#86efac;">// Using pointers</span>
+void reverseArrayPtr(int* arr, int n) {
+    int* left = arr;
+    int* right = arr + n - 1;
+    while (left < right) {
+        swap(*left, *right);
+        left++;
+        right--;
+    }
+}
+
+int main() {
+    int arr[] = {1, 2, 3, 4, 5};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    reverseArray(arr, n);
+    for (int i = 0; i < n; i++)
+        cout << arr[i] << " ";
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(n) | <strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card medium">
+                    <h3>Problem 3: Two Sum <span class="difficulty-badge difficulty-medium">Medium</span></h3>
+                    <p><strong>Problem:</strong> Given an array of integers and a target sum, find two indices such that their values add up to the target.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: arr = [2, 7, 11, 15], target = 9
+Output: [0, 1] (because arr[0] + arr[1] = 2 + 7 = 9)</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('arr3')">Show Solution</button>
+                    <div id="arr3" class="solution-content">
+                        <h4>Solution: Hash Map Approach (O(n))</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+#include &lt;unordered_map&gt;
+#include &lt;vector&gt;
+using namespace std;
+
+vector&lt;int&gt; twoSum(int arr[], int n, int target) {
+    unordered_map&lt;int, int&gt; map;
+    for (int i = 0; i < n; i++) {
+        int complement = target - arr[i];
+        if (map.find(complement) != map.end()) {
+            return {map[complement], i};
+        }
+        map[arr[i]] = i;
+    }
+    return {};  <span style="color:#fde68a;">// not found</span>
+}
+
+<span style="color:#86efac;">// Alternative: Two pointers (if array is sorted)</span>
+vector&lt;int&gt; twoSumSorted(int arr[], int n, int target) {
+    int left = 0, right = n - 1;
+    while (left < right) {
+        int sum = arr[left] + arr[right];
+        if (sum == target)
+            return {left, right};
+        else if (sum < target)
+            left++;
+        else
+            right--;
+    }
+    return {};
+}
+
+int main() {
+    int arr[] = {2, 7, 11, 15};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    vector&lt;int&gt; result = twoSum(arr, n, 9);
+    cout << "Indices: [" << result[0] << ", " << result[1] << "]" << endl;
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(n) | <strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card medium">
+                    <h3>Problem 4: Maximum Subarray Sum (Kadane's Algorithm) <span class="difficulty-badge difficulty-medium">Medium</span></h3>
+                    <p><strong>Problem:</strong> Find the maximum sum of a contiguous subarray.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: arr = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+Output: 6 (subarray [4, -1, 2, 1])</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('arr4')">Show Solution</button>
+                    <div id="arr4" class="solution-content">
+                        <h4>Solution: Kadane's Algorithm</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+#include &lt;climits&gt;
+using namespace std;
+
+int maxSubarraySum(int arr[], int n) {
+    int maxSoFar = INT_MIN;
+    int maxEndingHere = 0;
+    
+    for (int i = 0; i < n; i++) {
+        maxEndingHere += arr[i];
+        if (maxSoFar < maxEndingHere)
+            maxSoFar = maxEndingHere;
+        if (maxEndingHere < 0)
+            maxEndingHere = 0;  <span style="color:#fde68a;">// reset if negative</span>
+    }
+    return maxSoFar;
+}
+
+<span style="color:#86efac;">// With indices tracking</span>
+int maxSubarraySumWithIndices(int arr[], int n, int& start, int& end) {
+    int maxSoFar = INT_MIN;
+    int maxEndingHere = 0;
+    int tempStart = 0;
+    
+    for (int i = 0; i < n; i++) {
+        maxEndingHere += arr[i];
+        if (maxSoFar < maxEndingHere) {
+            maxSoFar = maxEndingHere;
+            start = tempStart;
+            end = i;
+        }
+        if (maxEndingHere < 0) {
+            maxEndingHere = 0;
+            tempStart = i + 1;
+        }
+    }
+    return maxSoFar;
+}
+
+int main() {
+    int arr[] = {-2, 1, -3, 4, -1, 2, 1, -5, 4};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    cout << "Max sum: " << maxSubarraySum(arr, n) << endl;
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(n) | <strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card hard">
+                    <h3>Problem 5: Merge Sorted Arrays <span class="difficulty-badge difficulty-hard">Hard</span></h3>
+                    <p><strong>Problem:</strong> Merge two sorted arrays into one sorted array in-place (first array has enough space).</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: arr1 = [1, 3, 5, 0, 0, 0], m = 3
+       arr2 = [2, 4, 6], n = 3
+Output: arr1 = [1, 2, 3, 4, 5, 6]</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('arr5')">Show Solution</button>
+                    <div id="arr5" class="solution-content">
+                        <h4>Solution: Two Pointers from End</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+using namespace std;
+
+void mergeSortedArrays(int arr1[], int m, int arr2[], int n) {
+    <span style="color:#fde68a;">// Start from the end of both arrays</span>
+    int i = m - 1;      <span style="color:#fde68a;">// last element of arr1</span>
+    int j = n - 1;      <span style="color:#fde68a;">// last element of arr2</span>
+    int k = m + n - 1;  <span style="color:#fde68a;">// last position in merged array</span>
+    
+    while (i >= 0 && j >= 0) {
+        if (arr1[i] > arr2[j]) {
+            arr1[k] = arr1[i];
+            i--;
+        } else {
+            arr1[k] = arr2[j];
+            j--;
+        }
+        k--;
+    }
+    
+    <span style="color:#fde68a;">// Copy remaining elements from arr2</span>
+    while (j >= 0) {
+        arr1[k] = arr2[j];
+        j--;
+        k--;
+    }
+}
+
+int main() {
+    int arr1[6] = {1, 3, 5, 0, 0, 0};
+    int arr2[] = {2, 4, 6};
+    mergeSortedArrays(arr1, 3, arr2, 3);
+    for (int i = 0; i < 6; i++)
+        cout << arr1[i] << " ";
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(m + n) | <strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <!-- ===== POINTERS THEORY ===== -->
+                <h2 id="pointers-theory">3. Pointers: Theory & Concepts</h2>
+                
+                <h3>What is a Pointer?</h3>
+                <p>A <strong>pointer</strong> is a variable that stores the memory address of another variable. Pointers enable dynamic memory allocation, efficient array access, and function parameter passing by reference.</p>
+
+                <div class="theory-box">
+                    <h4>Key Concepts</h4>
+                    <ul>
+                        <li><strong>Declaration:</strong> <code>int* ptr;</code> or <code>int *ptr;</code></li>
+                        <li><strong>Address-of:</strong> <code>&amp;variable</code> gets the address</li>
+                        <li><strong>Dereference:</strong> <code>*ptr</code> gets the value at address</li>
+                        <li><strong>Null pointer:</strong> <code>nullptr</code> or <code>NULL</code> (points to nothing)</li>
+                        <li><strong>Pointer arithmetic:</strong> <code>ptr + 1</code> moves by <code>sizeof(type)</code> bytes</li>
+                    </ul>
+                </div>
+
+                <h3>Pointer Operations</h3>
+                <div class="code-block">
+<span style="color:#86efac;">// Basic pointer operations</span>
+int x = 10;
+int* ptr = &amp;x;        <span style="color:#fde68a;">// ptr stores address of x</span>
+
+cout << x << endl;      <span style="color:#fde68a;">// 10</span>
+cout << *ptr << endl;   <span style="color:#fde68a;">// 10 (dereference)</span>
+cout << ptr << endl;    <span style="color:#fde68a;">// address (e.g., 0x7fff5fbff6ac)</span>
+
+*ptr = 20;              <span style="color:#fde68a;">// modify x through pointer</span>
+cout << x << endl;      <span style="color:#fde68a;">// 20</span>
+
+<span style="color:#86efac;">// Pointer arithmetic</span>
+int arr[] = {1, 2, 3, 4, 5};
+int* p = arr;           <span style="color:#fde68a;">// p points to arr[0]</span>
+cout << *p << endl;     <span style="color:#fde68a;">// 1</span>
+cout << *(p + 2) << endl; <span style="color:#fde68a;">// 3 (arr[2])</span>
+                </div>
+
+                <div class="insight-box">
+                    <h4>Common Pointer Patterns</h4>
+                    <ul>
+                        <li><strong>Pass by Reference:</strong> Modify variables in functions</li>
+                        <li><strong>Dynamic Allocation:</strong> <code>new</code> and <code>delete</code></li>
+                        <li><strong>Array Traversal:</strong> Use pointers instead of indices</li>
+                        <li><strong>Function Pointers:</strong> Pass functions as parameters</li>
+                    </ul>
+                </div>
+
+                <!-- ===== POINTERS PROBLEMS ===== -->
+                <h2 id="pointers-problems">4. Pointer Problems</h2>
+
+                <div class="problem-card easy">
+                    <h3>Problem 6: Swap Using Pointers <span class="difficulty-badge difficulty-easy">Easy</span></h3>
+                    <p><strong>Problem:</strong> Write a function to swap two integers using pointers.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: a = 5, b = 10
+Output: a = 10, b = 5</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('ptr1')">Show Solution</button>
+                    <div id="ptr1" class="solution-content">
+                        <h4>Solution:</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+using namespace std;
+
+void swap(int* a, int* b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+
+<span style="color:#86efac;">// Using references (C++ style)</span>
+void swapRef(int&amp; a, int&amp; b) {
+    int temp = a;
+    a = b;
+    b = temp;
+}
+
+int main() {
+    int x = 5, y = 10;
+    cout << "Before: x=" << x << ", y=" << y << endl;
+    swap(&amp;x, &amp;y);  <span style="color:#fde68a;">// pass addresses</span>
+    cout << "After: x=" << x << ", y=" << y << endl;
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(1) | <strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card easy">
+                    <h3>Problem 7: Find Array Sum Using Pointers <span class="difficulty-badge difficulty-easy">Easy</span></h3>
+                    <p><strong>Problem:</strong> Calculate the sum of array elements using pointer arithmetic.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: arr = [1, 2, 3, 4, 5]
+Output: 15</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('ptr2')">Show Solution</button>
+                    <div id="ptr2" class="solution-content">
+                        <h4>Solution:</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+using namespace std;
+
+int arraySum(int* arr, int n) {
+    int sum = 0;
+    int* end = arr + n;  <span style="color:#fde68a;">// pointer to one past last element</span>
+    
+    for (int* p = arr; p < end; p++) {
+        sum += *p;
+    }
+    return sum;
+}
+
+<span style="color:#86efac;">// Alternative: using pointer arithmetic</span>
+int arraySumAlt(int* arr, int n) {
+    int sum = 0;
+    for (int i = 0; i < n; i++) {
+        sum += *(arr + i);  <span style="color:#fde68a;">// same as arr[i]</span>
+    }
+    return sum;
+}
+
+int main() {
+    int arr[] = {1, 2, 3, 4, 5};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    cout << "Sum: " << arraySum(arr, n) << endl;
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(n) | <strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card medium">
+                    <h3>Problem 8: Reverse Array Using Pointers <span class="difficulty-badge difficulty-medium">Medium</span></h3>
+                    <p><strong>Problem:</strong> Reverse an array using only pointers (no index notation).</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: arr = [1, 2, 3, 4, 5]
+Output: [5, 4, 3, 2, 1]</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('ptr3')">Show Solution</button>
+                    <div id="ptr3" class="solution-content">
+                        <h4>Solution:</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+using namespace std;
+
+void reverseArrayPtr(int* arr, int n) {
+    int* left = arr;              <span style="color:#fde68a;">// pointer to first element</span>
+    int* right = arr + n - 1;     <span style="color:#fde68a;">// pointer to last element</span>
+    
+    while (left < right) {
+        <span style="color:#fde68a;">// Swap using pointers</span>
+        int temp = *left;
+        *left = *right;
+        *right = temp;
+        
+        left++;
+        right--;
+    }
+}
+
+<span style="color:#86efac;">// Using swap function</span>
+void reverseArrayPtrSwap(int* arr, int n) {
+    int* start = arr;
+    int* end = arr + n - 1;
+    while (start < end) {
+        swap(*start, *end);
+        start++;
+        end--;
+    }
+}
+
+int main() {
+    int arr[] = {1, 2, 3, 4, 5};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    reverseArrayPtr(arr, n);
+    for (int i = 0; i < n; i++)
+        cout << arr[i] << " ";
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(n) | <strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card medium">
+                    <h3>Problem 9: Find Maximum Using Pointers <span class="difficulty-badge difficulty-medium">Medium</span></h3>
+                    <p><strong>Problem:</strong> Find the maximum element in an array and return its address using pointers.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: arr = [3, 7, 2, 9, 1]
+Output: Address of element 9</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('ptr4')">Show Solution</button>
+                    <div id="ptr4" class="solution-content">
+                        <h4>Solution:</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+using namespace std;
+
+int* findMaxPtr(int* arr, int n) {
+    if (n == 0) return nullptr;
+    
+    int* maxPtr = arr;  <span style="color:#fde68a;">// assume first is max</span>
+    int* end = arr + n;
+    
+    for (int* p = arr + 1; p < end; p++) {
+        if (*p > *maxPtr) {
+            maxPtr = p;
+        }
+    }
+    return maxPtr;
+}
+
+int main() {
+    int arr[] = {3, 7, 2, 9, 1};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    
+    int* maxPtr = findMaxPtr(arr, n);
+    if (maxPtr != nullptr) {
+        cout << "Max value: " << *maxPtr << endl;
+        cout << "Address: " << maxPtr << endl;
+        cout << "Index: " << (maxPtr - arr) << endl;
+    }
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(n) | <strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card hard">
+                    <h3>Problem 10: Dynamic Array Operations <span class="difficulty-badge difficulty-hard">Hard</span></h3>
+                    <p><strong>Problem:</strong> Implement a dynamic array (vector-like) with push, pop, and resize operations using pointers.</p>
+                    <p><strong>Requirements:</strong></p>
+                    <ul>
+                        <li>Allocate memory dynamically</li>
+                        <li>Resize when capacity is full</li>
+                        <li>Implement push_back and pop_back</li>
+                    </ul>
+                    <button class="toggle-btn" onclick="toggleSolution('ptr5')">Show Solution</button>
+                    <div id="ptr5" class="solution-content">
+                        <h4>Solution:</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+using namespace std;
+
+class DynamicArray {
+private:
+    int* data;
+    int size;
+    int capacity;
+    
+    void resize() {
+        capacity *= 2;
+        int* newData = new int[capacity];
+        for (int i = 0; i < size; i++) {
+            newData[i] = data[i];
+        }
+        delete[] data;
+        data = newData;
+    }
+    
+public:
+    DynamicArray(int cap = 4) : size(0), capacity(cap) {
+        data = new int[capacity];
+    }
+    
+    ~DynamicArray() {
+        delete[] data;
+    }
+    
+    void push_back(int value) {
+        if (size >= capacity) {
+            resize();
+        }
+        data[size++] = value;
+    }
+    
+    void pop_back() {
+        if (size > 0) {
+            size--;
+        }
+    }
+    
+    int& operator[](int index) {
+        return data[index];
+    }
+    
+    int getSize() const { return size; }
+    int getCapacity() const { return capacity; }
+    
+    void print() {
+        for (int i = 0; i < size; i++) {
+            cout << data[i] << " ";
+        }
+        cout << endl;
+    }
+};
+
+int main() {
+    DynamicArray arr;
+    arr.push_back(1);
+    arr.push_back(2);
+    arr.push_back(3);
+    arr.print();
+    cout << "Size: " << arr.getSize() << ", Capacity: " << arr.getCapacity() << endl;
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> Push O(1) amortized, Pop O(1) | <strong>Space Complexity:</strong> O(n)</p>
+                    </div>
+                </div>
+
+                <!-- ===== BINARY SEARCH THEORY ===== -->
+                <h2 id="binary-search-theory">5. Binary Search: Theory & Concepts</h2>
+                
+                <h3>What is Binary Search?</h3>
+                <p><strong>Binary Search</strong> is an efficient algorithm for finding an element in a <strong>sorted</strong> array. It repeatedly divides the search space in half, achieving O(log n) time complexity.</p>
+
+                <div class="theory-box">
+                    <h4>Key Properties</h4>
+                    <ul>
+                        <li><strong>Prerequisite:</strong> Array must be sorted</li>
+                        <li><strong>Time Complexity:</strong> O(log n)</li>
+                        <li><strong>Space Complexity:</strong> O(1) iterative, O(log n) recursive</li>
+                        <li><strong>Approach:</strong> Divide and conquer</li>
+                        <li><strong>Comparison:</strong> Compare target with middle element</li>
+                    </ul>
+                </div>
+
+                <h3>Binary Search Algorithm</h3>
+                <div class="code-block">
+<span style="color:#86efac;">// Classic binary search</span>
+int binarySearch(int arr[], int n, int target) {
+    int left = 0, right = n - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;  <span style="color:#fde68a;">// avoid overflow</span>
+        
+        if (arr[mid] == target)
+            return mid;
+        else if (arr[mid] < target)
+            left = mid + 1;   <span style="color:#fde68a;">// search right half</span>
+        else
+            right = mid - 1;  <span style="color:#fde68a;">// search left half</span>
+    }
+    return -1;  <span style="color:#fde68a;">// not found</span>
+}
+                </div>
+
+                <div class="insight-box">
+                    <h4>Binary Search Variations</h4>
+                    <ul>
+                        <li><strong>Find First Occurrence:</strong> Continue searching left when found</li>
+                        <li><strong>Find Last Occurrence:</strong> Continue searching right when found</li>
+                        <li><strong>Find Insertion Position:</strong> Return left pointer</li>
+                        <li><strong>Search in Rotated Array:</strong> Handle rotation point</li>
+                    </ul>
+                </div>
+
+                <!-- ===== BINARY SEARCH PROBLEMS ===== -->
+                <h2 id="binary-search-problems">6. Binary Search Problems</h2>
+
+                <div class="problem-card easy">
+                    <h3>Problem 11: Binary Search <span class="difficulty-badge difficulty-easy">Easy</span></h3>
+                    <p><strong>Problem:</strong> Implement binary search to find a target in a sorted array.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: arr = [1, 3, 5, 7, 9, 11], target = 7
+Output: 3 (index of 7)</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('bs1')">Show Solution</button>
+                    <div id="bs1" class="solution-content">
+                        <h4>Solution:</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+using namespace std;
+
+int binarySearch(int arr[], int n, int target) {
+    int left = 0, right = n - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (arr[mid] == target)
+            return mid;
+        else if (arr[mid] < target)
+            left = mid + 1;
+        else
+            right = mid - 1;
+    }
+    return -1;
+}
+
+<span style="color:#86efac;">// Recursive version</span>
+int binarySearchRec(int arr[], int left, int right, int target) {
+    if (left > right) return -1;
+    
+    int mid = left + (right - left) / 2;
+    if (arr[mid] == target)
+        return mid;
+    else if (arr[mid] < target)
+        return binarySearchRec(arr, mid + 1, right, target);
+    else
+        return binarySearchRec(arr, left, mid - 1, target);
+}
+
+int main() {
+    int arr[] = {1, 3, 5, 7, 9, 11};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int target = 7;
+    int index = binarySearch(arr, n, target);
+    cout << "Found at index: " << index << endl;
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(log n) | <strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card easy">
+                    <h3>Problem 12: Find First Occurrence <span class="difficulty-badge difficulty-easy">Easy</span></h3>
+                    <p><strong>Problem:</strong> Find the first occurrence of a target in a sorted array (may contain duplicates).</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: arr = [1, 2, 2, 2, 3, 4], target = 2
+Output: 1 (first index where 2 appears)</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('bs2')">Show Solution</button>
+                    <div id="bs2" class="solution-content">
+                        <h4>Solution:</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+using namespace std;
+
+int findFirst(int arr[], int n, int target) {
+    int left = 0, right = n - 1;
+    int result = -1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (arr[mid] == target) {
+            result = mid;
+            right = mid - 1;  <span style="color:#fde68a;">// continue searching left</span>
+        } else if (arr[mid] < target) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    return result;
+}
+
+int main() {
+    int arr[] = {1, 2, 2, 2, 3, 4};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    cout << "First occurrence: " << findFirst(arr, n, 2) << endl;
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(log n) | <strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card medium">
+                    <h3>Problem 13: Search Insert Position <span class="difficulty-badge difficulty-medium">Medium</span></h3>
+                    <p><strong>Problem:</strong> Find the index where a target should be inserted to keep the array sorted.</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: arr = [1, 3, 5, 6], target = 5
+Output: 2 (already exists)
+
+Input: arr = [1, 3, 5, 6], target = 2
+Output: 1 (should be inserted at index 1)</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('bs3')">Show Solution</button>
+                    <div id="bs3" class="solution-content">
+                        <h4>Solution:</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+using namespace std;
+
+int searchInsert(int arr[], int n, int target) {
+    int left = 0, right = n - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (arr[mid] == target)
+            return mid;
+        else if (arr[mid] < target)
+            left = mid + 1;
+        else
+            right = mid - 1;
+    }
+    return left;  <span style="color:#fde68a;">// insertion position</span>
+}
+
+int main() {
+    int arr[] = {1, 3, 5, 6};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    cout << "Insert position for 2: " << searchInsert(arr, n, 2) << endl;
+    cout << "Insert position for 5: " << searchInsert(arr, n, 5) << endl;
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(log n) | <strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card medium">
+                    <h3>Problem 14: Find Peak Element <span class="difficulty-badge difficulty-medium">Medium</span></h3>
+                    <p><strong>Problem:</strong> A peak element is greater than its neighbors. Find any peak element (array may not be sorted).</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: arr = [1, 2, 3, 1]
+Output: 2 (index of element 3, which is a peak)</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('bs4')">Show Solution</button>
+                    <div id="bs4" class="solution-content">
+                        <h4>Solution: Binary Search on Conditions</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+using namespace std;
+
+int findPeak(int arr[], int n) {
+    int left = 0, right = n - 1;
+    
+    while (left < right) {
+        int mid = left + (right - left) / 2;
+        
+        <span style="color:#fde68a;">// If mid is less than next, peak is on right</span>
+        if (arr[mid] < arr[mid + 1])
+            left = mid + 1;
+        else
+            right = mid;  <span style="color:#fde68a;">// peak is on left or mid</span>
+    }
+    return left;
+}
+
+int main() {
+    int arr[] = {1, 2, 3, 1};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    int peakIndex = findPeak(arr, n);
+    cout << "Peak at index: " << peakIndex 
+         << ", value: " << arr[peakIndex] << endl;
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(log n) | <strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+                <div class="problem-card hard">
+                    <h3>Problem 15: Search in Rotated Sorted Array <span class="difficulty-badge difficulty-hard">Hard</span></h3>
+                    <p><strong>Problem:</strong> Search for a target in a rotated sorted array (e.g., [4,5,6,7,0,1,2] rotated at index 4).</p>
+                    <p><strong>Example:</strong></p>
+                    <pre>Input: arr = [4, 5, 6, 7, 0, 1, 2], target = 0
+Output: 4</pre>
+                    <button class="toggle-btn" onclick="toggleSolution('bs5')">Show Solution</button>
+                    <div id="bs5" class="solution-content">
+                        <h4>Solution:</h4>
+                        <div class="code-block">
+#include &lt;iostream&gt;
+using namespace std;
+
+int searchRotated(int arr[], int n, int target) {
+    int left = 0, right = n - 1;
+    
+    while (left <= right) {
+        int mid = left + (right - left) / 2;
+        
+        if (arr[mid] == target)
+            return mid;
+        
+        <span style="color:#fde68a;">// Left half is sorted</span>
+        if (arr[left] <= arr[mid]) {
+            if (target >= arr[left] && target < arr[mid])
+                right = mid - 1;
+            else
+                left = mid + 1;
+        }
+        <span style="color:#fde68a;">// Right half is sorted</span>
+        else {
+            if (target > arr[mid] && target <= arr[right])
+                left = mid + 1;
+            else
+                right = mid - 1;
+        }
+    }
+    return -1;
+}
+
+int main() {
+    int arr[] = {4, 5, 6, 7, 0, 1, 2};
+    int n = sizeof(arr) / sizeof(arr[0]);
+    cout << "Index of 0: " << searchRotated(arr, n, 0) << endl;
+    return 0;
+}
+                        </div>
+                        <p><strong>Time Complexity:</strong> O(log n) | <strong>Space Complexity:</strong> O(1)</p>
+                    </div>
+                </div>
+
+            </article>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; George Meshveliani — Computer Science Fundamentals</p>
+        </div>
+    </footer>
+
+    <script>
+        function toggleSolution(id) {
+            const solution = document.getElementById(id);
+            solution.classList.toggle('show');
+            const btn = solution.previousElementSibling;
+            btn.textContent = solution.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+        }
+    </script>
+</body>
+</html>
