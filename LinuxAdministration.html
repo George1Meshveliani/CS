@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Linux Administration: Cloud Server & Domain Management</title>
+    <title>Linux Administration: Cloud Server &amp; Domain Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -17,583 +17,616 @@
         .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
         .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
         .prose pre code { background-color: transparent; padding: 0; color: inherit; }
-        .command-box { background-color: #1f2937; color: #10b981; padding: 1rem; border-radius: 0.5rem; margin: 1rem 0; font-family: 'Courier New', monospace; }
+        .cmd { background-color: #0f172a; color: #4ade80; padding: 1rem 1.5rem; border-radius: 0.5rem; margin: 0.75rem 0; font-family: 'Courier New', monospace; font-size: 0.95rem; line-height: 1.8; overflow-x: auto; border-left: 4px solid #22c55e; }
+        .cmd .prompt { color: #f59e0b; font-weight: 700; }
+        .cmd .comment { color: #64748b; }
         .step-box { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #3b82f6; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .warn-box { background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%); border-left: 5px solid #ef4444; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .insight-box { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 5px solid #10b981; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .tip-box { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 5px solid #f59e0b; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        table.styled { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        table.styled thead tr { background-color: #1e293b; color: white; }
+        table.styled th, table.styled td { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; }
+        table.styled tbody tr:nth-child(even) { background-color: #f1f5f9; }
+        .step-num { display:inline-flex; align-items:center; justify-content:center; width:2rem; height:2rem; border-radius:50%; background:#3b82f6; color:white; font-weight:700; margin-right:0.5rem; flex-shrink:0; }
+        .step-row { display:flex; align-items:flex-start; gap:0.75rem; margin-bottom:1.25rem; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
     <header class="bg-white shadow-md sticky top-0 z-10">
-        <nav class="container mx-auto px-6 py-4">
-            <h1 class="text-2xl font-bold text-gray-900">Linux Administration: Cloud Server & Domain Management</h1>
+        <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-900">Linux Administration: Cloud Server &amp; Domains</h1>
+            <div class="text-sm text-gray-500">System Administration</div>
         </nav>
     </header>
 
     <main class="container mx-auto px-6 py-12">
-        <section id="introduction" class="mb-12">
+
+        <!-- ===== SECTION 1: ARCHITECTURE OVERVIEW ===== -->
+        <section id="overview" class="mb-12">
             <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
-                <h1>Linux Administration: Hosting Your Own Cloud Server</h1>
-                <p>This guide covers setting up and managing your own cloud server on Linux, including domain configuration, DNS management, and server administration.</p>
+                <h1>Hosting Your Own Cloud Server on Linux</h1>
+                <p>Running your own VPS (Virtual Private Server) gives you full control over your web presence. This guide covers the complete stack: from choosing a provider to securing and monitoring your server.</p>
 
-                <h2>Table of Contents</h2>
-                <ol>
-                    <li><a href="#server-setup">Initial Server Setup</a></li>
-                    <li><a href="#domain-management">Domain Management</a></li>
-                    <li><a href="#dns-configuration">DNS Configuration</a></li>
-                    <li><a href="#web-server">Web Server Setup (Nginx/Apache)</a></li>
-                    <li><a href="#ssl-certificates">SSL Certificates (HTTPS)</a></li>
-                    <li><a href="#security">Security Hardening</a></li>
-                    <li><a href="#monitoring">Server Monitoring</a></li>
-                </ol>
-
-                <h2 id="server-setup">1. Initial Server Setup</h2>
-                
-                <h3>Choosing a Cloud Provider</h3>
-                <p>Popular options include:</p>
-                <ul>
-                    <li><strong>DigitalOcean:</strong> Simple, developer-friendly</li>
-                    <li><strong>AWS EC2:</strong> Scalable, enterprise-grade</li>
-                    <li><strong>Linode:</strong> Good performance/price ratio</li>
-                    <li><strong>Vultr:</strong> Global locations, competitive pricing</li>
-                    <li><strong>Hetzner:</strong> European provider, excellent value</li>
-                </ul>
-
-                <h3>Initial Server Configuration</h3>
-                
-                <div class="step-box">
-                    <h4>Step 1: Create SSH Key Pair</h4>
-                    <div class="command-box">
-$ ssh-keygen -t ed25519 -C "your_email@example.com"
-# Follow prompts to save key (default: ~/.ssh/id_ed25519)
-                    </div>
-                    <p>This creates a public/private key pair for secure authentication.</p>
-                </div>
-
-                <div class="step-box">
-                    <h4>Step 2: Connect to Your Server</h4>
-                    <div class="command-box">
-$ ssh root@your_server_ip
-# Or with key: ssh -i ~/.ssh/id_ed25519 root@your_server_ip
-                    </div>
-                </div>
-
-                <div class="step-box">
-                    <h4>Step 3: Update System Packages</h4>
-                    <div class="command-box">
-# Ubuntu/Debian
-$ apt update && apt upgrade -y
-
-# CentOS/RHEL
-$ yum update -y
-
-# Fedora
-$ dnf update -y
-                    </div>
-                </div>
-
-                <div class="step-box">
-                    <h4>Step 4: Create Non-Root User</h4>
-                    <div class="command-box">
-$ adduser username
-$ usermod -aG sudo username  # Ubuntu/Debian
-$ usermod -aG wheel username  # CentOS/RHEL
-$ su - username
-                    </div>
-                </div>
-
-                <div class="step-box">
-                    <h4>Step 5: Configure Firewall</h4>
-                    <div class="command-box">
-# UFW (Ubuntu)
-$ ufw allow OpenSSH
-$ ufw allow 80/tcp   # HTTP
-$ ufw allow 443/tcp  # HTTPS
-$ ufw enable
-$ ufw status
-
-# firewalld (CentOS/RHEL)
-$ firewall-cmd --permanent --add-service=ssh
-$ firewall-cmd --permanent --add-service=http
-$ firewall-cmd --permanent --add-service=https
-$ firewall-cmd --reload
-                    </div>
-                </div>
-
-                <h3>Visual: Server Architecture</h3>
+                <h2>Architecture Overview</h2>
                 <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 1rem; padding: 2rem; margin: 2rem 0;">
-                    <svg width="100%" height="400" viewBox="0 0 1000 400" style="max-width: 1000px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                    <svg width="100%" height="480" viewBox="0 0 1000 480" style="max-width:1000px; display:block; margin:0 auto; background:white; border-radius:0.75rem; padding:10px;">
                         <defs>
-                            <linearGradient id="serverGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
-                            </linearGradient>
-                            <linearGradient id="cloudGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
-                            </linearGradient>
-                            <filter id="shadow">
-                                <feDropShadow dx="0" dy="3" stdDeviation="5" flood-opacity="0.3"/>
-                            </filter>
-                        </defs>
-                        
-                        <!-- Internet/Users -->
-                        <rect x="50" y="50" width="200" height="100" fill="url(#cloudGrad)" stroke="#059669" stroke-width="3" rx="10" filter="url(#shadow)"/>
-                        <text x="150" y="90" text-anchor="middle" font-size="18" font-weight="700" fill="white">Internet Users</text>
-                        <text x="150" y="115" text-anchor="middle" font-size="14" fill="white">Browsers, APIs</text>
-                        
-                        <!-- DNS Server -->
-                        <rect x="350" y="50" width="150" height="100" fill="#f59e0b" stroke="#d97706" stroke-width="3" rx="10" filter="url(#shadow)"/>
-                        <text x="425" y="85" text-anchor="middle" font-size="16" font-weight="700" fill="white">DNS Server</text>
-                        <text x="425" y="110" text-anchor="middle" font-size="12" fill="white">Resolves domain</text>
-                        <text x="425" y="130" text-anchor="middle" font-size="12" fill="white">to IP address</text>
-                        
-                        <!-- Cloud Server -->
-                        <rect x="600" y="50" width="300" height="250" fill="url(#serverGrad)" stroke="#1e40af" stroke-width="4" rx="15" filter="url(#shadow)"/>
-                        <text x="750" y="85" text-anchor="middle" font-size="20" font-weight="700" fill="white">Cloud Server</text>
-                        
-                        <!-- Firewall -->
-                        <rect x="620" y="110" width="260" height="40" fill="#ef4444" stroke="#dc2626" stroke-width="2" rx="5"/>
-                        <text x="750" y="135" text-anchor="middle" font-size="14" font-weight="700" fill="white">Firewall (UFW/firewalld)</text>
-                        
-                        <!-- Web Server -->
-                        <rect x="620" y="170" width="260" height="40" fill="#8b5cf6" stroke="#7c3aed" stroke-width="2" rx="5"/>
-                        <text x="750" y="195" text-anchor="middle" font-size="14" font-weight="700" fill="white">Web Server (Nginx/Apache)</text>
-                        
-                        <!-- Application -->
-                        <rect x="620" y="230" width="260" height="40" fill="#ec4899" stroke="#db2777" stroke-width="2" rx="5"/>
-                        <text x="750" y="255" text-anchor="middle" font-size="14" font-weight="700" fill="white">Application (Node.js/Python/etc)</text>
-                        
-                        <!-- Arrows -->
-                        <path d="M 250 100 L 340 100" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
-                        <text x="295" y="95" text-anchor="middle" font-size="12" fill="#64748b">HTTPS (443)</text>
-                        
-                        <path d="M 500 100 L 590 100" stroke="#64748b" stroke-width="3" marker-end="url(#arrow)"/>
-                        <text x="545" y="95" text-anchor="middle" font-size="12" fill="#64748b">DNS Query</text>
-                        
-                        <path d="M 350 150 L 350 200 L 600 200" stroke="#64748b" stroke-width="2" stroke-dasharray="5,5"/>
-                        <text x="475" y="195" text-anchor="middle" font-size="11" fill="#64748b">IP Response</text>
-                        
-                        <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                            <polygon points="0 0, 10 3, 0 6" fill="#64748b"/>
-                        </marker>
-                        
-                        <!-- Ports -->
-                        <text x="50" y="200" font-size="14" font-weight="700" fill="#1e293b">Ports:</text>
-                        <text x="50" y="225" font-size="13" fill="#475569">• 22 (SSH)</text>
-                        <text x="50" y="250" font-size="13" fill="#475569">• 80 (HTTP)</text>
-                        <text x="50" y="275" font-size="13" fill="#475569">• 443 (HTTPS)</text>
-                    </svg>
-                </div>
-
-                <h2 id="domain-management">2. Domain Management</h2>
-                
-                <h3>Registering a Domain</h3>
-                <p>Popular domain registrars:</p>
-                <ul>
-                    <li><strong>Namecheap:</strong> User-friendly, good prices</li>
-                    <li><strong>Cloudflare:</strong> At-cost pricing, excellent DNS</li>
-                    <li><strong>Google Domains:</strong> Simple interface</li>
-                    <li><strong>Name.com:</strong> Good for beginners</li>
-                </ul>
-
-                <h3>Domain Configuration Steps</h3>
-                
-                <div class="step-box">
-                    <h4>Step 1: Purchase Domain</h4>
-                    <p>Choose a domain name and complete registration. You'll receive access to the domain management panel.</p>
-                </div>
-
-                <div class="step-box">
-                    <h4>Step 2: Get Your Server IP Address</h4>
-                    <div class="command-box">
-$ curl ifconfig.me
-# Or
-$ hostname -I
-                    </div>
-                    <p>This returns your server's public IP address (e.g., 192.0.2.1).</p>
-                </div>
-
-                <div class="step-box">
-                    <h4>Step 3: Configure DNS Records</h4>
-                    <p>In your domain registrar's DNS management panel, add:</p>
-                    <ul>
-                        <li><strong>A Record:</strong> @ → your_server_ip (points domain to server)</li>
-                        <li><strong>A Record:</strong> www → your_server_ip (points www subdomain)</li>
-                        <li><strong>CNAME Record:</strong> * → yourdomain.com (wildcard subdomain)</li>
-                    </ul>
-                </div>
-
-                <h3>Visual: DNS Resolution Flow</h3>
-                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 1rem; padding: 2rem; margin: 2rem 0;">
-                    <svg width="100%" height="350" viewBox="0 0 1000 350" style="max-width: 1000px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
-                        <defs>
-                            <marker id="dnsArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                                <polygon points="0 0, 10 3, 0 6" fill="#3b82f6"/>
+                            <marker id="arrL" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0,10 3,0 6" fill="#475569"/>
                             </marker>
+                            <marker id="arrLG" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0,10 3,0 6" fill="#10b981"/>
+                            </marker>
+                            <filter id="shL"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.2"/></filter>
                         </defs>
-                        
+
+                        <text x="500" y="25" text-anchor="middle" font-size="17" font-weight="700" fill="#1e293b">Cloud Server Architecture</text>
+
                         <!-- User -->
-                        <rect x="50" y="50" width="120" height="60" fill="#3b82f6" stroke="#2563eb" stroke-width="2" rx="8"/>
-                        <text x="110" y="80" text-anchor="middle" font-size="14" font-weight="700" fill="white">User Browser</text>
-                        
-                        <!-- Step 1 -->
-                        <text x="110" y="140" text-anchor="middle" font-size="13" font-weight="700" fill="#1e293b">1. User types</text>
-                        <text x="110" y="160" text-anchor="middle" font-size="13" fill="#1e293b">example.com</text>
-                        
-                        <!-- Local DNS -->
-                        <rect x="250" y="50" width="150" height="60" fill="#10b981" stroke="#059669" stroke-width="2" rx="8"/>
-                        <text x="325" y="80" text-anchor="middle" font-size="14" font-weight="700" fill="white">Local DNS Cache</text>
-                        
-                        <!-- Step 2 -->
-                        <path d="M 170 80 L 240 80" stroke="#64748b" stroke-width="2" marker-end="url(#dnsArrow)"/>
-                        <text x="205" y="75" text-anchor="middle" font-size="11" fill="#64748b">Query</text>
-                        
-                        <!-- Root DNS -->
-                        <rect x="480" y="50" width="150" height="60" fill="#f59e0b" stroke="#d97706" stroke-width="2" rx="8"/>
-                        <text x="555" y="80" text-anchor="middle" font-size="14" font-weight="700" fill="white">Root DNS Server</text>
-                        
-                        <!-- Step 3 -->
-                        <path d="M 400 80 L 470 80" stroke="#64748b" stroke-width="2" marker-end="url(#dnsArrow)"/>
-                        <text x="435" y="75" text-anchor="middle" font-size="11" fill="#64748b">If not cached</text>
-                        
-                        <!-- TLD DNS -->
-                        <rect x="480" y="150" width="150" height="60" fill="#8b5cf6" stroke="#7c3aed" stroke-width="2" rx="8"/>
-                        <text x="555" y="180" text-anchor="middle" font-size="14" font-weight="700" fill="white">.com TLD Server</text>
-                        
-                        <!-- Step 4 -->
-                        <path d="M 555 110 L 555 140" stroke="#64748b" stroke-width="2" marker-end="url(#dnsArrow)"/>
-                        <text x="570" y="130" text-anchor="middle" font-size="11" fill="#64748b">Refers to</text>
-                        
-                        <!-- Authoritative DNS -->
-                        <rect x="720" y="150" width="180" height="60" fill="#ec4899" stroke="#db2777" stroke-width="2" rx="8"/>
-                        <text x="810" y="180" text-anchor="middle" font-size="14" font-weight="700" fill="white">Authoritative DNS</text>
-                        <text x="810" y="200" text-anchor="middle" font-size="12" fill="white">(Your Registrar)</text>
-                        
-                        <!-- Step 5 -->
-                        <path d="M 630 180 L 710 180" stroke="#64748b" stroke-width="2" marker-end="url(#dnsArrow)"/>
-                        <text x="670" y="175" text-anchor="middle" font-size="11" fill="#64748b">Returns IP</text>
-                        
-                        <!-- Server -->
-                        <rect x="720" y="250" width="180" height="60" fill="#ef4444" stroke="#dc2626" stroke-width="2" rx="8"/>
-                        <text x="810" y="280" text-anchor="middle" font-size="14" font-weight="700" fill="white">Your Server</text>
-                        <text x="810" y="300" text-anchor="middle" font-size="12" fill="white">192.0.2.1</text>
-                        
-                        <!-- Step 6 -->
-                        <path d="M 810 210 L 810 240" stroke="#64748b" stroke-width="2" marker-end="url(#dnsArrow)"/>
-                        <text x="825" y="230" text-anchor="middle" font-size="11" fill="#64748b">Connects</text>
-                        
-                        <!-- Result -->
-                        <rect x="50" y="250" width="200" height="60" fill="#10b981" stroke="#059669" stroke-width="2" rx="8"/>
-                        <text x="150" y="280" text-anchor="middle" font-size="14" font-weight="700" fill="white">✓ Website Loaded</text>
-                        <text x="150" y="300" text-anchor="middle" font-size="12" fill="white">example.com → 192.0.2.1</text>
+                        <rect x="30" y="40" width="110" height="60" rx="10" fill="#6366f1" filter="url(#shL)"/>
+                        <text x="85" y="68" text-anchor="middle" font-size="14" font-weight="700" fill="white">🌐 User</text>
+                        <text x="85" y="88" text-anchor="middle" font-size="11" fill="#c7d2fe">Browser</text>
+
+                        <!-- Internet cloud -->
+                        <ellipse cx="240" cy="70" rx="70" ry="35" fill="#e0f2fe" stroke="#0ea5e9" stroke-width="2"/>
+                        <text x="240" y="68" text-anchor="middle" font-size="14" font-weight="700" fill="#0284c7">☁ Internet</text>
+                        <text x="240" y="86" text-anchor="middle" font-size="10" fill="#0284c7">DNS lookup</text>
+
+                        <!-- Arrows to internet -->
+                        <path d="M 140 70 L 168 70" stroke="#475569" stroke-width="2" marker-end="url(#arrL)"/>
+                        <path d="M 310 70 L 380 70" stroke="#475569" stroke-width="2" marker-end="url(#arrL)"/>
+
+                        <!-- Domain Registrar box -->
+                        <rect x="380" y="40" width="160" height="60" rx="10" fill="#f59e0b" filter="url(#shL)"/>
+                        <text x="460" y="65" text-anchor="middle" font-size="13" font-weight="700" fill="white">🏷 DNS / Domain</text>
+                        <text x="460" y="83" text-anchor="middle" font-size="11" fill="#fde68a">Registrar + nameservers</text>
+                        <path d="M 460 100 L 460 140" stroke="#475569" stroke-width="2" marker-end="url(#arrL)"/>
+                        <text x="475" y="128" font-size="11" fill="#64748b">resolves to IP</text>
+
+                        <!-- VPS Server box -->
+                        <rect x="300" y="140" width="400" height="260" rx="12" fill="#1e293b" stroke="#334155" stroke-width="2" filter="url(#shL)"/>
+                        <text x="500" y="168" text-anchor="middle" font-size="15" font-weight="700" fill="white">🖥 VPS (Ubuntu/Debian Linux)</text>
+                        <text x="500" y="188" text-anchor="middle" font-size="11" fill="#94a3b8">IP: 203.0.113.42  | RAM: 2GB | CPU: 2 vCPU</text>
+
+                        <!-- Layers inside VPS -->
+                        <rect x="315" y="200" width="370" height="40" rx="6" fill="#ef4444" opacity="0.85"/>
+                        <text x="500" y="225" text-anchor="middle" font-size="13" font-weight="700" fill="white">🔒 Firewall (ufw) + Fail2Ban</text>
+
+                        <rect x="315" y="248" width="370" height="40" rx="6" fill="#3b82f6" opacity="0.85"/>
+                        <text x="500" y="273" text-anchor="middle" font-size="13" font-weight="700" fill="white">🌐 Nginx / Apache (Web Server)</text>
+
+                        <rect x="315" y="296" width="370" height="40" rx="6" fill="#10b981" opacity="0.85"/>
+                        <text x="500" y="321" text-anchor="middle" font-size="13" font-weight="700" fill="white">🔐 Let's Encrypt SSL/TLS (HTTPS)</text>
+
+                        <rect x="315" y="344" width="170" height="40" rx="6" fill="#8b5cf6" opacity="0.85"/>
+                        <text x="400" y="369" text-anchor="middle" font-size="12" font-weight="700" fill="white">App (Node/Python)</text>
+
+                        <rect x="515" y="344" width="170" height="40" rx="6" fill="#ec4899" opacity="0.85"/>
+                        <text x="600" y="369" text-anchor="middle" font-size="12" font-weight="700" fill="white">DB (MySQL/Postgres)</text>
+
+                        <!-- Monitoring -->
+                        <rect x="720" y="200" width="240" height="80" rx="10" fill="#f0fdf4" stroke="#10b981" stroke-width="2" filter="url(#shL)"/>
+                        <text x="840" y="228" text-anchor="middle" font-size="13" font-weight="700" fill="#166534">📊 Monitoring</text>
+                        <text x="840" y="248" text-anchor="middle" font-size="11" fill="#166534">htop / Netdata / Prometheus</text>
+                        <text x="840" y="268" text-anchor="middle" font-size="11" fill="#166534">Grafana dashboard</text>
+
+                        <!-- Backup -->
+                        <rect x="720" y="300" width="240" height="60" rx="10" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" filter="url(#shL)"/>
+                        <text x="840" y="325" text-anchor="middle" font-size="13" font-weight="700" fill="#92400e">💾 Backups</text>
+                        <text x="840" y="345" text-anchor="middle" font-size="11" fill="#92400e">rsync / cron / S3 bucket</text>
+
+                        <!-- Port annotations -->
+                        <text x="500" y="430" text-anchor="middle" font-size="12" fill="#64748b">Open ports: 22 (SSH) | 80 (HTTP) | 443 (HTTPS)</text>
+                        <text x="500" y="450" text-anchor="middle" font-size="12" fill="#64748b">Closed: everything else via ufw default deny incoming</text>
                     </svg>
                 </div>
 
-                <h2 id="dns-configuration">3. DNS Configuration</h2>
-                
-                <h3>Common DNS Record Types</h3>
-                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
-                    <thead>
-                        <tr style="background-color: #3b82f6; color: white;">
-                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Record Type</th>
-                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Purpose</th>
-                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Example</th>
-                        </tr>
-                    </thead>
+                <h2>Choosing a Cloud Provider</h2>
+                <table class="styled">
+                    <thead><tr><th>Provider</th><th>Cheapest VPS</th><th>OS Options</th><th>Best For</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>A</strong></td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">Maps domain to IPv4 address</td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">@ → 192.0.2.1</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>AAAA</strong></td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">Maps domain to IPv6 address</td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">@ → 2001:db8::1</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>CNAME</strong></td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">Alias to another domain</td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">www → example.com</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>MX</strong></td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">Mail exchange server</td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">@ → mail.example.com</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>TXT</strong></td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">Text records (verification, SPF, etc.)</td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">SPF, DKIM records</td>
-                        </tr>
+                        <tr><td><strong>DigitalOcean</strong></td><td>$4/mo (512MB RAM)</td><td>Ubuntu, Debian, Fedora</td><td>Beginners, clean UI</td></tr>
+                        <tr><td><strong>Hetzner</strong></td><td>€3.79/mo (2GB RAM)</td><td>Ubuntu, Debian, CentOS</td><td>Best price/performance in EU</td></tr>
+                        <tr><td><strong>Linode (Akamai)</strong></td><td>$5/mo (1GB RAM)</td><td>Ubuntu, Debian, Arch</td><td>Reliable, good docs</td></tr>
+                        <tr><td><strong>Vultr</strong></td><td>$2.50/mo (512MB)</td><td>Many distros</td><td>Global locations</td></tr>
+                        <tr><td><strong>AWS EC2</strong></td><td>Free tier 1 year</td><td>Amazon Linux, Ubuntu</td><td>Enterprise, complex</td></tr>
                     </tbody>
                 </table>
+            </article>
+        </section>
 
-                <div class="step-box">
-                    <h4>Example DNS Configuration</h4>
-                    <div class="command-box">
-# Check DNS records
-$ dig example.com
-$ nslookup example.com
-$ host example.com
+        <!-- ===== SECTION 2: SERVER SETUP ===== -->
+        <section id="setup" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Initial Server Setup (Ubuntu 22.04)</h1>
 
-# Test DNS propagation
-$ dig @8.8.8.8 example.com
-                    </div>
+                <h2>Step 1 — First Login &amp; System Update</h2>
+                <div class="cmd">
+<span class="comment"># Connect via SSH (replace IP with your server's IP)</span>
+<span class="prompt">$</span> ssh root@203.0.113.42
+
+<span class="comment"># Update package list and upgrade all packages</span>
+<span class="prompt">root@vps:~#</span> apt update && apt upgrade -y
+
+<span class="comment"># Install essential tools</span>
+<span class="prompt">root@vps:~#</span> apt install -y curl wget git vim ufw fail2ban htop unzip net-tools
                 </div>
 
-                <h2 id="web-server">4. Web Server Setup</h2>
-                
-                <h3>Nginx Installation and Configuration</h3>
-                
-                <div class="step-box">
-                    <h4>Install Nginx</h4>
-                    <div class="command-box">
-# Ubuntu/Debian
-$ apt install nginx -y
+                <h2>Step 2 — Create a Non-Root Admin User</h2>
+                <div class="warn-box">
+                    <strong>Security rule:</strong> Never run your daily work as root. Create a sudo user and disable root SSH login.
+                </div>
+                <div class="cmd">
+<span class="comment"># Create user (replace 'george' with your username)</span>
+<span class="prompt">root@vps:~#</span> adduser george
+<span class="prompt">root@vps:~#</span> usermod -aG sudo george
 
-# CentOS/RHEL
-$ yum install nginx -y
+<span class="comment"># Copy SSH keys to new user</span>
+<span class="prompt">root@vps:~#</span> rsync --archive --chown=george:george ~/.ssh /home/george
 
-# Start and enable
-$ systemctl start nginx
-$ systemctl enable nginx
-$ systemctl status nginx
-                    </div>
+<span class="comment"># Test: open new terminal and connect as new user</span>
+<span class="prompt">$</span> ssh george@203.0.113.42
+<span class="prompt">george@vps:~$</span> sudo whoami   <span class="comment"># should print "root"</span>
                 </div>
 
-                <div class="step-box">
-                    <h4>Configure Nginx for Your Domain</h4>
-                    <div class="command-box">
-$ nano /etc/nginx/sites-available/example.com
+                <h2>Step 3 — SSH Hardening</h2>
+                <div class="cmd">
+<span class="prompt">george@vps:~$</span> sudo nano /etc/ssh/sshd_config
 
-# Add this configuration:
+<span class="comment"># Change these settings:</span>
+PermitRootLogin no          <span class="comment"># disable root login</span>
+PasswordAuthentication no   <span class="comment"># force key-based auth only</span>
+Port 2222                   <span class="comment"># optional: change from default 22</span>
+AllowUsers george           <span class="comment"># only allow specific users</span>
+MaxAuthTries 3
+LoginGraceTime 20
+
+<span class="prompt">george@vps:~$</span> sudo systemctl restart sshd
+                </div>
+
+                <h2>Step 4 — SSH Key Generation (on your local machine)</h2>
+                <div class="cmd">
+<span class="comment"># On your LOCAL machine, not the server:</span>
+<span class="prompt">local$</span> ssh-keygen -t ed25519 -C "george@myserver" -f ~/.ssh/id_server
+
+<span class="comment"># Copy public key to server</span>
+<span class="prompt">local$</span> ssh-copy-id -i ~/.ssh/id_server.pub george@203.0.113.42
+
+<span class="comment"># Now connect with key (no password needed)</span>
+<span class="prompt">local$</span> ssh -i ~/.ssh/id_server george@203.0.113.42
+                </div>
+            </article>
+        </section>
+
+        <!-- ===== SECTION 3: FIREWALL ===== -->
+        <section id="firewall" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Firewall Configuration (ufw)</h1>
+                <p><strong>ufw</strong> (Uncomplicated Firewall) is a simplified frontend to iptables. The strategy: deny everything by default, allow only what you need.</p>
+
+                <h2>UFW Setup</h2>
+                <div class="cmd">
+<span class="comment"># Deny all incoming, allow all outgoing (default policy)</span>
+<span class="prompt">george@vps:~$</span> sudo ufw default deny incoming
+<span class="prompt">george@vps:~$</span> sudo ufw default allow outgoing
+
+<span class="comment"># Allow SSH FIRST before enabling (otherwise you'll lock yourself out!)</span>
+<span class="prompt">george@vps:~$</span> sudo ufw allow 2222/tcp     <span class="comment"># or 22 if unchanged</span>
+
+<span class="comment"># Allow HTTP and HTTPS</span>
+<span class="prompt">george@vps:~$</span> sudo ufw allow 80/tcp
+<span class="prompt">george@vps:~$</span> sudo ufw allow 443/tcp
+
+<span class="comment"># Enable firewall</span>
+<span class="prompt">george@vps:~$</span> sudo ufw enable
+
+<span class="comment"># View rules</span>
+<span class="prompt">george@vps:~$</span> sudo ufw status verbose
+
+<span class="comment"># Delete a rule if needed</span>
+<span class="prompt">george@vps:~$</span> sudo ufw delete allow 8080/tcp
+
+<span class="comment"># Rate-limit SSH to prevent brute force (max 6 attempts / 30 seconds)</span>
+<span class="prompt">george@vps:~$</span> sudo ufw limit 2222/tcp
+                </div>
+
+                <h2>Fail2Ban — Auto-block Brute Force Attackers</h2>
+                <div class="cmd">
+<span class="prompt">george@vps:~$</span> sudo nano /etc/fail2ban/jail.local
+
+<span class="comment"># Add this configuration:</span>
+[DEFAULT]
+bantime  = 1h        <span class="comment"># ban for 1 hour</span>
+findtime = 10m       <span class="comment"># within 10 minutes</span>
+maxretry = 5         <span class="comment"># after 5 failed attempts</span>
+
+[sshd]
+enabled  = true
+port     = 2222
+filter   = sshd
+logpath  = /var/log/auth.log
+
+[nginx-http-auth]
+enabled  = true
+
+<span class="prompt">george@vps:~$</span> sudo systemctl enable --now fail2ban
+
+<span class="comment"># View banned IPs:</span>
+<span class="prompt">george@vps:~$</span> sudo fail2ban-client status sshd
+
+<span class="comment"># Unban an IP:</span>
+<span class="prompt">george@vps:~$</span> sudo fail2ban-client set sshd unbanip 192.168.1.100
+                </div>
+            </article>
+        </section>
+
+        <!-- ===== SECTION 4: DOMAIN MANAGEMENT ===== -->
+        <section id="domain" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Domain Management &amp; DNS</h1>
+
+                <h2>DNS Resolution Flow</h2>
+                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 1rem; padding: 2rem; margin: 2rem 0;">
+                    <svg width="100%" height="300" viewBox="0 0 1000 300" style="max-width:1000px; display:block; margin:0 auto; background:white; border-radius:0.75rem; padding:10px;">
+                        <defs>
+                            <marker id="arrDNS" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0,10 3,0 6" fill="#3b82f6"/>
+                            </marker>
+                            <filter id="shDNS"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.2"/></filter>
+                        </defs>
+
+                        <text x="500" y="25" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">DNS Resolution Flow: "mysite.com" → 203.0.113.42</text>
+
+                        <!-- Boxes -->
+                        <rect x="20" y="50" width="120" height="60" rx="8" fill="#6366f1" filter="url(#shDNS)"/>
+                        <text x="80" y="75" text-anchor="middle" font-size="12" font-weight="700" fill="white">Browser</text>
+                        <text x="80" y="92" text-anchor="middle" font-size="10" fill="#c7d2fe">local cache</text>
+
+                        <rect x="180" y="50" width="130" height="60" rx="8" fill="#3b82f6" filter="url(#shDNS)"/>
+                        <text x="245" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="white">Recursive</text>
+                        <text x="245" y="90" text-anchor="middle" font-size="10" fill="#bfdbfe">Resolver (ISP)</text>
+                        <text x="245" y="105" text-anchor="middle" font-size="9" fill="#bfdbfe">8.8.8.8, 1.1.1.1</text>
+
+                        <rect x="350" y="50" width="130" height="60" rx="8" fill="#10b981" filter="url(#shDNS)"/>
+                        <text x="415" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="white">Root NS</text>
+                        <text x="415" y="90" text-anchor="middle" font-size="10" fill="#a7f3d0">13 root servers</text>
+                        <text x="415" y="105" text-anchor="middle" font-size="9" fill="#a7f3d0">a.root-servers.net</text>
+
+                        <rect x="520" y="50" width="130" height="60" rx="8" fill="#f59e0b" filter="url(#shDNS)"/>
+                        <text x="585" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="white">TLD NS</text>
+                        <text x="585" y="90" text-anchor="middle" font-size="10" fill="#fde68a">Manages ".com"</text>
+                        <text x="585" y="105" text-anchor="middle" font-size="9" fill="#fde68a">a.gtld-servers.net</text>
+
+                        <rect x="690" y="50" width="140" height="60" rx="8" fill="#ec4899" filter="url(#shDNS)"/>
+                        <text x="760" y="72" text-anchor="middle" font-size="12" font-weight="700" fill="white">Authoritative NS</text>
+                        <text x="760" y="90" text-anchor="middle" font-size="10" fill="#fbcfe8">Your registrar's NS</text>
+                        <text x="760" y="105" text-anchor="middle" font-size="9" fill="#fbcfe8">ns1.namecheap.com</text>
+
+                        <!-- Arrows with step numbers -->
+                        <path d="M 140 80 L 178 80" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrDNS)"/>
+                        <text x="159" y="74" font-size="10" fill="#3b82f6">①</text>
+
+                        <path d="M 310 80 L 348 80" stroke="#10b981" stroke-width="2" marker-end="url(#arrDNS)"/>
+                        <text x="329" y="74" font-size="10" fill="#10b981">②</text>
+
+                        <path d="M 480 80 L 518 80" stroke="#f59e0b" stroke-width="2" marker-end="url(#arrDNS)"/>
+                        <text x="499" y="74" font-size="10" fill="#f59e0b">③</text>
+
+                        <path d="M 650 80 L 688 80" stroke="#ec4899" stroke-width="2" marker-end="url(#arrDNS)"/>
+                        <text x="669" y="74" font-size="10" fill="#ec4899">④</text>
+
+                        <!-- Return arrow -->
+                        <path d="M 760 110 Q 760 180 80 180 Q 80 150 80 110" stroke="#64748b" stroke-width="1.5" stroke-dasharray="5,3" fill="none" marker-end="url(#arrDNS)"/>
+                        <text x="430" y="185" text-anchor="middle" font-size="11" fill="#64748b">⑤ Returns IP: 203.0.113.42 (cached for TTL seconds)</text>
+
+                        <!-- Record types -->
+                        <rect x="20" y="210" width="960" height="75" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+                        <text x="500" y="232" text-anchor="middle" font-size="14" font-weight="700" fill="#1e293b">Common DNS Record Types</text>
+                        <text x="50" y="258" font-size="12" fill="#475569"><tspan font-weight="700">A</tspan>: hostname → IPv4     <tspan font-weight="700">AAAA</tspan>: hostname → IPv6     <tspan font-weight="700">CNAME</tspan>: alias → canonical name</text>
+                        <text x="50" y="278" font-size="12" fill="#475569"><tspan font-weight="700">MX</tspan>: mail server         <tspan font-weight="700">TXT</tspan>: text (SPF, DKIM)     <tspan font-weight="700">NS</tspan>: nameserver for zone   <tspan font-weight="700">PTR</tspan>: reverse DNS</text>
+                    </svg>
+                </div>
+
+                <h2>DNS Records — Practical Setup</h2>
+                <div class="cmd">
+<span class="comment"># ── In your domain registrar's DNS panel ──────────────────────────────────</span>
+<span class="comment"># Replace 203.0.113.42 with your VPS IP</span>
+
+<span class="comment"># A record: root domain → VPS IP</span>
+mysite.com.      IN A     203.0.113.42
+
+<span class="comment"># CNAME: www → root domain (redirect www to non-www)</span>
+www.mysite.com.  IN CNAME mysite.com.
+
+<span class="comment"># MX record: email (lower priority number = higher priority)</span>
+mysite.com.      IN MX 10 mail.mysite.com.
+
+<span class="comment"># TXT: SPF record (prevent email spoofing)</span>
+mysite.com.      IN TXT "v=spf1 ip4:203.0.113.42 -all"
+
+<span class="comment"># TTL recommendation: 300 during changes, 3600 (1h) stable</span>
+                </div>
+
+                <h2>Check &amp; Debug DNS</h2>
+                <div class="cmd">
+<span class="comment"># Query A record for a domain</span>
+<span class="prompt">$</span> dig mysite.com A +short
+
+<span class="comment"># Trace full DNS resolution path</span>
+<span class="prompt">$</span> dig mysite.com +trace
+
+<span class="comment"># Check from a specific resolver (8.8.8.8 = Google DNS)</span>
+<span class="prompt">$</span> dig @8.8.8.8 mysite.com
+
+<span class="comment"># nslookup alternative</span>
+<span class="prompt">$</span> nslookup mysite.com
+
+<span class="comment"># Check if DNS has propagated globally (web tool equivalent)</span>
+<span class="prompt">$</span> for ns in 8.8.8.8 1.1.1.1 9.9.9.9; do
+    echo -n "$ns: "; dig @$ns mysite.com A +short
+  done
+                </div>
+            </article>
+        </section>
+
+        <!-- ===== SECTION 5: WEB SERVER ===== -->
+        <section id="webserver" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Web Server Setup (Nginx)</h1>
+
+                <h2>Install &amp; Configure Nginx</h2>
+                <div class="cmd">
+<span class="prompt">george@vps:~$</span> sudo apt install -y nginx
+
+<span class="comment"># Enable and start nginx</span>
+<span class="prompt">george@vps:~$</span> sudo systemctl enable --now nginx
+
+<span class="comment"># Test config syntax before applying</span>
+<span class="prompt">george@vps:~$</span> sudo nginx -t
+
+<span class="comment"># Create a virtual host (server block) for mysite.com</span>
+<span class="prompt">george@vps:~$</span> sudo nano /etc/nginx/sites-available/mysite.com
+                </div>
+
+                <div class="cmd">
+<span class="comment"># /etc/nginx/sites-available/mysite.com</span>
 server {
     listen 80;
-    server_name example.com www.example.com;
-    root /var/www/example.com/html;
-    index index.html index.htm index.nginx-debian.html;
+    listen [::]:80;
+    server_name mysite.com www.mysite.com;
 
+    root /var/www/mysite;
+    index index.html index.php;
+
+    <span class="comment"># Main location block</span>
     location / {
         try_files $uri $uri/ =404;
     }
+
+    <span class="comment"># Proxy requests to Node.js app on port 3000</span>
+    location /api {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    <span class="comment"># Security headers</span>
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+
+    <span class="comment"># Gzip compression</span>
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript;
+    gzip_min_length 256;
+
+    <span class="comment"># Logging</span>
+    access_log /var/log/nginx/mysite.access.log;
+    error_log  /var/log/nginx/mysite.error.log;
 }
-
-# Create directory and test page
-$ mkdir -p /var/www/example.com/html
-$ echo "&lt;h1&gt;Welcome to example.com&lt;/h1&gt;" > /var/www/example.com/html/index.html
-$ chown -R www-data:www-data /var/www/example.com/html
-
-# Enable site
-$ ln -s /etc/nginx/sites-available/example.com /etc/nginx/sites-enabled/
-$ nginx -t  # Test configuration
-$ systemctl reload nginx
-                    </div>
                 </div>
 
-                <h3>Apache Installation (Alternative)</h3>
-                <div class="step-box">
-                    <h4>Install Apache</h4>
-                    <div class="command-box">
-# Ubuntu/Debian
-$ apt install apache2 -y
+                <div class="cmd">
+<span class="comment"># Enable site: symlink to sites-enabled</span>
+<span class="prompt">george@vps:~$</span> sudo ln -s /etc/nginx/sites-available/mysite.com \
+                         /etc/nginx/sites-enabled/
 
-# CentOS/RHEL
-$ yum install httpd -y
+<span class="comment"># Create web root</span>
+<span class="prompt">george@vps:~$</span> sudo mkdir -p /var/www/mysite
+<span class="prompt">george@vps:~$</span> echo "&lt;h1&gt;Hello from mysite.com!&lt;/h1&gt;" | sudo tee /var/www/mysite/index.html
 
-# Start and enable
-$ systemctl start apache2  # or httpd
-$ systemctl enable apache2
-                    </div>
+<span class="comment"># Reload (zero-downtime config reload)</span>
+<span class="prompt">george@vps:~$</span> sudo nginx -t && sudo systemctl reload nginx
                 </div>
+            </article>
+        </section>
 
-                <h2 id="ssl-certificates">5. SSL Certificates (HTTPS)</h2>
-                
-                <h3>Using Let's Encrypt (Free SSL)</h3>
-                
-                <div class="step-box">
-                    <h4>Install Certbot</h4>
-                    <div class="command-box">
-# Ubuntu/Debian
-$ apt install certbot python3-certbot-nginx -y
+        <!-- ===== SECTION 6: SSL/TLS ===== -->
+        <section id="ssl" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>SSL/TLS Certificates (HTTPS)</h1>
+                <p>Let's Encrypt provides free, automatically-renewing SSL certificates. <strong>Certbot</strong> is the official client.</p>
 
-# CentOS/RHEL
-$ yum install certbot python3-certbot-nginx -y
-                    </div>
-                </div>
-
-                <div class="step-box">
-                    <h4>Obtain SSL Certificate</h4>
-                    <div class="command-box">
-# For Nginx
-$ certbot --nginx -d example.com -d www.example.com
-
-# For Apache
-$ certbot --apache -d example.com -d www.example.com
-
-# Auto-renewal test
-$ certbot renew --dry-run
-                    </div>
-                    <p>Certbot automatically configures your web server and sets up auto-renewal.</p>
-                </div>
-
-                <h3>Visual: SSL/TLS Handshake</h3>
+                <h2>TLS Handshake Diagram</h2>
                 <div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 2px solid #10b981; border-radius: 1rem; padding: 2rem; margin: 2rem 0;">
-                    <svg width="100%" height="300" viewBox="0 0 1000 300" style="max-width: 1000px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                    <svg width="100%" height="340" viewBox="0 0 900 340" style="max-width:900px; display:block; margin:0 auto; background:white; border-radius:0.75rem; padding:10px;">
                         <defs>
-                            <marker id="sslArrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                                <polygon points="0 0, 10 3, 0 6" fill="#10b981"/>
+                            <marker id="arrTLS" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+                                <polygon points="0 0,9 3,0 6" fill="#475569"/>
                             </marker>
                         </defs>
-                        
-                        <!-- Client -->
-                        <rect x="50" y="50" width="150" height="60" fill="#3b82f6" stroke="#2563eb" stroke-width="2" rx="8"/>
-                        <text x="125" y="80" text-anchor="middle" font-size="14" font-weight="700" fill="white">Client Browser</text>
-                        
-                        <!-- Server -->
-                        <rect x="800" y="50" width="150" height="60" fill="#10b981" stroke="#059669" stroke-width="2" rx="8"/>
-                        <text x="875" y="80" text-anchor="middle" font-size="14" font-weight="700" fill="white">Web Server</text>
-                        
-                        <!-- Step 1 -->
-                        <path d="M 200 80 L 790 80" stroke="#10b981" stroke-width="2" marker-end="url(#sslArrow)"/>
-                        <text x="495" y="75" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">1. Client Hello</text>
-                        <text x="495" y="90" text-anchor="middle" font-size="11" fill="#64748b">Supported ciphers, TLS version</text>
-                        
-                        <!-- Step 2 -->
-                        <path d="M 790 120 L 200 120" stroke="#10b981" stroke-width="2" marker-end="url(#sslArrow)"/>
-                        <text x="495" y="115" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">2. Server Hello</text>
-                        <text x="495" y="130" text-anchor="middle" font-size="11" fill="#64748b">Certificate, chosen cipher</text>
-                        
-                        <!-- Step 3 -->
-                        <path d="M 200 160 L 790 160" stroke="#10b981" stroke-width="2" marker-end="url(#sslArrow)"/>
-                        <text x="495" y="155" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">3. Client Key Exchange</text>
-                        <text x="495" y="170" text-anchor="middle" font-size="11" fill="#64748b">Encrypted pre-master secret</text>
-                        
-                        <!-- Step 4 -->
-                        <path d="M 790 200 L 200 200" stroke="#10b981" stroke-width="2" marker-end="url(#sslArrow)"/>
-                        <text x="495" y="195" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">4. Change Cipher Spec</text>
-                        <text x="495" y="210" text-anchor="middle" font-size="11" fill="#64748b">Switch to encrypted communication</text>
-                        
-                        <!-- Encrypted -->
-                        <rect x="300" y="240" width="400" height="40" fill="#fef3c7" stroke="#f59e0b" stroke-width="2" rx="8"/>
-                        <text x="500" y="265" text-anchor="middle" font-size="14" font-weight="700" fill="#92400e">✓ Encrypted HTTPS Connection Established</text>
+
+                        <text x="450" y="22" text-anchor="middle" font-size="15" font-weight="700" fill="#1e293b">TLS 1.3 Handshake</text>
+
+                        <!-- Columns -->
+                        <rect x="50" y="40" width="120" height="50" rx="8" fill="#3b82f6"/>
+                        <text x="110" y="70" text-anchor="middle" font-size="13" font-weight="700" fill="white">Browser</text>
+                        <line x1="110" y1="90" x2="110" y2="320" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+                        <rect x="730" y="40" width="120" height="50" rx="8" fill="#10b981"/>
+                        <text x="790" y="70" text-anchor="middle" font-size="13" font-weight="700" fill="white">Server</text>
+                        <line x1="790" y1="90" x2="790" y2="320" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4,3"/>
+
+                        <!-- Messages -->
+                        <path d="M 130 110 L 775 110" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrTLS)"/>
+                        <text x="450" y="106" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">① ClientHello (TLS version, cipher suites, random)</text>
+
+                        <path d="M 775 145 L 130 145" stroke="#10b981" stroke-width="2" marker-end="url(#arrTLS)"/>
+                        <text x="450" y="141" text-anchor="middle" font-size="11" font-weight="700" fill="#059669">② ServerHello + Certificate + Key Exchange</text>
+
+                        <path d="M 775 180 L 130 180" stroke="#10b981" stroke-width="2" marker-end="url(#arrTLS)"/>
+                        <text x="450" y="176" text-anchor="middle" font-size="11" font-weight="700" fill="#059669">③ ServerFinished (encrypted)</text>
+
+                        <path d="M 130 215 L 775 215" stroke="#3b82f6" stroke-width="2" marker-end="url(#arrTLS)"/>
+                        <text x="450" y="211" text-anchor="middle" font-size="11" font-weight="700" fill="#1d4ed8">④ ClientFinished (encrypted) + HTTP Request</text>
+
+                        <path d="M 775 250 L 130 250" stroke="#10b981" stroke-width="2" marker-end="url(#arrTLS)"/>
+                        <text x="450" y="246" text-anchor="middle" font-size="11" font-weight="700" fill="#059669">⑤ HTTP Response (encrypted)</text>
+
+                        <rect x="200" y="270" width="500" height="40" rx="6" fill="#ecfdf5" stroke="#10b981" stroke-width="2"/>
+                        <text x="450" y="295" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">🔐 All data encrypted after step ② — only 1 RTT in TLS 1.3!</text>
                     </svg>
                 </div>
 
-                <h2 id="security">6. Security Hardening</h2>
-                
-                <h3>Essential Security Practices</h3>
-                
-                <div class="step-box">
-                    <h4>1. Disable Root Login via SSH</h4>
-                    <div class="command-box">
-$ nano /etc/ssh/sshd_config
+                <h2>Install SSL with Certbot</h2>
+                <div class="cmd">
+<span class="comment"># Install certbot and nginx plugin</span>
+<span class="prompt">george@vps:~$</span> sudo apt install -y certbot python3-certbot-nginx
 
-# Set these values:
-PermitRootLogin no
-PasswordAuthentication no  # Use keys only
-PubkeyAuthentication yes
+<span class="comment"># Obtain certificate for your domain (automatic nginx config)</span>
+<span class="prompt">george@vps:~$</span> sudo certbot --nginx -d mysite.com -d www.mysite.com \
+                             --email you@email.com --agree-tos --no-eff-email
 
-$ systemctl restart sshd
-                    </div>
+<span class="comment"># Certbot automatically:
+#  1. Obtains cert from Let's Encrypt via HTTP-01 challenge
+#  2. Updates nginx config to redirect HTTP → HTTPS
+#  3. Sets up auto-renewal cron job</span>
+
+<span class="comment"># Test auto-renewal (dry run)</span>
+<span class="prompt">george@vps:~$</span> sudo certbot renew --dry-run
+
+<span class="comment"># Check certificate expiry</span>
+<span class="prompt">george@vps:~$</span> sudo certbot certificates
+
+<span class="comment"># Manual renewal</span>
+<span class="prompt">george@vps:~$</span> sudo certbot renew
                 </div>
 
-                <div class="step-box">
-                    <h4>2. Set Up Fail2Ban</h4>
-                    <div class="command-box">
-$ apt install fail2ban -y
-$ systemctl enable fail2ban
-$ systemctl start fail2ban
+                <h2>Nginx HTTPS Config (after certbot)</h2>
+                <div class="cmd">
+<span class="comment"># /etc/nginx/sites-available/mysite.com (HTTPS version)</span>
+server {
+    listen 80;
+    server_name mysite.com www.mysite.com;
+    return 301 https://$host$request_uri;   <span class="comment"># redirect HTTP to HTTPS</span>
+}
 
-# Check status
-$ fail2ban-client status sshd
-                    </div>
-                    <p>Fail2Ban automatically bans IPs after failed login attempts.</p>
+server {
+    listen 443 ssl http2;
+    server_name mysite.com www.mysite.com;
+
+    ssl_certificate     /etc/letsencrypt/live/mysite.com/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mysite.com/privkey.pem;
+    ssl_protocols       TLSv1.2 TLSv1.3;
+    ssl_ciphers         HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+
+    <span class="comment"># HSTS: browser remembers HTTPS for 1 year</span>
+    add_header Strict-Transport-Security "max-age=31536000" always;
+
+    root /var/www/mysite;
+    index index.html;
+
+    location / { try_files $uri $uri/ =404; }
+}
                 </div>
-
-                <div class="step-box">
-                    <h4>3. Keep System Updated</h4>
-                    <div class="command-box">
-# Set up automatic security updates
-$ apt install unattended-upgrades -y
-$ dpkg-reconfigure -plow unattended-upgrades
-                    </div>
-                </div>
-
-                <div class="step-box">
-                    <h4>4. Configure Regular Backups</h4>
-                    <div class="command-box">
-# Install backup tools
-$ apt install rsync -y
-
-# Example backup script
-$ crontab -e
-# Add: 0 2 * * * rsync -avz /var/www/ /backup/www/
-                    </div>
-                </div>
-
-                <h2 id="monitoring">7. Server Monitoring</h2>
-                
-                <h3>Basic Monitoring Commands</h3>
-                
-                <div class="step-box">
-                    <h4>System Resources</h4>
-                    <div class="command-box">
-# CPU and Memory
-$ top
-$ htop  # Install: apt install htop
-$ free -h
-$ df -h  # Disk usage
-
-# Network
-$ netstat -tulpn
-$ ss -tulpn
-$ iptables -L -n  # Firewall rules
-                    </div>
-                </div>
-
-                <div class="step-box">
-                    <h4>Log Monitoring</h4>
-                    <div class="command-box">
-# System logs
-$ journalctl -xe
-$ tail -f /var/log/syslog
-
-# Nginx logs
-$ tail -f /var/log/nginx/access.log
-$ tail -f /var/log/nginx/error.log
-
-# Apache logs
-$ tail -f /var/log/apache2/access.log
-$ tail -f /var/log/apache2/error.log
-                    </div>
-                </div>
-
-                <h3>Advanced Monitoring Tools</h3>
-                <ul>
-                    <li><strong>Prometheus + Grafana:</strong> Advanced metrics and visualization</li>
-                    <li><strong>Netdata:</strong> Real-time system monitoring</li>
-                    <li><strong>Uptime Robot:</strong> External uptime monitoring</li>
-                    <li><strong>CloudWatch (AWS):</strong> Cloud provider monitoring</li>
-                </ul>
-
-                <h2>Summary</h2>
-                <p>You now have a complete guide to:</p>
-                <ol>
-                    <li>Setting up a Linux cloud server</li>
-                    <li>Configuring domain and DNS</li>
-                    <li>Installing and configuring web servers</li>
-                    <li>Securing with SSL certificates</li>
-                    <li>Hardening server security</li>
-                    <li>Monitoring server health</li>
-                </ol>
-                <p>Remember to always keep your server updated and monitor logs regularly for security and performance issues.</p>
             </article>
         </section>
+
+        <!-- ===== SECTION 7: MONITORING & MAINTENANCE ===== -->
+        <section id="monitoring" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Server Monitoring &amp; Maintenance</h1>
+
+                <h2>Essential Monitoring Commands</h2>
+                <div class="cmd">
+<span class="comment"># Real-time CPU, memory, processes</span>
+<span class="prompt">george@vps:~$</span> htop
+
+<span class="comment"># Disk usage</span>
+<span class="prompt">george@vps:~$</span> df -h          <span class="comment"># disk free by filesystem</span>
+<span class="prompt">george@vps:~$</span> du -sh /var/*  <span class="comment"># size of /var subdirectories</span>
+
+<span class="comment"># Memory</span>
+<span class="prompt">george@vps:~$</span> free -h
+
+<span class="comment"># Network connections</span>
+<span class="prompt">george@vps:~$</span> ss -tlnp        <span class="comment"># listening ports</span>
+<span class="prompt">george@vps:~$</span> netstat -an | grep ESTABLISHED
+
+<span class="comment"># Live log tailing</span>
+<span class="prompt">george@vps:~$</span> sudo tail -f /var/log/nginx/access.log
+<span class="prompt">george@vps:~$</span> sudo journalctl -u nginx -f   <span class="comment"># systemd journal</span>
+
+<span class="comment"># Failed login attempts</span>
+<span class="prompt">george@vps:~$</span> sudo grep "Failed password" /var/log/auth.log | tail -20
+
+<span class="comment"># Current logins</span>
+<span class="prompt">george@vps:~$</span> who && last -n 10
+                </div>
+
+                <h2>Automated Backups with rsync + cron</h2>
+                <div class="cmd">
+<span class="comment"># Create backup script</span>
+<span class="prompt">george@vps:~$</span> sudo nano /usr/local/bin/backup.sh
+
+<span class="comment">#!/bin/bash</span>
+BACKUP_DIR="/mnt/backup"
+DATE=$(date +%Y%m%d_%H%M)
+SRC="/var/www /etc/nginx /home/george"
+
+<span class="comment"># Incremental backup with hard links (space-efficient)</span>
+rsync -az --delete --link-dest=$BACKUP_DIR/latest \
+      $SRC $BACKUP_DIR/$DATE/
+
+ln -snf $BACKUP_DIR/$DATE $BACKUP_DIR/latest
+
+<span class="comment"># Keep only last 30 daily backups</span>
+find $BACKUP_DIR -maxdepth 1 -type d -mtime +30 -exec rm -rf {} \;
+
+<span class="prompt">george@vps:~$</span> sudo chmod +x /usr/local/bin/backup.sh
+
+<span class="comment"># Schedule with cron: daily at 3:30 AM</span>
+<span class="prompt">george@vps:~$</span> sudo crontab -e
+<span class="comment"># Add line:</span>
+30 3 * * * /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1
+                </div>
+
+                <h2>System Security Audit Checklist</h2>
+                <table class="styled">
+                    <thead><tr><th>Category</th><th>Check</th><th>Command</th></tr></thead>
+                    <tbody>
+                        <tr><td>SSH</td><td>Root login disabled</td><td><code>grep PermitRootLogin /etc/ssh/sshd_config</code></td></tr>
+                        <tr><td>SSH</td><td>Password auth disabled</td><td><code>grep PasswordAuthentication /etc/ssh/sshd_config</code></td></tr>
+                        <tr><td>Firewall</td><td>UFW active</td><td><code>sudo ufw status</code></td></tr>
+                        <tr><td>Updates</td><td>Auto security updates</td><td><code>sudo apt install unattended-upgrades</code></td></tr>
+                        <tr><td>SSL</td><td>Certificate valid</td><td><code>sudo certbot certificates</code></td></tr>
+                        <tr><td>Fail2Ban</td><td>Active &amp; watching SSH</td><td><code>sudo fail2ban-client status</code></td></tr>
+                        <tr><td>Ports</td><td>Only needed ports open</td><td><code>sudo ss -tlnp</code></td></tr>
+                        <tr><td>Updates</td><td>OS up to date</td><td><code>sudo apt list --upgradable</code></td></tr>
+                    </tbody>
+                </table>
+            </article>
+        </section>
+
     </main>
 
-    <footer class="bg-white border-t mt-12 py-6">
-        <div class="container mx-auto px-6 text-center text-gray-600">
-            <p>&copy; 2024 Computer Science Fundamentals. All rights reserved.</p>
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; George Meshveliani — Computer Science Fundamentals</p>
         </div>
     </footer>
 </body>

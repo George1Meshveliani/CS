@@ -18,533 +18,536 @@
         .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
         .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
         .prose pre code { background-color: transparent; padding: 0; color: inherit; }
-        .code-block { background-color: #1f2937; color: #10b981; padding: 1.5rem; border-radius: 0.5rem; margin: 1rem 0; font-family: 'Courier New', monospace; overflow-x: auto; }
+        .code-block { background-color: #1f2937; color: #d1d5db; padding: 1.5rem; border-radius: 0.5rem; margin: 1rem 0; font-family: 'Courier New', monospace; overflow-x: auto; font-size: 0.95rem; line-height: 1.6; }
         .step-box { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #3b82f6; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
         .math-box { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 5px solid #f59e0b; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .insight-box { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 5px solid #10b981; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .warn-box { background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%); border-left: 5px solid #ef4444; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .sim-btn { background-color: #3b82f6; color: white; padding: 0.6rem 1.4rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; font-size: 1rem; margin: 0.3rem; transition: background 0.2s; }
+        .sim-btn:hover { background-color: #1d4ed8; }
+        .sim-btn.green { background-color: #10b981; }
+        .sim-btn.green:hover { background-color: #059669; }
+        .sim-btn.gray { background-color: #6b7280; }
+        .sim-btn.gray:hover { background-color: #374151; }
+        .sim-container { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 1rem; padding: 1.5rem; margin: 1.5rem 0; }
+        table.styled { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        table.styled thead tr { background-color: #3b82f6; color: white; }
+        table.styled th, table.styled td { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; text-align: left; }
+        table.styled tbody tr:nth-child(even) { background-color: #f1f5f9; }
+        .matrix-cell { display:inline-block; width:50px; height:38px; line-height:38px; text-align:center; font-weight:700; font-size:0.9rem; border-radius:4px; border:2px solid #e5e7eb; margin:2px; }
+        .cell-normal { background:#f1f5f9; color:#334155; border-color:#e5e7eb; }
+        .cell-updated { background:#10b981; color:white; border-color:#059669; }
+        .cell-current { background:#f59e0b; color:white; border-color:#d97706; }
+        .cell-diagonal { background:#6366f1; color:white; border-color:#4338ca; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
     <header class="bg-white shadow-md sticky top-0 z-10">
-        <nav class="container mx-auto px-6 py-4">
-            <h1 class="text-2xl font-bold text-gray-900">Floyd-Warshall Algorithm: All-Pairs Shortest Paths</h1>
+        <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-900">Floyd-Warshall: All-Pairs Shortest Paths</h1>
+            <div class="text-sm text-gray-500">Dynamic Programming</div>
         </nav>
     </header>
 
     <main class="container mx-auto px-6 py-12">
-        <section id="introduction" class="mb-12">
+
+        <!-- ===== SECTION 1: OVERVIEW ===== -->
+        <section id="overview" class="mb-12">
             <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
                 <h1>Floyd-Warshall Algorithm</h1>
-                <p>The <strong>Floyd-Warshall algorithm</strong> is a dynamic programming algorithm for finding shortest paths in a weighted graph with positive or negative edge weights (but no negative cycles). It finds shortest paths between all pairs of vertices in O(V³) time.</p>
+                <p>The <strong>Floyd-Warshall algorithm</strong> solves the All-Pairs Shortest Path (APSP) problem: find the shortest distance between <em>every pair</em> of vertices in a weighted directed graph. It runs in \(O(V^3)\) time and handles negative edge weights (but not negative cycles).</p>
 
-                <h2>Table of Contents</h2>
-                <ol>
-                    <li><a href="#problem">Problem Statement</a></li>
-                    <li><a href="#algorithm">Algorithm Overview</a></li>
-                    <li><a href="#visualization">Visual Representation</a></li>
-                    <li><a href="#implementation">Implementation</a></li>
-                    <li><a href="#path-reconstruction">Path Reconstruction</a></li>
-                    <li><a href="#negative-cycles">Negative Cycle Detection</a></li>
-                    <li><a href="#complexity">Complexity Analysis</a></li>
-                </ol>
-
-                <h2 id="problem">1. Problem Statement</h2>
-                <p>Given a directed or undirected weighted graph with n vertices, find the shortest path between every pair of vertices.</p>
-                
-                <div class="step-box">
-                    <h4>Input</h4>
-                    <ul>
-                        <li>Graph with n vertices</li>
-                        <li>Weight matrix dist[i][j] = weight of edge from i to j (∞ if no edge)</li>
-                    </ul>
-                    <h4>Output</h4>
-                    <ul>
-                        <li>Shortest distance between every pair of vertices</li>
-                        <li>Optionally: the actual shortest paths</li>
-                    </ul>
+                <div class="insight-box">
+                    <strong>Core Idea (Dynamic Programming):</strong><br>
+                    Let \(\text{dist}[i][j][k]\) = shortest path from \(i\) to \(j\) using only vertices \(\{0, 1, \ldots, k\}\) as intermediates. We gradually add intermediates one by one.
                 </div>
 
-                <h2 id="algorithm">2. Algorithm Overview</h2>
-                
-                <h3>Key Idea</h3>
-                <p>For each intermediate vertex k, check if going through k gives a shorter path from i to j.</p>
-                
+                <h2>Why Not Run Dijkstra \(V\) Times?</h2>
+                <table class="styled">
+                    <thead><tr><th>Algorithm</th><th>Time</th><th>Negative weights?</th><th>Best for</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Floyd-Warshall</strong></td><td>\(O(V^3)\)</td><td>Yes (no neg cycles)</td><td>Dense graphs, small V</td></tr>
+                        <tr><td>Dijkstra × V</td><td>\(O(V \cdot (E + V\log V))\)</td><td>No</td><td>Sparse, non-negative</td></tr>
+                        <tr><td>Bellman-Ford × V</td><td>\(O(V^2 E)\)</td><td>Yes</td><td>Negative weights, sparse</td></tr>
+                        <tr><td>Johnson's</td><td>\(O(VE + V^2 \log V)\)</td><td>Yes</td><td>Sparse, large V</td></tr>
+                    </tbody>
+                </table>
+
+                <h2>Mathematical Formulation</h2>
                 <div class="math-box">
-                    <p><strong>Recurrence Relation:</strong></p>
-                    <p>dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])</p>
-                    <p>For all intermediate vertices k from 0 to n-1</p>
+                    <p>Initial: \(\text{dist}[i][j] = \text{weight}(i \to j)\)  (or \(\infty\) if no edge; 0 if \(i=j\))</p>
+                    <p style="margin-top:0.5rem;"><strong>DP Recurrence (for each intermediate k):</strong></p>
+                    \[\text{dist}[i][j] \leftarrow \min\!\left(\text{dist}[i][j],\; \text{dist}[i][k] + \text{dist}[k][j]\right)\]
+                    <p style="margin-top:0.5rem;">Applied for all \(k = 0 \ldots V-1\), then all pairs \((i,j)\).</p>
+                    <p><strong>Negative Cycle Detection:</strong> If any \(\text{dist}[v][v] < 0\) after all iterations → negative cycle exists.</p>
                 </div>
+            </article>
+        </section>
 
-                <h3>Algorithm Steps</h3>
-                <ol>
-                    <li>Initialize distance matrix with direct edge weights</li>
-                    <li>For each vertex k (0 to n-1) as intermediate:
-                        <ul>
-                            <li>For each pair (i, j):
-                                <ul>
-                                    <li>If dist[i][k] + dist[k][j] < dist[i][j], update dist[i][j]</li>
-                                </ul>
-                            </li>
-                        </ul>
-                    </li>
-                </ol>
+        <!-- ===== SECTION 2: GRAPH VISUALIZATION ===== -->
+        <section id="graph" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Graph Example &amp; Initial Matrix</h1>
 
-                <h2 id="visualization">3. Visual Representation</h2>
-                
-                <h3>Example Graph</h3>
                 <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 1rem; padding: 2rem; margin: 2rem 0;">
-                    <svg width="100%" height="600" viewBox="0 0 1000 600" style="max-width: 1000px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                    <svg width="100%" height="420" viewBox="0 0 1000 420" style="max-width:1000px; display:block; margin:0 auto; background:white; border-radius:0.75rem; padding:10px;">
                         <defs>
-                            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
-                                <polygon points="0 0, 10 3, 0 6" fill="#3b82f6"/>
+                            <marker id="arrFW" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0,10 3,0 6" fill="#475569"/>
                             </marker>
-                            <filter id="shadow">
-                                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
-                            </filter>
+                            <marker id="arrFWR" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0,10 3,0 6" fill="#ef4444"/>
+                            </marker>
+                            <marker id="arrFWG" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0,10 3,0 6" fill="#10b981"/>
+                            </marker>
+                            <filter id="shFW"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.25"/></filter>
                         </defs>
-                        
-                        <text x="500" y="30" text-anchor="middle" font-size="22" font-weight="700" fill="#1e293b">Floyd-Warshall: Step-by-Step Execution</text>
-                        
-                        <!-- Graph vertices -->
-                        <circle cx="200" cy="200" r="40" fill="#3b82f6" stroke="#1e40af" stroke-width="3" filter="url(#shadow)"/>
-                        <text x="200" y="210" text-anchor="middle" font-size="20" font-weight="700" fill="white">0</text>
-                        
-                        <circle cx="500" cy="150" r="40" fill="#10b981" stroke="#059669" stroke-width="3" filter="url(#shadow)"/>
-                        <text x="500" y="160" text-anchor="middle" font-size="20" font-weight="700" fill="white">1</text>
-                        
-                        <circle cx="800" cy="200" r="40" fill="#f59e0b" stroke="#d97706" stroke-width="3" filter="url(#shadow)"/>
-                        <text x="800" y="210" text-anchor="middle" font-size="20" font-weight="700" fill="white">2</text>
-                        
-                        <circle cx="500" cy="400" r="40" fill="#ec4899" stroke="#db2777" stroke-width="3" filter="url(#shadow)"/>
-                        <text x="500" y="410" text-anchor="middle" font-size="20" font-weight="700" fill="white">3</text>
-                        
+
+                        <text x="500" y="25" text-anchor="middle" font-size="17" font-weight="700" fill="#1e293b">Directed Weighted Graph — 4 Vertices (0,1,2,3)</text>
+
+                        <!-- Vertex positions: 0=left, 1=top, 2=right, 3=bottom -->
+                        <!-- 0:(200,200), 1:(420,80), 2:(640,200), 3:(420,340) -->
+
                         <!-- Edges -->
-                        <path d="M 230 200 L 470 160" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowhead)"/>
-                        <text x="350" y="170" text-anchor="middle" font-size="14" font-weight="700" fill="#1e40af">4</text>
-                        
-                        <path d="M 240 210 L 480 190" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrowhead)"/>
-                        <text x="360" y="210" text-anchor="middle" font-size="14" font-weight="700" fill="#1e40af">5</text>
-                        
-                        <path d="M 760 200 L 530 170" stroke="#f59e0b" stroke-width="3" marker-end="url(#arrowhead)"/>
-                        <text x="645" y="170" text-anchor="middle" font-size="14" font-weight="700" fill="#d97706">3</text>
-                        
-                        <path d="M 500 190 L 500 360" stroke="#10b981" stroke-width="3" marker-end="url(#arrowhead)"/>
-                        <text x="520" y="275" text-anchor="middle" font-size="14" font-weight="700" fill="#059669">2</text>
-                        
-                        <path d="M 800 240 L 530 380" stroke="#f59e0b" stroke-width="3" marker-end="url(#arrowhead)"/>
-                        <text x="665" y="320" text-anchor="middle" font-size="14" font-weight="700" fill="#d97706">1</text>
-                        
-                        <!-- Initial distance matrix -->
-                        <rect x="50" y="480" width="900" height="100" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" rx="8"/>
-                        <text x="500" y="510" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Initial Distance Matrix (k = -1)</text>
-                        <text x="200" y="540" text-anchor="middle" font-size="12" fill="#475569">0: 0, 4, 5, ∞</text>
-                        <text x="400" y="540" text-anchor="middle" font-size="12" fill="#475569">1: ∞, 0, ∞, 2</text>
-                        <text x="600" y="540" text-anchor="middle" font-size="12" fill="#475569">2: 3, ∞, 0, 1</text>
-                        <text x="800" y="540" text-anchor="middle" font-size="12" fill="#475569">3: ∞, ∞, ∞, 0</text>
+                        <!-- 0→1: 3 -->
+                        <path d="M 230 182 L 400 95" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrFW)"/>
+                        <text x="305" y="125" text-anchor="middle" font-size="15" font-weight="700" fill="#1d4ed8">3</text>
+
+                        <!-- 0→3: 7 -->
+                        <path d="M 220 225 L 395 335" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrFW)"/>
+                        <text x="290" y="295" text-anchor="middle" font-size="15" font-weight="700" fill="#1d4ed8">7</text>
+
+                        <!-- 1→2: 5 -->
+                        <path d="M 450 85 L 620 185" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrFWG)"/>
+                        <text x="545" y="120" text-anchor="middle" font-size="15" font-weight="700" fill="#059669">5</text>
+
+                        <!-- 1→3: 1 -->
+                        <path d="M 428 110 L 428 310" stroke="#10b981" stroke-width="2.5" marker-end="url(#arrFWG)"/>
+                        <text x="450" y="215" text-anchor="middle" font-size="15" font-weight="700" fill="#059669">1</text>
+
+                        <!-- 2→0: 2 -->
+                        <path d="M 618 185 L 240 200" stroke="#f59e0b" stroke-width="2.5" marker-end="url(#arrFW)"/>
+                        <text x="430" y="175" text-anchor="middle" font-size="15" font-weight="700" fill="#d97706">2</text>
+
+                        <!-- 2→3: -3 (negative) -->
+                        <path d="M 625 220 L 455 330" stroke="#ef4444" stroke-width="2.5" marker-end="url(#arrFWR)"/>
+                        <text x="555" y="295" text-anchor="middle" font-size="15" font-weight="700" fill="#dc2626">-3</text>
+
+                        <!-- 3→2: 4 -->
+                        <path d="M 447 320 L 612 228" stroke="#8b5cf6" stroke-width="2.5" marker-end="url(#arrFW)"/>
+                        <text x="555" y="265" text-anchor="middle" font-size="15" font-weight="700" fill="#7c3aed">4</text>
+
+                        <!-- Vertex circles -->
+                        <circle cx="200" cy="200" r="38" fill="#3b82f6" stroke="#1e40af" stroke-width="3" filter="url(#shFW)"/>
+                        <text x="200" y="207" text-anchor="middle" font-size="22" font-weight="700" fill="white">0</text>
+
+                        <circle cx="420" cy="80" r="38" fill="#10b981" stroke="#059669" stroke-width="3" filter="url(#shFW)"/>
+                        <text x="420" y="87" text-anchor="middle" font-size="22" font-weight="700" fill="white">1</text>
+
+                        <circle cx="640" cy="200" r="38" fill="#f59e0b" stroke="#d97706" stroke-width="3" filter="url(#shFW)"/>
+                        <text x="640" y="207" text-anchor="middle" font-size="22" font-weight="700" fill="white">2</text>
+
+                        <circle cx="420" cy="360" r="38" fill="#ec4899" stroke="#db2777" stroke-width="3" filter="url(#shFW)"/>
+                        <text x="420" y="367" text-anchor="middle" font-size="22" font-weight="700" fill="white">3</text>
+
+                        <!-- Initial matrix -->
+                        <rect x="740" y="60" width="240" height="270" rx="8" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2"/>
+                        <text x="860" y="88" text-anchor="middle" font-size="14" font-weight="700" fill="#1e293b">Initial dist[][] matrix</text>
+                        <text x="860" y="106" text-anchor="middle" font-size="11" fill="#64748b">(∞ = no direct edge)</text>
+
+                        <!-- Matrix data: 4×4 -->
+                        <!-- Header -->
+                        <text x="790" y="125" font-size="11" font-weight="700" fill="#475569" text-anchor="middle">0</text>
+                        <text x="820" y="125" font-size="11" font-weight="700" fill="#475569" text-anchor="middle">1</text>
+                        <text x="850" y="125" font-size="11" font-weight="700" fill="#475569" text-anchor="middle">2</text>
+                        <text x="880" y="125" font-size="11" font-weight="700" fill="#475569" text-anchor="middle">3</text>
+
+                        <!-- Row 0: [0, 3, ∞, 7] -->
+                        <text x="762" y="147" font-size="11" font-weight="700" fill="#475569">0→</text>
+                        <rect x="780" y="132" width="24" height="22" rx="3" fill="#6366f1"/>
+                        <text x="792" y="147" font-size="11" font-weight="700" fill="white" text-anchor="middle">0</text>
+                        <rect x="808" y="132" width="24" height="22" rx="3" fill="#10b981"/>
+                        <text x="820" y="147" font-size="11" font-weight="700" fill="white" text-anchor="middle">3</text>
+                        <rect x="836" y="132" width="24" height="22" rx="3" fill="#f1f5f9" stroke="#e5e7eb"/>
+                        <text x="848" y="147" font-size="10" fill="#94a3b8" text-anchor="middle">∞</text>
+                        <rect x="864" y="132" width="24" height="22" rx="3" fill="#10b981"/>
+                        <text x="876" y="147" font-size="11" font-weight="700" fill="white" text-anchor="middle">7</text>
+
+                        <!-- Row 1: [∞, 0, 5, 1] -->
+                        <text x="762" y="172" font-size="11" font-weight="700" fill="#475569">1→</text>
+                        <rect x="780" y="157" width="24" height="22" rx="3" fill="#f1f5f9" stroke="#e5e7eb"/>
+                        <text x="792" y="172" font-size="10" fill="#94a3b8" text-anchor="middle">∞</text>
+                        <rect x="808" y="157" width="24" height="22" rx="3" fill="#6366f1"/>
+                        <text x="820" y="172" font-size="11" font-weight="700" fill="white" text-anchor="middle">0</text>
+                        <rect x="836" y="157" width="24" height="22" rx="3" fill="#10b981"/>
+                        <text x="848" y="172" font-size="11" font-weight="700" fill="white" text-anchor="middle">5</text>
+                        <rect x="864" y="157" width="24" height="22" rx="3" fill="#10b981"/>
+                        <text x="876" y="172" font-size="11" font-weight="700" fill="white" text-anchor="middle">1</text>
+
+                        <!-- Row 2: [2, ∞, 0, -3] -->
+                        <text x="762" y="197" font-size="11" font-weight="700" fill="#475569">2→</text>
+                        <rect x="780" y="182" width="24" height="22" rx="3" fill="#10b981"/>
+                        <text x="792" y="197" font-size="11" font-weight="700" fill="white" text-anchor="middle">2</text>
+                        <rect x="808" y="182" width="24" height="22" rx="3" fill="#f1f5f9" stroke="#e5e7eb"/>
+                        <text x="820" y="197" font-size="10" fill="#94a3b8" text-anchor="middle">∞</text>
+                        <rect x="836" y="182" width="24" height="22" rx="3" fill="#6366f1"/>
+                        <text x="848" y="197" font-size="11" font-weight="700" fill="white" text-anchor="middle">0</text>
+                        <rect x="864" y="182" width="24" height="22" rx="3" fill="#ef4444"/>
+                        <text x="876" y="197" font-size="11" font-weight="700" fill="white" text-anchor="middle">-3</text>
+
+                        <!-- Row 3: [∞, ∞, 4, 0] -->
+                        <text x="762" y="222" font-size="11" font-weight="700" fill="#475569">3→</text>
+                        <rect x="780" y="207" width="24" height="22" rx="3" fill="#f1f5f9" stroke="#e5e7eb"/>
+                        <text x="792" y="222" font-size="10" fill="#94a3b8" text-anchor="middle">∞</text>
+                        <rect x="808" y="207" width="24" height="22" rx="3" fill="#f1f5f9" stroke="#e5e7eb"/>
+                        <text x="820" y="222" font-size="10" fill="#94a3b8" text-anchor="middle">∞</text>
+                        <rect x="836" y="207" width="24" height="22" rx="3" fill="#10b981"/>
+                        <text x="848" y="222" font-size="11" font-weight="700" fill="white" text-anchor="middle">4</text>
+                        <rect x="864" y="207" width="24" height="22" rx="3" fill="#6366f1"/>
+                        <text x="876" y="222" font-size="11" font-weight="700" fill="white" text-anchor="middle">0</text>
+
+                        <!-- Legend -->
+                        <rect x="755" y="248" width="12" height="12" rx="2" fill="#6366f1"/>
+                        <text x="773" y="258" font-size="10" fill="#475569">Self (0)</text>
+                        <rect x="755" y="265" width="12" height="12" rx="2" fill="#10b981"/>
+                        <text x="773" y="275" font-size="10" fill="#475569">Direct edge</text>
+                        <rect x="755" y="282" width="12" height="12" rx="2" fill="#ef4444"/>
+                        <text x="773" y="292" font-size="10" fill="#475569">Negative edge</text>
+                        <rect x="755" y="299" width="12" height="12" rx="2" fill="#f1f5f9" stroke="#e5e7eb"/>
+                        <text x="773" y="309" font-size="10" fill="#475569">No path (∞)</text>
                     </svg>
                 </div>
+            </article>
+        </section>
 
-                <h3>Iteration Visualization</h3>
+        <!-- ===== SECTION 3: STEP-BY-STEP ITERATIONS ===== -->
+        <section id="iterations" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Step-by-Step: Matrix Updates</h1>
+                <p>For each intermediate vertex \(k\), we check all pairs \((i,j)\): can path \(i \to k \to j\) improve \(\text{dist}[i][j]\)?</p>
+
+                <div class="sim-container">
+                    <div style="display:flex; gap:0.5rem; flex-wrap:wrap; margin-bottom:1rem;">
+                        <button class="sim-btn gray" onclick="fwStep(-1)">&#8810; Reset</button>
+                        <button class="sim-btn" onclick="fwStep(0)">k=0 (via 0)</button>
+                        <button class="sim-btn" onclick="fwStep(1)">k=1 (via 1)</button>
+                        <button class="sim-btn" onclick="fwStep(2)">k=2 (via 2)</button>
+                        <button class="sim-btn" onclick="fwStep(3)">k=3 (via 3)</button>
+                        <button class="sim-btn green" onclick="fwStep(4)">Final Result</button>
+                    </div>
+                    <div id="fwStepLabel" style="font-weight:700; font-size:1.1rem; color:#1e293b; margin-bottom:0.75rem;">Click a step to begin...</div>
+                    <div id="fwMatrix" style="overflow-x:auto; margin-bottom:1rem;"></div>
+                    <div id="fwExplanation" style="background:#f1f5f9; border-radius:0.5rem; padding:1rem; font-size:0.95rem; min-height:3rem;"></div>
+                </div>
+
+                <h2>Path Reconstruction Visualization</h2>
                 <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 1rem; padding: 2rem; margin: 2rem 0;">
-                    <svg width="100%" height="800" viewBox="0 0 1200 800" style="max-width: 1200px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                    <svg width="100%" height="300" viewBox="0 0 1000 300" style="max-width:1000px; display:block; margin:0 auto; background:white; border-radius:0.75rem; padding:10px;">
                         <defs>
-                            <linearGradient id="unchangedGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#e5e7eb;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#d1d5eb;stop-opacity:1" />
-                            </linearGradient>
-                            <linearGradient id="updatedGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
-                            </linearGradient>
-                            <linearGradient id="currentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
-                            </linearGradient>
-                            <filter id="shadow">
-                                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
-                            </filter>
+                            <marker id="arrPR" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0,10 3,0 6" fill="#6366f1"/>
+                            </marker>
+                            <filter id="shPR"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.2"/></filter>
                         </defs>
-                        
-                        <text x="600" y="30" text-anchor="middle" font-size="22" font-weight="700" fill="#1e293b">Distance Matrix Updates</text>
-                        
-                        <!-- k=0 iteration -->
-                        <text x="600" y="70" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">k = 0 (intermediate vertex: 0)</text>
-                        <text x="600" y="95" text-anchor="middle" font-size="14" fill="#64748b">Check: dist[i][j] = min(dist[i][j], dist[i][0] + dist[0][j])</text>
-                        
-                        <g transform="translate(200, 120)">
-                            <!-- Matrix -->
-                            <rect x="0" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="25" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">i\j</text>
-                            
-                            <rect x="60" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="85" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">0</text>
-                            
-                            <rect x="120" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="145" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">1</text>
-                            
-                            <rect x="180" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="205" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">2</text>
-                            
-                            <rect x="240" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="265" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">3</text>
-                            
-                            <!-- Row 0 -->
-                            <rect x="0" y="40" width="50" height="30" fill="#94a3b8" stroke="#64748b" stroke-width="2" rx="3"/>
-                            <text x="25" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="white">0</text>
-                            
-                            <rect x="60" y="40" width="50" height="30" fill="url(#currentGrad)" stroke="#d97706" stroke-width="3" rx="3"/>
-                            <text x="85" y="60" text-anchor="middle" font-size="13" font-weight="700" fill="white">0</text>
-                            
-                            <rect x="120" y="40" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="145" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">4</text>
-                            
-                            <rect x="180" y="40" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="205" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">5</text>
-                            
-                            <rect x="240" y="40" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="265" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">∞</text>
-                            
-                            <!-- Row 1 -->
-                            <rect x="0" y="80" width="50" height="30" fill="#94a3b8" stroke="#64748b" stroke-width="2" rx="3"/>
-                            <text x="25" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="white">1</text>
-                            
-                            <rect x="60" y="80" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="85" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">∞</text>
-                            
-                            <rect x="120" y="80" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="145" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">0</text>
-                            
-                            <rect x="180" y="80" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="205" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">∞</text>
-                            
-                            <rect x="240" y="80" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="265" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">2</text>
-                            
-                            <!-- Row 2 -->
-                            <rect x="0" y="120" width="50" height="30" fill="#94a3b8" stroke="#64748b" stroke-width="2" rx="3"/>
-                            <text x="25" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="white">2</text>
-                            
-                            <rect x="60" y="120" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="85" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">3</text>
-                            
-                            <rect x="120" y="120" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="145" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">∞</text>
-                            
-                            <rect x="180" y="120" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="205" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">0</text>
-                            
-                            <rect x="240" y="120" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="265" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">1</text>
-                            
-                            <!-- Row 3 -->
-                            <rect x="0" y="160" width="50" height="30" fill="#94a3b8" stroke="#64748b" stroke-width="2" rx="3"/>
-                            <text x="25" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="white">3</text>
-                            
-                            <rect x="60" y="160" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="85" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">∞</text>
-                            
-                            <rect x="120" y="160" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="145" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">∞</text>
-                            
-                            <rect x="180" y="160" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="205" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">∞</text>
-                            
-                            <rect x="240" y="160" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="265" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">0</text>
-                        </g>
-                        
-                        <!-- k=1 iteration -->
-                        <text x="600" y="280" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">k = 1 (intermediate vertex: 1)</text>
-                        <text x="600" y="305" text-anchor="middle" font-size="14" fill="#64748b">Updates: dist[2][3] = min(1, 3+2) = 1 (no change), dist[0][3] = min(∞, 4+2) = 6</text>
-                        
-                        <g transform="translate(200, 330)">
-                            <!-- Similar matrix structure with updated values -->
-                            <rect x="0" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="25" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">i\j</text>
-                            
-                            <rect x="60" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="85" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">0</text>
-                            
-                            <rect x="120" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="145" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">1</text>
-                            
-                            <rect x="180" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="205" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">2</text>
-                            
-                            <rect x="240" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="265" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">3</text>
-                            
-                            <!-- Row 0 -->
-                            <rect x="0" y="40" width="50" height="30" fill="#94a3b8" stroke="#64748b" stroke-width="2" rx="3"/>
-                            <text x="25" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="white">0</text>
-                            
-                            <rect x="60" y="40" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="85" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">0</text>
-                            
-                            <rect x="120" y="40" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="145" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">4</text>
-                            
-                            <rect x="180" y="40" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="205" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">5</text>
-                            
-                            <rect x="240" y="40" width="50" height="30" fill="url(#updatedGrad)" stroke="#059669" stroke-width="3" rx="3"/>
-                            <text x="265" y="60" text-anchor="middle" font-size="13" font-weight="700" fill="white">6</text>
-                            
-                            <!-- Row 1 -->
-                            <rect x="0" y="80" width="50" height="30" fill="#94a3b8" stroke="#64748b" stroke-width="2" rx="3"/>
-                            <text x="25" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="white">1</text>
-                            
-                            <rect x="60" y="80" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="85" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">∞</text>
-                            
-                            <rect x="120" y="80" width="50" height="30" fill="url(#currentGrad)" stroke="#d97706" stroke-width="3" rx="3"/>
-                            <text x="145" y="100" text-anchor="middle" font-size="13" font-weight="700" fill="white">0</text>
-                            
-                            <rect x="180" y="80" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="205" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">∞</text>
-                            
-                            <rect x="240" y="80" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="265" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">2</text>
-                            
-                            <!-- Row 2 -->
-                            <rect x="0" y="120" width="50" height="30" fill="#94a3b8" stroke="#64748b" stroke-width="2" rx="3"/>
-                            <text x="25" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="white">2</text>
-                            
-                            <rect x="60" y="120" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="85" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">3</text>
-                            
-                            <rect x="120" y="120" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="145" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">∞</text>
-                            
-                            <rect x="180" y="120" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="205" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">0</text>
-                            
-                            <rect x="240" y="120" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="265" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">1</text>
-                            
-                            <!-- Row 3 -->
-                            <rect x="0" y="160" width="50" height="30" fill="#94a3b8" stroke="#64748b" stroke-width="2" rx="3"/>
-                            <text x="25" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="white">3</text>
-                            
-                            <rect x="60" y="160" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="85" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">∞</text>
-                            
-                            <rect x="120" y="160" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="145" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">∞</text>
-                            
-                            <rect x="180" y="160" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="205" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">∞</text>
-                            
-                            <rect x="240" y="160" width="50" height="30" fill="url(#unchangedGrad)" stroke="#94a3b8" stroke-width="2" rx="3"/>
-                            <text x="265" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#475569">0</text>
-                        </g>
-                        
-                        <!-- Final result -->
-                        <rect x="200" y="550" width="800" height="80" fill="#ecfdf5" stroke="#10b981" stroke-width="3" rx="8" filter="url(#shadow)"/>
-                        <text x="600" y="580" text-anchor="middle" font-size="18" font-weight="700" fill="#059669">Final Distance Matrix (after k = 3)</text>
-                        <text x="200" y="610" font-size="13" fill="#065f46">Shortest paths: 0→3=6, 2→1=7, 0→2=5, etc.</text>
-                        <text x="200" y="630" font-size="13" fill="#065f46">All pairs shortest paths computed in O(V³) time</text>
+                        <text x="500" y="25" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Shortest Path 0 → 3 (found using next[][] matrix)</text>
+
+                        <!-- path: 0 → 1 → 3 (cost 3+1=4, but via 2 might give 0→1→3=4, 0→1→2→3=3+5-3=5... actually 0→1→3=4) -->
+                        <!-- Actual: 0→1 (3), 1→3 (1), total=4 -->
+                        <text x="500" y="50" text-anchor="middle" font-size="13" fill="#64748b">Shortest path: 0 → 1 → 3   (cost = 3+1 = 4)</text>
+
+                        <!-- Node 0 -->
+                        <circle cx="120" cy="160" r="38" fill="#3b82f6" stroke="#1e40af" stroke-width="3" filter="url(#shPR)"/>
+                        <text x="120" y="167" text-anchor="middle" font-size="22" font-weight="700" fill="white">0</text>
+
+                        <!-- Arrow 0→1 -->
+                        <path d="M 158 160 L 352 160" stroke="#6366f1" stroke-width="3" marker-end="url(#arrPR)"/>
+                        <rect x="218" y="138" width="60" height="26" rx="5" fill="#fde68a" stroke="#f59e0b"/>
+                        <text x="248" y="155" text-anchor="middle" font-size="14" font-weight="700" fill="#92400e">w = 3</text>
+
+                        <!-- Node 1 -->
+                        <circle cx="390" cy="160" r="38" fill="#10b981" stroke="#059669" stroke-width="3" filter="url(#shPR)"/>
+                        <text x="390" y="167" text-anchor="middle" font-size="22" font-weight="700" fill="white">1</text>
+
+                        <!-- Arrow 1→3 -->
+                        <path d="M 428 160 L 622 160" stroke="#6366f1" stroke-width="3" marker-end="url(#arrPR)"/>
+                        <rect x="488" y="138" width="60" height="26" rx="5" fill="#fde68a" stroke="#f59e0b"/>
+                        <text x="518" y="155" text-anchor="middle" font-size="14" font-weight="700" fill="#92400e">w = 1</text>
+
+                        <!-- Node 3 -->
+                        <circle cx="660" cy="160" r="38" fill="#ec4899" stroke="#db2777" stroke-width="3" filter="url(#shPR)"/>
+                        <text x="660" y="167" text-anchor="middle" font-size="22" font-weight="700" fill="white">3</text>
+
+                        <!-- Total cost -->
+                        <rect x="750" y="130" width="220" height="60" rx="10" fill="#ecfdf5" stroke="#10b981" stroke-width="2.5" filter="url(#shPR)"/>
+                        <text x="860" y="158" text-anchor="middle" font-size="14" font-weight="700" fill="#065f46">Total distance</text>
+                        <text x="860" y="180" text-anchor="middle" font-size="22" font-weight="700" fill="#059669">3 + 1 = 4</text>
+
+                        <!-- next matrix hint -->
+                        <text x="500" y="250" text-anchor="middle" font-size="13" fill="#64748b">next[0][3] = 1 → next[1][3] = 3 → reached destination</text>
                     </svg>
                 </div>
+            </article>
+        </section>
 
-                <h2 id="implementation">4. Implementation</h2>
-                
-                <h3>Complete C++ Implementation</h3>
+        <!-- ===== SECTION 4: C++ CODE ===== -->
+        <section id="code" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>C++ Implementation</h1>
+
+                <h2>Complete Floyd-Warshall with Path Reconstruction</h2>
                 <div class="code-block">
 #include &lt;iostream&gt;
 #include &lt;vector&gt;
 #include &lt;climits&gt;
-#include &lt;iomanip&gt;
+#include &lt;string&gt;
 using namespace std;
 
-#define INF INT_MAX
+const int INF = INT_MAX / 2;  <span style="color:#fde68a;">// Use INT_MAX/2 to prevent overflow</span>
 
-void floydWarshall(vector&lt;vector&lt;int&gt;&gt;& graph) {
-    int V = graph.size();
-    
-    // Initialize distance matrix
-    vector&lt;vector&lt;int&gt;&gt; dist(V, vector&lt;int&gt;(V));
-    for (int i = 0; i < V; i++) {
-        for (int j = 0; j < V; j++) {
-            dist[i][j] = graph[i][j];
-        }
+struct Graph {
+    int V;
+    vector&lt;vector&lt;int&gt;&gt; dist;  <span style="color:#fde68a;">// dist[i][j] = shortest dist i→j</span>
+    vector&lt;vector&lt;int&gt;&gt; next;  <span style="color:#fde68a;">// next[i][j] = next vertex on shortest path</span>
+
+    Graph(int V) : V(V),
+        dist(V, vector&lt;int&gt;(V, INF)),
+        next(V, vector&lt;int&gt;(V, -1)) {
+        for (int i = 0; i &lt; V; i++) dist[i][i] = 0;
     }
-    
-    // Floyd-Warshall algorithm
-    for (int k = 0; k < V; k++) {
-        for (int i = 0; i < V; i++) {
-            for (int j = 0; j < V; j++) {
-                // Avoid overflow
-                if (dist[i][k] != INF && dist[k][j] != INF) {
-                    if (dist[i][k] + dist[k][j] < dist[i][j]) {
+
+    void addEdge(int u, int v, int w) {
+        dist[u][v] = w;
+        next[u][v] = v;  <span style="color:#fde68a;">// direct edge: next step is v itself</span>
+    }
+
+    <span style="color:#86efac;">// Run Floyd-Warshall. Returns false if negative cycle detected.</span>
+    bool floydWarshall() {
+        for (int k = 0; k &lt; V; k++) {           <span style="color:#fde68a;">// try each intermediate</span>
+            for (int i = 0; i &lt; V; i++) {
+                for (int j = 0; j &lt; V; j++) {
+                    if (dist[i][k] == INF || dist[k][j] == INF) continue;
+                    if (dist[i][k] + dist[k][j] &lt; dist[i][j]) {
                         dist[i][j] = dist[i][k] + dist[k][j];
+                        next[i][j] = next[i][k];  <span style="color:#fde68a;">// route through k</span>
                     }
                 }
             }
         }
+        <span style="color:#fde68a;">// Negative cycle: any dist[v][v] < 0</span>
+        for (int v = 0; v &lt; V; v++)
+            if (dist[v][v] &lt; 0) return false;
+        return true;
     }
-    
-    // Print shortest distances
-    cout << "Shortest distances between every pair of vertices:" << endl;
-    for (int i = 0; i < V; i++) {
-        for (int j = 0; j < V; j++) {
-            if (dist[i][j] == INF) {
-                cout << setw(5) << "INF";
-            } else {
-                cout << setw(5) << dist[i][j];
+
+    <span style="color:#86efac;">// Reconstruct path from u to v</span>
+    vector&lt;int&gt; path(int u, int v) {
+        if (next[u][v] == -1) return {};   <span style="color:#fde68a;">// unreachable</span>
+        vector&lt;int&gt; p = {u};
+        while (u != v) { u = next[u][v]; p.push_back(u); }
+        return p;
+    }
+
+    void printMatrix() {
+        cout &lt;&lt; "dist[][] (INF shown as ∞):\n";
+        for (int i = 0; i &lt; V; i++) {
+            for (int j = 0; j &lt; V; j++) {
+                if (dist[i][j] == INF) cout &lt;&lt; "  ∞";
+                else cout &lt;&lt; "  " &lt;&lt; dist[i][j];
             }
+            cout &lt;&lt; "\n";
         }
-        cout << endl;
     }
-}
+};
 
 int main() {
-    // Example graph: 4 vertices
-    int V = 4;
-    vector&lt;vector&lt;int&gt;&gt; graph = {
-        {0, 4, 5, INF},
-        {INF, 0, INF, 2},
-        {3, INF, 0, 1},
-        {INF, INF, INF, 0}
-    };
-    
-    floydWarshall(graph);
-    
+    Graph g(4);
+    g.addEdge(0,1,3);
+    g.addEdge(0,3,7);
+    g.addEdge(1,2,5);
+    g.addEdge(1,3,1);
+    g.addEdge(2,0,2);
+    g.addEdge(2,3,-3);
+    g.addEdge(3,2,4);
+
+    if (!g.floydWarshall()) {
+        cout &lt;&lt; "Negative cycle detected!\n";
+        return 1;
+    }
+
+    g.printMatrix();
+
+    <span style="color:#86efac;">// Print all pairs shortest paths</span>
+    for (int i = 0; i &lt; 4; i++) {
+        for (int j = 0; j &lt; 4; j++) {
+            if (i == j || g.dist[i][j] == INF) continue;
+            auto p = g.path(i, j);
+            cout &lt;&lt; i &lt;&lt; " → " &lt;&lt; j &lt;&lt; " (dist=" &lt;&lt; g.dist[i][j] &lt;&lt; "): ";
+            for (int v : p) cout &lt;&lt; v &lt;&lt; " ";
+            cout &lt;&lt; "\n";
+        }
+    }
     return 0;
 }
                 </div>
 
-                <h2 id="path-reconstruction">5. Path Reconstruction</h2>
-                <p>To reconstruct the actual shortest paths, we maintain a parent/next matrix:</p>
-                
+                <h2>Negative Cycle Detection in Practice</h2>
+                <div class="warn-box">
+                    <p><strong>Detecting negative cycles:</strong> After all \(V\) iterations, check if <code>dist[v][v] &lt; 0</code> for any vertex \(v\). This means there is a path from \(v\) to itself with negative total weight — any shortest path passing through that cycle becomes \(-\infty\).</p>
+                </div>
+
                 <div class="code-block">
-void floydWarshallWithPath(vector&lt;vector&lt;int&gt;&gt;& graph) {
-    int V = graph.size();
-    vector&lt;vector&lt;int&gt;&gt; dist(V, vector&lt;int&gt;(V));
-    vector&lt;vector&lt;int&gt;&gt; next(V, vector&lt;int&gt;(V, -1));
-    
-    // Initialize
-    for (int i = 0; i < V; i++) {
-        for (int j = 0; j < V; j++) {
-            dist[i][j] = graph[i][j];
-            if (graph[i][j] != INF && i != j) {
-                next[i][j] = j;
-            }
+<span style="color:#86efac;">// Identify ALL vertices affected by a negative cycle</span>
+vector&lt;bool&gt; inNegCycle(int V, vector&lt;vector&lt;int&gt;&gt;&amp; dist) {
+    vector&lt;bool&gt; neg(V, false);
+    for (int k = 0; k &lt; V; k++) {
+        if (dist[k][k] &lt; 0) {           <span style="color:#fde68a;">// k is on a negative cycle</span>
+            for (int i = 0; i &lt; V; i++)
+                for (int j = 0; j &lt; V; j++)
+                    if (dist[i][k] != INF &amp;&amp; dist[k][j] != INF)
+                        neg[i] = neg[j] = true;  <span style="color:#fde68a;">// affected vertices</span>
         }
     }
-    
-    // Floyd-Warshall
-    for (int k = 0; k < V; k++) {
-        for (int i = 0; i < V; i++) {
-            for (int j = 0; j < V; j++) {
-                if (dist[i][k] != INF && dist[k][j] != INF) {
-                    if (dist[i][k] + dist[k][j] < dist[i][j]) {
-                        dist[i][j] = dist[i][k] + dist[k][j];
-                        next[i][j] = next[i][k];
+    return neg;
+}
+                </div>
+            </article>
+        </section>
+
+        <!-- ===== SECTION 5: APPLICATIONS ===== -->
+        <section id="applications" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Real-World Applications</h1>
+                <table class="styled">
+                    <thead><tr><th>Domain</th><th>Application</th><th>Why Floyd-Warshall?</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Network Routing</strong></td><td>BGP/OSPF routing tables — compute all-pairs reachability</td><td>Dense AS graphs, need all pairs</td></tr>
+                        <tr><td><strong>Currency Arbitrage</strong></td><td>Detect negative cycles in currency exchange rate graph (log weights)</td><td>Negative cycle = arbitrage opportunity</td></tr>
+                        <tr><td><strong>Social Networks</strong></td><td>Compute betweenness centrality — how many shortest paths pass through a node</td><td>All-pairs paths needed</td></tr>
+                        <tr><td><strong>Game Maps</strong></td><td>Precompute distance between all city pairs in strategy games</td><td>Small maps, real-time queries</td></tr>
+                        <tr><td><strong>Transitive Closure</strong></td><td>Can vertex \(i\) reach vertex \(j\)? (set all weights to 1)</td><td>Boolean variant in \(O(V^3)\)</td></tr>
+                        <tr><td><strong>GIS / Maps</strong></td><td>Distance matrix for travelling salesman approximations</td><td>Pre-compute distance table</td></tr>
+                    </tbody>
+                </table>
+
+                <h2>Currency Arbitrage Example</h2>
+                <div class="insight-box">
+                    <p>Build a graph where edge weight \((i,j)\) = \(-\log(\text{rate}_{ij})\). A negative cycle in this graph means there exists a sequence of currency conversions with a net gain. Floyd-Warshall detects such negative cycles in \(O(V^3)\).</p>
+                </div>
+
+                <h2>Complexity Summary</h2>
+                <div class="math-box">
+                    <p><strong>Time:</strong> \(O(V^3)\) — three nested loops over \(V\) vertices</p>
+                    <p><strong>Space:</strong> \(O(V^2)\) — the distance matrix</p>
+                    <p><strong>Limitation:</strong> Only practical for \(V \leq 1000\) (beyond that, \(V^3 = 10^9\) operations)</p>
+                </div>
+            </article>
+        </section>
+
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; George Meshveliani — Computer Science Fundamentals</p>
+        </div>
+    </footer>
+
+    <script>
+    // Graph: 4 vertices, edges: 0→1:3, 0→3:7, 1→2:5, 1→3:1, 2→0:2, 2→3:-3, 3→2:4
+    const V = 4;
+    const INF = 9999;
+    const LABEL = ['0','1','2','3'];
+    // Initial matrix
+    const init = [
+        [0,   3,   INF, 7  ],
+        [INF, 0,   5,   1  ],
+        [2,   INF, 0,   -3 ],
+        [INF, INF, 4,   0  ]
+    ];
+
+    // Precompute matrices after each k
+    function computeSteps() {
+        let steps = [];
+        let d = init.map(r => [...r]);
+        steps.push({ k: -1, matrix: d.map(r=>[...r]), updates: [] });
+        for (let k = 0; k < V; k++) {
+            let updates = [];
+            for (let i = 0; i < V; i++) {
+                for (let j = 0; j < V; j++) {
+                    if (d[i][k] !== INF && d[k][j] !== INF) {
+                        const newVal = d[i][k] + d[k][j];
+                        if (newVal < d[i][j]) {
+                            updates.push({i,j,old:d[i][j],newVal});
+                            d[i][j] = newVal;
+                        }
                     }
                 }
             }
+            steps.push({ k, matrix: d.map(r=>[...r]), updates });
         }
+        return steps;
     }
-    
-    // Reconstruct path
-    auto getPath = [&](int u, int v) -> vector&lt;int&gt; {
-        if (next[u][v] == -1) return {};
-        vector&lt;int&gt; path = {u};
-        while (u != v) {
-            u = next[u][v];
-            path.push_back(u);
-        }
-        return path;
-    };
-    
-    // Example: path from 0 to 3
-    vector&lt;int&gt; path = getPath(0, 3);
-    cout << "Path from 0 to 3: ";
-    for (int v : path) cout << v << " ";
-    cout << endl;
-}
-                </div>
+    const steps = computeSteps();
 
-                <h2 id="negative-cycles">6. Negative Cycle Detection</h2>
-                <p>After running Floyd-Warshall, if dist[i][i] < 0 for any vertex i, there's a negative cycle:</p>
-                
-                <div class="code-block">
-bool hasNegativeCycle(vector&lt;vector&lt;int&gt;&gt;& dist) {
-    int V = dist.size();
-    for (int i = 0; i < V; i++) {
-        if (dist[i][i] < 0) {
-            return true;  // Negative cycle detected
+    function renderMatrix(matrix, highlights, title) {
+        let html = `<div style="margin-bottom:0.5rem; font-weight:700; color:#334155;">${title}</div>`;
+        html += '<table style="border-collapse:collapse; font-family:monospace;">';
+        html += '<tr><th style="background:#1e293b;color:white;padding:8px 12px;border:1px solid #0f172a;">i\\j</th>';
+        for (let j = 0; j < V; j++) html += `<th style="background:#475569;color:white;padding:8px 12px;border:1px solid #64748b;">${j}</th>`;
+        html += '</tr>';
+        for (let i = 0; i < V; i++) {
+            html += `<tr><td style="background:#334155;color:white;padding:8px 12px;border:1px solid #475569;font-weight:700;">${i}</td>`;
+            for (let j = 0; j < V; j++) {
+                const isUpd = highlights && highlights.some(h => h.i===i && h.j===j);
+                const isDiag = i===j;
+                const val = matrix[i][j];
+                const disp = val >= INF ? '∞' : val;
+                let bg = isDiag ? '#c7d2fe' : isUpd ? '#d1fae5' : '#f9fafb';
+                let col = isDiag ? '#312e81' : isUpd ? '#065f46' : '#374151';
+                let brd = isDiag ? '2px solid #6366f1' : isUpd ? '2px solid #10b981' : '1px solid #e5e7eb';
+                let fw = (isUpd||isDiag) ? '700' : '400';
+                html += `<td style="background:${bg};color:${col};padding:8px 12px;border:${brd};text-align:center;font-weight:${fw};">${disp}</td>`;
+            }
+            html += '</tr>';
         }
+        html += '</table>';
+        return html;
     }
-    return false;
-}
-                </div>
 
-                <h2 id="complexity">7. Complexity Analysis</h2>
-                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
-                    <thead>
-                        <tr style="background-color: #3b82f6; color: white;">
-                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Aspect</th>
-                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Complexity</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Time</strong></td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">O(V³)</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Space</strong></td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">O(V²)</td>
-                        </tr>
-                    </tbody>
-                </table>
+    function fwStep(k) {
+        const idx = k + 1; // steps[0]=init, steps[1]=k=0, ...
+        if (idx < 0 || idx >= steps.length + 1) return;
 
-                <h3>Comparison with Other Algorithms</h3>
-                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
-                    <thead>
-                        <tr style="background-color: #3b82f6; color: white;">
-                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Algorithm</th>
-                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Time</th>
-                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Use Case</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Floyd-Warshall</strong></td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">O(V³)</td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">All pairs, dense graphs</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Dijkstra (V times)</strong></td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">O(V(E log V))</td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">All pairs, no negative edges</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Bellman-Ford (V times)</strong></td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">O(V²E)</td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">All pairs, negative edges OK</td>
-                        </tr>
-                    </tbody>
-                </table>
+        let step;
+        if (k === 4) { step = steps[steps.length-1]; }
+        else step = steps[idx < steps.length ? idx : steps.length-1];
 
-                <h2>Summary</h2>
-                <p>The Floyd-Warshall algorithm:</p>
-                <ol>
-                    <li>Finds shortest paths between all pairs of vertices</li>
-                    <li>Works with negative edge weights (but not negative cycles)</li>
-                    <li>Uses dynamic programming with O(V³) time complexity</li>
-                    <li>Can detect negative cycles</li>
-                    <li>Ideal for dense graphs where we need all-pairs shortest paths</li>
-                </ol>
-            </article>
-        </section>
-    </main>
+        const actualStep = (k >= 0 && k < 4) ? steps[k+1] : (k === 4 ? steps[4] : steps[0]);
 
-    <footer class="bg-white border-t mt-12 py-6">
-        <div class="container mx-auto px-6 text-center text-gray-600">
-            <p>&copy; 2024 Computer Science Fundamentals. All rights reserved.</p>
-        </div>
-    </footer>
+        const label = k === -1 ? 'Initial matrix (no relaxation)' :
+                      k === 4  ? 'Final result after all k iterations' :
+                      `After k=${k} (using vertex ${k} as intermediate)`;
+        document.getElementById('fwStepLabel').textContent = label;
+        document.getElementById('fwMatrix').innerHTML = renderMatrix(actualStep.matrix, actualStep.updates, label);
+
+        let expl = '';
+        if (k === -1) {
+            expl = 'Initial distances. Direct edges set; INF = no direct path.';
+        } else if (k === 4) {
+            expl = 'All iterations complete. dist[i][j] now holds the true shortest distance from i to j for all pairs.';
+        } else {
+            if (actualStep.updates.length === 0) {
+                expl = `k=${k}: No improvements found when routing through vertex ${k}.`;
+            } else {
+                expl = `k=${k}: Updated cells (green) — improved paths found via vertex ${k}:<br>` +
+                    actualStep.updates.map(u => `dist[${u.i}][${u.j}]: ${u.old>=INF?'∞':u.old} → ${u.newVal}`).join(', ');
+            }
+        }
+        document.getElementById('fwExplanation').innerHTML = expl;
+    }
+
+    // Initialize display
+    fwStep(-1);
+    </script>
 </body>
 </html>

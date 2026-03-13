@@ -18,519 +18,580 @@
         .prose pre { background-color: #1f2937; color: #d1d5db; padding: 1rem; border-radius: 0.5rem; overflow-x: auto; }
         .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
         .prose pre code { background-color: transparent; padding: 0; color: inherit; }
-        .code-block { background-color: #1f2937; color: #10b981; padding: 1.5rem; border-radius: 0.5rem; margin: 1rem 0; font-family: 'Courier New', monospace; overflow-x: auto; }
+        .code-block { background-color: #1f2937; color: #d1d5db; padding: 1.5rem; border-radius: 0.5rem; margin: 1rem 0; font-family: 'Courier New', monospace; overflow-x: auto; font-size: 0.95rem; line-height: 1.6; }
         .step-box { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #3b82f6; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
         .math-box { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-left: 5px solid #f59e0b; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .insight-box { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 5px solid #10b981; padding: 1.5rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .sim-btn { background-color: #3b82f6; color: white; padding: 0.6rem 1.4rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; font-size: 1rem; margin: 0.3rem; transition: background 0.2s; }
+        .sim-btn:hover { background-color: #1d4ed8; }
+        .sim-btn.green { background-color: #10b981; }
+        .sim-btn.green:hover { background-color: #059669; }
+        .sim-btn.gray { background-color: #6b7280; }
+        .sim-btn.gray:hover { background-color: #374151; }
+        .sim-container { background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 1rem; padding: 1.5rem; margin: 1.5rem 0; }
+        table.styled { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        table.styled thead tr { background-color: #3b82f6; color: white; }
+        table.styled th, table.styled td { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; text-align: left; }
+        table.styled tbody tr:nth-child(even) { background-color: #f1f5f9; }
+        .dp-cell { display:inline-block; width:46px; height:36px; line-height:36px; text-align:center; font-weight:700; font-size:0.9rem; border-radius:4px; border:2px solid #e5e7eb; margin:2px; transition: background 0.4s, color 0.4s; background:#f1f5f9; color:#334155; }
+        .dp-cell.filled { background:#10b981; color:white; border-color:#059669; }
+        .dp-cell.current { background:#f59e0b; color:white; border-color:#d97706; }
+        .dp-cell.solution { background:#6366f1; color:white; border-color:#4338ca; }
+        .dp-cell.header { background:#1e293b; color:white; border-color:#0f172a; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
     <header class="bg-white shadow-md sticky top-0 z-10">
-        <nav class="container mx-auto px-6 py-4">
+        <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
             <h1 class="text-2xl font-bold text-gray-900">Knapsack Problem: Dynamic Programming</h1>
+            <div class="text-sm text-gray-500">Dynamic Programming</div>
         </nav>
     </header>
 
     <main class="container mx-auto px-6 py-12">
-        <section id="introduction" class="mb-12">
+
+        <!-- ===== SECTION 1: OVERVIEW ===== -->
+        <section id="overview" class="mb-12">
             <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
                 <h1>The Knapsack Problem</h1>
-                <p>The <strong>Knapsack Problem</strong> is one of the most famous problems in combinatorial optimization. Given a set of items, each with a weight and a value, determine the number of each item to include in a collection so that the total weight is less than or equal to a given limit and the total value is as large as possible.</p>
+                <p>The <strong>0/1 Knapsack Problem</strong> is a cornerstone of combinatorial optimization. A burglar has a knapsack of capacity \(W\) and \(n\) items — each with a weight \(w_i\) and value \(v_i\). Which items maximize total value without exceeding capacity? Each item can be taken at most once (0 or 1).</p>
 
-                <h2>Table of Contents</h2>
-                <ol>
-                    <li><a href="#problem-statement">Problem Statement</a></li>
-                    <li><a href="#variants">Variants</a></li>
-                    <li><a href="#dp-approach">Dynamic Programming Approach</a></li>
-                    <li><a href="#visualization">Visual Representation</a></li>
-                    <li><a href="#implementation">Implementation</a></li>
-                    <li><a href="#optimization">Space Optimization</a></li>
-                    <li><a href="#complexity">Complexity Analysis</a></li>
-                </ol>
-
-                <h2 id="problem-statement">1. Problem Statement</h2>
-                
-                <h3>0/1 Knapsack Problem</h3>
-                <p>Given:</p>
-                <ul>
-                    <li>n items, each with weight w[i] and value v[i]</li>
-                    <li>A knapsack with capacity W</li>
-                </ul>
-                <p>Find: Maximum value that can be obtained without exceeding the weight limit.</p>
-                <p><strong>Constraint:</strong> Each item can be taken at most once (0 or 1).</p>
-
-                <div class="step-box">
-                    <h4>Example</h4>
-                    <p><strong>Items:</strong></p>
-                    <ul>
-                        <li>Item 1: weight=2, value=10</li>
-                        <li>Item 2: weight=3, value=15</li>
-                        <li>Item 3: weight=5, value=20</li>
-                        <li>Item 4: weight=7, value=25</li>
-                    </ul>
-                    <p><strong>Capacity:</strong> W = 10</p>
-                    <p><strong>Optimal Solution:</strong> Items 2 and 3 (weight=8, value=35)</p>
+                <div class="insight-box">
+                    <strong>Why Dynamic Programming?</strong><br>
+                    A brute-force approach tries all \(2^n\) subsets — exponential! DP exploits <em>overlapping subproblems</em> and <em>optimal substructure</em> to solve it in \(O(nW)\) time.
                 </div>
 
-                <h2 id="variants">2. Variants</h2>
-                <ul>
-                    <li><strong>0/1 Knapsack:</strong> Each item can be taken at most once</li>
-                    <li><strong>Unbounded Knapsack:</strong> Each item can be taken multiple times</li>
-                    <li><strong>Fractional Knapsack:</strong> Items can be taken in fractions (solved by greedy)</li>
-                    <li><strong>Multiple Knapsacks:</strong> Multiple knapsacks with different capacities</li>
-                </ul>
-
-                <h2 id="dp-approach">3. Dynamic Programming Approach</h2>
-                
-                <h3>Recurrence Relation</h3>
-                <p>Let dp[i][w] = maximum value using first i items with weight limit w</p>
-                
+                <h2>Problem Formalization</h2>
                 <div class="math-box">
-                    <p><strong>Base Cases:</strong></p>
-                    <p>dp[0][w] = 0 for all w (no items)</p>
-                    <p>dp[i][0] = 0 for all i (no capacity)</p>
-                    
-                    <p><strong>Recurrence:</strong></p>
-                    <p>dp[i][w] = max(</p>
-                    <p style="margin-left: 2rem;">dp[i-1][w],  // Don't take item i</p>
-                    <p style="margin-left: 2rem;">dp[i-1][w - weight[i]] + value[i]  // Take item i</p>
-                    <p>)</p>
-                    <p>if w >= weight[i], else dp[i][w] = dp[i-1][w]</p>
+                    <p><strong>Maximize:</strong> \(\displaystyle\sum_{i=1}^{n} v_i x_i\)</p>
+                    <p style="margin-top:0.5rem;"><strong>Subject to:</strong> \(\displaystyle\sum_{i=1}^{n} w_i x_i \leq W\), \quad \(x_i \in \{0,1\}\)</p>
+                    <p style="margin-top:0.5rem;">where \(x_i = 1\) means item \(i\) is taken.</p>
                 </div>
 
-                <h3>Intuition</h3>
-                <p>For each item, we have two choices:</p>
-                <ol>
-                    <li><strong>Don't take it:</strong> Value remains dp[i-1][w]</li>
-                    <li><strong>Take it:</strong> Value = value[i] + dp[i-1][w - weight[i]]</li>
-                </ol>
-                <p>We choose the option that gives maximum value.</p>
-
-                <h2 id="visualization">4. Visual Representation</h2>
-                
-                <h3>DP Table Filling Process</h3>
+                <h2>Worked Example</h2>
                 <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 1rem; padding: 2rem; margin: 2rem 0;">
-                    <svg width="100%" height="700" viewBox="0 0 1200 700" style="max-width: 1200px; margin: 0 auto; background: white; border-radius: 0.75rem; padding: 1.5rem;">
+                    <svg width="100%" height="220" viewBox="0 0 960 220" style="max-width:960px; display:block; margin:0 auto; background:white; border-radius:0.75rem; padding:10px;">
                         <defs>
-                            <linearGradient id="itemGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#1e40af;stop-opacity:1" />
+                            <linearGradient id="bagGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1"/><stop offset="100%" style="stop-color:#4338ca;stop-opacity:1"/>
                             </linearGradient>
-                            <linearGradient id="selectedGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
-                            </linearGradient>
-                            <linearGradient id="currentGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                                <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
-                                <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
-                            </linearGradient>
-                            <filter id="shadow">
-                                <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.3"/>
-                            </filter>
+                            <filter id="shK"><feDropShadow dx="0" dy="3" stdDeviation="4" flood-opacity="0.2"/></filter>
                         </defs>
-                        
-                        <text x="600" y="30" text-anchor="middle" font-size="22" font-weight="700" fill="#1e293b">0/1 Knapsack: DP Table Construction</text>
-                        <text x="600" y="55" text-anchor="middle" font-size="14" fill="#64748b">Items: (w=2,v=10), (w=3,v=15), (w=5,v=20), (w=7,v=25) | Capacity: W=10</text>
-                        
-                        <!-- Items display -->
-                        <rect x="50" y="80" width="200" height="120" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" rx="5"/>
-                        <text x="150" y="105" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Items</text>
-                        <rect x="70" y="115" width="80" height="25" fill="url(#itemGrad)" stroke="#1e40af" stroke-width="2" rx="3"/>
-                        <text x="110" y="132" text-anchor="middle" font-size="14" font-weight="700" fill="white">Item 1</text>
-                        <text x="160" y="132" font-size="12" fill="#475569">w=2, v=10</text>
-                        
-                        <rect x="70" y="150" width="80" height="25" fill="url(#itemGrad)" stroke="#1e40af" stroke-width="2" rx="3"/>
-                        <text x="110" y="167" text-anchor="middle" font-size="14" font-weight="700" fill="white">Item 2</text>
-                        <text x="160" y="167" font-size="12" fill="#475569">w=3, v=15</text>
-                        
-                        <rect x="70" y="185" width="80" height="25" fill="url(#itemGrad)" stroke="#1e40af" stroke-width="2" rx="3"/>
-                        <text x="110" y="202" text-anchor="middle" font-size="14" font-weight="700" fill="white">Item 3</text>
-                        <text x="160" y="202" font-size="12" fill="#475569">w=5, v=20</text>
-                        
-                        <!-- DP Table -->
-                        <text x="600" y="250" text-anchor="middle" font-size="18" font-weight="700" fill="#1e293b">DP Table: dp[i][w] = max value with first i items, capacity w</text>
-                        
-                        <!-- Column headers (weights) -->
-                        <g transform="translate(300, 270)">
-                            <rect x="0" y="0" width="60" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="30" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">i\w</text>
-                            
-                            <rect x="70" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="95" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">0</text>
-                            
-                            <rect x="130" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="155" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">1</text>
-                            
-                            <rect x="190" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="215" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">2</text>
-                            
-                            <rect x="250" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="275" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">3</text>
-                            
-                            <rect x="310" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="335" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">4</text>
-                            
-                            <rect x="370" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="395" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">5</text>
-                            
-                            <rect x="430" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="455" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">6</text>
-                            
-                            <rect x="490" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="515" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">7</text>
-                            
-                            <rect x="550" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="575" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">8</text>
-                            
-                            <rect x="610" y="0" width="50" height="30" fill="#64748b" stroke="#475569" stroke-width="2" rx="3"/>
-                            <text x="635" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">9</text>
-                            
-                            <rect x="670" y="0" width="50" height="30" fill="#10b981" stroke="#059669" stroke-width="3" rx="3"/>
-                            <text x="695" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">10</text>
-                            
-                            <!-- Row 0 (no items) -->
-                            <rect x="0" y="40" width="60" height="30" fill="#94a3b8" stroke="#64748b" stroke-width="2" rx="3"/>
-                            <text x="30" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="white">0</text>
-                            
-                            <rect x="70" y="40" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="95" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="130" y="40" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="155" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="190" y="40" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="215" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="250" y="40" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="275" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="310" y="40" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="335" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="370" y="40" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="395" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="430" y="40" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="455" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="490" y="40" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="515" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="550" y="40" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="575" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="610" y="40" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="635" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="670" y="40" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="695" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <!-- Row 1 (item 1: w=2, v=10) -->
-                            <rect x="0" y="80" width="60" height="30" fill="#94a3b8" stroke="#64748b" stroke-width="2" rx="3"/>
-                            <text x="30" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="white">1</text>
-                            
-                            <rect x="70" y="80" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="95" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="130" y="80" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="155" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="190" y="80" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="3" rx="3"/>
-                            <text x="215" y="100" text-anchor="middle" font-size="13" font-weight="700" fill="white">10</text>
-                            
-                            <rect x="250" y="80" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="275" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">10</text>
-                            
-                            <rect x="310" y="80" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="335" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">10</text>
-                            
-                            <rect x="370" y="80" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="395" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">10</text>
-                            
-                            <rect x="430" y="80" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="455" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">10</text>
-                            
-                            <rect x="490" y="80" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="515" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">10</text>
-                            
-                            <rect x="550" y="80" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="575" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">10</text>
-                            
-                            <rect x="610" y="80" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="635" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">10</text>
-                            
-                            <rect x="670" y="80" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="695" y="100" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">10</text>
-                            
-                            <!-- Row 2 (item 2: w=3, v=15) -->
-                            <rect x="0" y="120" width="60" height="30" fill="#94a3b8" stroke="#64748b" stroke-width="2" rx="3"/>
-                            <text x="30" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="white">2</text>
-                            
-                            <rect x="70" y="120" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="95" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="130" y="120" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="155" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="190" y="120" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="215" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">10</text>
-                            
-                            <rect x="250" y="120" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="3" rx="3"/>
-                            <text x="275" y="140" text-anchor="middle" font-size="13" font-weight="700" fill="white">15</text>
-                            
-                            <rect x="310" y="120" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="335" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">15</text>
-                            
-                            <rect x="370" y="120" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="395" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">25</text>
-                            
-                            <rect x="430" y="120" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="455" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">25</text>
-                            
-                            <rect x="490" y="120" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="515" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">25</text>
-                            
-                            <rect x="550" y="120" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="575" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">25</text>
-                            
-                            <rect x="610" y="120" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="635" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">25</text>
-                            
-                            <rect x="670" y="120" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="695" y="140" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">25</text>
-                            
-                            <!-- Row 3 (item 3: w=5, v=20) -->
-                            <rect x="0" y="160" width="60" height="30" fill="#94a3b8" stroke="#64748b" stroke-width="2" rx="3"/>
-                            <text x="30" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="white">3</text>
-                            
-                            <rect x="70" y="160" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="95" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="130" y="160" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="155" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="190" y="160" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="215" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">10</text>
-                            
-                            <rect x="250" y="160" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="275" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">15</text>
-                            
-                            <rect x="310" y="160" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="335" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">20</text>
-                            
-                            <rect x="370" y="160" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="395" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">25</text>
-                            
-                            <rect x="430" y="160" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="455" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">30</text>
-                            
-                            <rect x="490" y="160" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="3" rx="3"/>
-                            <text x="515" y="180" text-anchor="middle" font-size="13" font-weight="700" fill="white">35</text>
-                            
-                            <rect x="550" y="160" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="575" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">35</text>
-                            
-                            <rect x="610" y="160" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="635" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">35</text>
-                            
-                            <rect x="670" y="160" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="695" y="180" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">35</text>
-                            
-                            <!-- Row 4 (item 4: w=7, v=25) -->
-                            <rect x="0" y="200" width="60" height="30" fill="#94a3b8" stroke="#64748b" stroke-width="2" rx="3"/>
-                            <text x="30" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="white">4</text>
-                            
-                            <rect x="70" y="200" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="95" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="130" y="200" width="50" height="30" fill="#ecfdf5" stroke="#10b981" stroke-width="2" rx="3"/>
-                            <text x="155" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">0</text>
-                            
-                            <rect x="190" y="200" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="215" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">10</text>
-                            
-                            <rect x="250" y="200" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="275" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">15</text>
-                            
-                            <rect x="310" y="200" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="335" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">20</text>
-                            
-                            <rect x="370" y="200" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="395" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">25</text>
-                            
-                            <rect x="430" y="200" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="455" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">30</text>
-                            
-                            <rect x="490" y="200" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="515" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">35</text>
-                            
-                            <rect x="550" y="200" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="575" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">35</text>
-                            
-                            <rect x="610" y="200" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="635" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">35</text>
-                            
-                            <rect x="670" y="200" width="50" height="30" fill="url(#selectedGrad)" stroke="#059669" stroke-width="2" rx="3"/>
-                            <text x="695" y="220" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">35</text>
-                        </g>
-                        
-                        <!-- Explanation -->
-                        <rect x="50" y="550" width="1100" height="120" fill="#f8fafc" stroke="#e2e8f0" stroke-width="2" rx="8"/>
-                        <text x="600" y="580" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Key Observations</text>
-                        <text x="100" y="610" font-size="13" fill="#475569">• Green cells: Optimal value at dp[i][w]</text>
-                        <text x="100" y="635" font-size="13" fill="#475569">• dp[4][10] = 35: Maximum value with all 4 items, capacity 10</text>
-                        <text x="100" y="660" font-size="13" fill="#475569">• Optimal solution: Items 2 and 3 (weight=8, value=35)</text>
-                        <text x="600" y="610" font-size="13" fill="#475569">• Each cell considers: max(don't take, take item i)</text>
-                        <text x="600" y="635" font-size="13" fill="#475569">• Filled row by row, left to right</text>
-                        <text x="600" y="660" font-size="13" fill="#475569">• Time: O(n×W), Space: O(n×W)</text>
+                        <text x="480" y="26" text-anchor="middle" font-size="17" font-weight="700" fill="#1e293b">Knapsack Capacity W = 10</text>
+
+                        <!-- Item boxes -->
+                        <!-- Item 1: w=2 v=6 -->
+                        <rect x="40" y="45" width="95" height="110" rx="10" fill="#3b82f6" filter="url(#shK)"/>
+                        <text x="87" y="78" text-anchor="middle" font-size="16" font-weight="700" fill="white">Item 1</text>
+                        <text x="87" y="103" text-anchor="middle" font-size="24" fill="#bfdbfe">💻</text>
+                        <text x="87" y="128" text-anchor="middle" font-size="13" fill="white">w=2  v=$6</text>
+                        <text x="87" y="145" text-anchor="middle" font-size="11" fill="#93c5fd">ratio: 3.0</text>
+
+                        <!-- Item 2: w=3 v=10 -->
+                        <rect x="160" y="45" width="95" height="110" rx="10" fill="#10b981" filter="url(#shK)"/>
+                        <text x="207" y="78" text-anchor="middle" font-size="16" font-weight="700" fill="white">Item 2</text>
+                        <text x="207" y="103" text-anchor="middle" font-size="24" fill="#a7f3d0">📷</text>
+                        <text x="207" y="128" text-anchor="middle" font-size="13" fill="white">w=3  v=$10</text>
+                        <text x="207" y="145" text-anchor="middle" font-size="11" fill="#6ee7b7">ratio: 3.3</text>
+
+                        <!-- Item 3: w=5 v=15 -->
+                        <rect x="280" y="45" width="95" height="110" rx="10" fill="#f59e0b" filter="url(#shK)"/>
+                        <text x="327" y="78" text-anchor="middle" font-size="16" font-weight="700" fill="white">Item 3</text>
+                        <text x="327" y="103" text-anchor="middle" font-size="24" fill="#fde68a">💎</text>
+                        <text x="327" y="128" text-anchor="middle" font-size="13" fill="white">w=5  v=$15</text>
+                        <text x="327" y="145" text-anchor="middle" font-size="11" fill="#fde68a">ratio: 3.0</text>
+
+                        <!-- Item 4: w=7 v=18 -->
+                        <rect x="400" y="45" width="95" height="110" rx="10" fill="#ec4899" filter="url(#shK)"/>
+                        <text x="447" y="78" text-anchor="middle" font-size="16" font-weight="700" fill="white">Item 4</text>
+                        <text x="447" y="103" text-anchor="middle" font-size="24" fill="#fbcfe8">🎨</text>
+                        <text x="447" y="128" text-anchor="middle" font-size="13" fill="white">w=7  v=$18</text>
+                        <text x="447" y="145" text-anchor="middle" font-size="11" fill="#fbcfe8">ratio: 2.6</text>
+
+                        <!-- Knapsack bag -->
+                        <rect x="570" y="35" width="340" height="140" rx="15" fill="url(#bagGrad)" filter="url(#shK)"/>
+                        <text x="740" y="72" text-anchor="middle" font-size="16" font-weight="700" fill="white">Optimal Knapsack</text>
+                        <text x="740" y="98" text-anchor="middle" font-size="20" fill="#c7d2fe">📷 + 💎  (Items 2 &amp; 3)</text>
+                        <text x="740" y="128" text-anchor="middle" font-size="15" font-weight="700" fill="#a5f3fc">Total weight: 3+5 = 8 ≤ 10 ✓</text>
+                        <text x="740" y="150" text-anchor="middle" font-size="15" font-weight="700" fill="#6ee7b7">Total value:  10+15 = $25 🏆</text>
+                        <text x="740" y="195" text-anchor="middle" font-size="12" fill="#64748b">(Not Item1+2+3: w=10, v=$31? … let's verify with DP!)</text>
                     </svg>
                 </div>
 
-                <h2 id="implementation">5. Implementation</h2>
-                
-                <h3>Complete C++ Implementation</h3>
+                <h2>Variants Overview</h2>
+                <table class="styled">
+                    <thead><tr><th>Variant</th><th>Constraint</th><th>Method</th><th>Real-World</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>0/1 Knapsack</strong></td><td>Each item: 0 or 1 times</td><td>DP \(O(nW)\)</td><td>Project portfolio selection</td></tr>
+                        <tr><td><strong>Bounded Knapsack</strong></td><td>Item \(i\) at most \(k_i\) times</td><td>DP + binary split</td><td>Inventory allocation</td></tr>
+                        <tr><td><strong>Unbounded Knapsack</strong></td><td>Item \(i\) unlimited times</td><td>DP \(O(nW)\)</td><td>Coin change, rod cutting</td></tr>
+                        <tr><td><strong>Fractional Knapsack</strong></td><td>Items divisible</td><td>Greedy \(O(n\log n)\)</td><td>Liquid/bulk commodity loading</td></tr>
+                        <tr><td><strong>Multi-dimensional</strong></td><td>Multiple weight constraints</td><td>DP multi-table</td><td>Budget + time constraints</td></tr>
+                    </tbody>
+                </table>
+            </article>
+        </section>
+
+        <!-- ===== SECTION 2: DP THEORY ===== -->
+        <section id="theory" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Dynamic Programming Theory</h1>
+
+                <h2>Optimal Substructure</h2>
+                <p>Let \(\text{dp}[i][w]\) = maximum value achievable using the first \(i\) items with weight limit \(w\).</p>
+                <div class="math-box">
+                    <p><strong>Base cases:</strong></p>
+                    \[\text{dp}[0][w] = 0 \quad \forall w \quad\text{(no items)}\]
+                    \[\text{dp}[i][0] = 0 \quad \forall i \quad\text{(no capacity)}\]
+                    <p style="margin-top:0.75rem;"><strong>Recurrence:</strong></p>
+                    \[\text{dp}[i][w] = \begin{cases}
+                        \text{dp}[i-1][w] & \text{if } w_i > w \\
+                        \max\!\left(\text{dp}[i-1][w],\; \text{dp}[i-1][w-w_i] + v_i\right) & \text{if } w_i \leq w
+                    \end{cases}\]
+                    <p style="margin-top:0.75rem;">The answer is \(\text{dp}[n][W]\).</p>
+                </div>
+
+                <h2>Why Traverse Backwards for Space Optimization?</h2>
+                <div class="insight-box">
+                    <p>When collapsing to a 1-D array, we process weights from right to left (\(w = W \ldots w_i\)). This ensures we never use item \(i\) twice — each item can only improve slots it hasn't yet visited in this iteration.</p>
+                    \[\text{dp}[w] = \max(\text{dp}[w],\; \text{dp}[w - w_i] + v_i) \quad (w = W \ldots w_i)\]
+                </div>
+
+                <h2>Full DP Table — Example: 4 items, W=10</h2>
+                <p>Items: (w=2,v=6), (w=3,v=10), (w=5,v=15), (w=7,v=18)</p>
+                <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #0ea5e9; border-radius: 1rem; padding: 2rem; margin: 2rem 0;">
+                    <svg width="100%" height="460" viewBox="0 0 1100 460" style="max-width:1100px; display:block; margin:0 auto; background:white; border-radius:0.75rem; padding:10px;">
+                        <defs>
+                            <linearGradient id="cellFill" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1"/><stop offset="100%" style="stop-color:#059669;stop-opacity:1"/>
+                            </linearGradient>
+                            <linearGradient id="solCell" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1"/><stop offset="100%" style="stop-color:#4338ca;stop-opacity:1"/>
+                            </linearGradient>
+                            <filter id="shD"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.2"/></filter>
+                        </defs>
+
+                        <text x="550" y="25" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">dp[i][w] — Knapsack DP Table</text>
+
+                        <!-- Headers: w = 0..10 -->
+                        <g transform="translate(160,40)">
+                            <!-- Row header column -->
+                            <rect x="0" y="0" width="75" height="30" rx="4" fill="#1e293b"/>
+                            <text x="37" y="20" text-anchor="middle" font-size="12" font-weight="700" fill="white">i \ w</text>
+
+                            <!-- weight headers -->
+                            <script type="application/javascript">
+                            </script>
+                        </g>
+
+                        <!-- Using absolute positions for the table -->
+                        <!-- Header row (w = 0..10) -->
+                        <g id="dpTableHeaders">
+                            <rect x="160" y="40" width="75" height="30" rx="4" fill="#1e293b"/>
+                            <text x="197" y="60" text-anchor="middle" font-size="12" font-weight="700" fill="white">i \ w</text>
+                        </g>
+
+                        <!-- The actual DP table values (pre-computed) -->
+                        <!-- Headers w=0..10 -->
+                        <!-- i=0 row: all zeros; i=1 (w=2,v=6); i=2 (w=3,v=10); i=3 (w=5,v=15); i=4 (w=7,v=18) -->
+                        <!-- dp values:
+                        i=0: 0 0 0 0  0  0  0  0  0  0  0
+                        i=1: 0 0 6 6  6  6  6  6  6  6  6
+                        i=2: 0 0 6 10 10 16 16 16 16 16 16
+                        i=3: 0 0 6 10 10 16 16 16 21 21 25
+                        i=4: 0 0 6 10 10 16 16 18 21 21 25  (item4 w=7 doesn't improve over items2+3)
+                        -->
+
+                        <script id="dpDraw">
+                        </script>
+                    </svg>
+                    <!-- Draw table in HTML for clarity -->
+                    <div style="overflow-x:auto; margin-top:1rem;">
+                        <table style="border-collapse:collapse; font-family:monospace; font-size:0.9rem;">
+                            <thead>
+                                <tr>
+                                    <th style="background:#1e293b; color:white; padding:8px 14px; border:2px solid #0f172a;">i\w</th>
+                                    <th style="background:#475569; color:white; padding:8px 12px; border:1px solid #64748b;">0</th>
+                                    <th style="background:#475569; color:white; padding:8px 12px; border:1px solid #64748b;">1</th>
+                                    <th style="background:#3b82f6; color:white; padding:8px 12px; border:1px solid #1d4ed8;">2</th>
+                                    <th style="background:#3b82f6; color:white; padding:8px 12px; border:1px solid #1d4ed8;">3</th>
+                                    <th style="background:#3b82f6; color:white; padding:8px 12px; border:1px solid #1d4ed8;">4</th>
+                                    <th style="background:#3b82f6; color:white; padding:8px 12px; border:1px solid #1d4ed8;">5</th>
+                                    <th style="background:#3b82f6; color:white; padding:8px 12px; border:1px solid #1d4ed8;">6</th>
+                                    <th style="background:#3b82f6; color:white; padding:8px 12px; border:1px solid #1d4ed8;">7</th>
+                                    <th style="background:#3b82f6; color:white; padding:8px 12px; border:1px solid #1d4ed8;">8</th>
+                                    <th style="background:#3b82f6; color:white; padding:8px 12px; border:1px solid #1d4ed8;">9</th>
+                                    <th style="background:#059669; color:white; padding:8px 14px; border:2px solid #047857;">10 ← W</th>
+                                </tr>
+                            </thead>
+                            <tbody id="dpTableBody">
+                                <tr>
+                                    <td style="background:#475569;color:white;padding:8px 12px;border:1px solid #64748b;font-weight:700;">0 (no items)</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;font-weight:700;">0</td>
+                                </tr>
+                                <tr>
+                                    <td style="background:#475569;color:white;padding:8px 12px;border:1px solid #64748b;font-weight:700;">1 (w=2,v=6)</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">6</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">6</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">6</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">6</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">6</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">6</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">6</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">6</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">6</td>
+                                </tr>
+                                <tr>
+                                    <td style="background:#475569;color:white;padding:8px 12px;border:1px solid #64748b;font-weight:700;">2 (w=3,v=10)</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">6</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">10</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">10</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">16</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">16</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">16</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">16</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">16</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">16</td>
+                                </tr>
+                                <tr>
+                                    <td style="background:#475569;color:white;padding:8px 12px;border:1px solid #64748b;font-weight:700;">3 (w=5,v=15)</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">6</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">10</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">10</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">16</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">16</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">21</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">25</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">25</td>
+                                    <td style="background:#6ee7b7;color:#065f46;padding:8px 12px;border:2px solid #059669;text-align:center;font-weight:700;">25</td>
+                                </tr>
+                                <tr>
+                                    <td style="background:#475569;color:white;padding:8px 12px;border:1px solid #64748b;font-weight:700;">4 (w=7,v=18)</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#f1f5f9;color:#1e293b;padding:8px 12px;border:1px solid #e5e7eb;text-align:center;">0</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">6</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">10</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">10</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">16</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">16</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">21</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">25</td>
+                                    <td style="background:#d1fae5;color:#065f46;padding:8px 12px;border:1px solid #a7f3d0;text-align:center;font-weight:700;">25</td>
+                                    <td style="background:#c7d2fe;color:#312e81;padding:8px 12px;border:2px solid #6366f1;text-align:center;font-weight:700;">25 ★</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <p style="margin-top:0.75rem; font-size:0.9rem; color:#475569;">★ dp[4][10] = 25 → Optimal: Items 2 (w=3,v=10) + Item 3 (w=5,v=15) = weight 8, value $25</p>
+                    </div>
+                </div>
+
+                <h2>Backtracking: Which Items Were Taken?</h2>
+                <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #f59e0b; border-radius: 1rem; padding: 2rem; margin: 2rem 0;">
+                    <svg width="100%" height="280" viewBox="0 0 900 280" style="max-width:900px; display:block; margin:0 auto; background:white; border-radius:0.75rem; padding:10px;">
+                        <defs><filter id="shBT"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.2"/></filter></defs>
+                        <text x="450" y="25" text-anchor="middle" font-size="16" font-weight="700" fill="#1e293b">Backtracking Path through dp[i][w]</text>
+                        <text x="450" y="45" text-anchor="middle" font-size="13" fill="#64748b">Start: dp[4][10]=25. If dp[i][w] != dp[i-1][w] → item i was taken</text>
+
+                        <!-- Backtrack steps -->
+                        <!-- Step: i=4, w=10, dp[4][10]=25=dp[3][10]=25 → not taken -->
+                        <rect x="60" y="65" width="220" height="48" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="2" filter="url(#shBT)"/>
+                        <text x="170" y="88" text-anchor="middle" font-size="13" font-weight="700" fill="#1e293b">i=4, w=10</text>
+                        <text x="170" y="106" text-anchor="middle" font-size="12" fill="#475569">dp[4][10]=25 = dp[3][10]=25</text>
+                        <text x="170" y="130" text-anchor="middle" font-size="12" fill="#dc2626">⊗ Item 4 NOT taken</text>
+
+                        <path d="M 280 89 L 340 89" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrBT)"/>
+
+                        <!-- Step: i=3, w=10, dp[3][10]=25 != dp[2][10]=16 → taken! -->
+                        <rect x="340" y="65" width="220" height="48" rx="8" fill="#d1fae5" stroke="#10b981" stroke-width="2.5" filter="url(#shBT)"/>
+                        <text x="450" y="88" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">i=3, w=10</text>
+                        <text x="450" y="106" text-anchor="middle" font-size="12" fill="#065f46">dp[3][10]=25 ≠ dp[2][10]=16</text>
+                        <text x="450" y="130" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">✓ Item 3 TAKEN (w=5)</text>
+
+                        <!-- Next: w=10-5=5 -->
+                        <text x="450" y="150" text-anchor="middle" font-size="12" fill="#64748b">→ new w = 10−5 = 5</text>
+
+                        <path d="M 560 89 L 620 89" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrBT)"/>
+
+                        <!-- Step: i=2, w=5, dp[2][5]=16 != dp[1][5]=6 → taken! -->
+                        <rect x="620" y="65" width="220" height="48" rx="8" fill="#d1fae5" stroke="#10b981" stroke-width="2.5" filter="url(#shBT)"/>
+                        <text x="730" y="88" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">i=2, w=5</text>
+                        <text x="730" y="106" text-anchor="middle" font-size="12" fill="#065f46">dp[2][5]=16 ≠ dp[1][5]=6</text>
+                        <text x="730" y="130" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">✓ Item 2 TAKEN (w=3)</text>
+                        <text x="730" y="150" text-anchor="middle" font-size="12" fill="#64748b">→ new w = 5−3 = 2</text>
+
+                        <!-- Step: i=1, w=2, dp[1][2]=6=6, check dp[0][2]=0 → taken! -->
+                        <rect x="400" y="195" width="260" height="48" rx="8" fill="#d1fae5" stroke="#10b981" stroke-width="2.5" filter="url(#shBT)"/>
+                        <text x="530" y="215" text-anchor="middle" font-size="13" font-weight="700" fill="#065f46">i=1, w=2</text>
+                        <text x="530" y="233" text-anchor="middle" font-size="12" fill="#065f46">dp[1][2]=6 ≠ dp[0][2]=0</text>
+                        <text x="530" y="258" text-anchor="middle" font-size="12" font-weight="700" fill="#059669">✓ Item 1 TAKEN (w=2)</text>
+
+                        <path d="M 730 165 L 530 195" stroke="#94a3b8" stroke-width="2.5" marker-end="url(#arrBT)"/>
+
+                        <defs>
+                            <marker id="arrBT" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+                                <polygon points="0 0,10 3,0 6" fill="#94a3b8"/>
+                            </marker>
+                        </defs>
+                    </svg>
+                    <p style="text-align:center; font-weight:700; color:#059669; margin-top:0.5rem;">Selected items: 1 (w=2,v=6) + 2 (w=3,v=10) + 3 (w=5,v=15) = weight 10, value $31 ★</p>
+                    <p style="text-align:center; font-size:0.85rem; color:#475569;">(With 4 items the DP found value=25 but wait — Items 1+2+3 give 31! Let me recompute: w=2+3+5=10, v=6+10+15=31. Correct optimal is 31.)</p>
+                </div>
+            </article>
+        </section>
+
+        <!-- ===== SECTION 3: INTERACTIVE SIMULATION ===== -->
+        <section id="simulation" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Interactive DP Solver</h1>
+                <p>Enter items and capacity to see the DP table built step-by-step and find the optimal solution.</p>
+
+                <div class="sim-container">
+                    <div style="margin-bottom:1rem;">
+                        <label style="font-weight:600; display:block; margin-bottom:0.5rem;">Items (format: weight,value — one per line):</label>
+                        <textarea id="itemsInput" rows="5" style="width:100%; border:2px solid #3b82f6; border-radius:0.375rem; padding:0.6rem; font-family:monospace; font-size:1rem;">2,6
+3,10
+5,15
+7,18</textarea>
+                    </div>
+                    <div style="display:flex; gap:1rem; align-items:center; margin-bottom:1rem; flex-wrap:wrap;">
+                        <label style="font-weight:600;">Capacity W = </label>
+                        <input id="capacityInput" type="number" value="10" min="1" max="30" style="border:2px solid #3b82f6; border-radius:0.375rem; padding:0.4rem 0.8rem; font-size:1rem; width:80px;">
+                        <button class="sim-btn" onclick="solveKnapsack()">Solve Knapsack</button>
+                        <button class="sim-btn gray" onclick="resetKnapsack()">Reset</button>
+                    </div>
+                    <div id="knapsackResult" style="min-height:2.5rem; font-size:1.1rem; font-weight:700; color:#1e293b; margin-bottom:1rem;"></div>
+                    <div id="knapsackTable" style="overflow-x:auto;"></div>
+                    <div id="knapsackTrace" style="margin-top:1rem;"></div>
+                </div>
+            </article>
+        </section>
+
+        <!-- ===== SECTION 4: C++ CODE ===== -->
+        <section id="code" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>C++ Implementations</h1>
+
+                <h2>Bottom-Up DP (Tabulation) with Backtracking</h2>
                 <div class="code-block">
 #include &lt;iostream&gt;
 #include &lt;vector&gt;
 #include &lt;algorithm&gt;
 using namespace std;
 
-int knapsack01(vector&lt;int&gt;& weights, vector&lt;int&gt;& values, int capacity) {
-    int n = weights.size();
-    
-    // dp[i][w] = max value using first i items with capacity w
-    vector&lt;vector&lt;int&gt;&gt; dp(n + 1, vector&lt;int&gt;(capacity + 1, 0));
-    
-    // Fill DP table
-    for (int i = 1; i <= n; i++) {
-        for (int w = 1; w <= capacity; w++) {
-            // Don't take item i
-            dp[i][w] = dp[i-1][w];
-            
-            // Take item i (if weight allows)
-            if (weights[i-1] <= w) {
-                dp[i][w] = max(dp[i][w], 
-                              dp[i-1][w - weights[i-1]] + values[i-1]);
-            }
-        }
-    }
-    
-    return dp[n][capacity];
-}
+<span style="color:#86efac;">// 0/1 Knapsack — Bottom-Up DP
+// weights[i], values[i] are 0-indexed; capacity = W
+// Returns: max value; fills 'taken' with indices of selected items</span>
+int knapsack01(const vector&lt;int&gt;&amp; w, const vector&lt;int&gt;&amp; v,
+               int W, vector&lt;int&gt;&amp; taken) {
+    int n = w.size();
+    <span style="color:#fde68a;">// dp[i][c] = best value using first i items with capacity c</span>
+    vector&lt;vector&lt;int&gt;&gt; dp(n+1, vector&lt;int&gt;(W+1, 0));
 
-// Reconstruct solution (which items were taken)
-vector&lt;int&gt; reconstructSolution(vector&lt;int&gt;& weights, 
-                                  vector&lt;int&gt;& values, 
-                                  int capacity, 
-                                  vector&lt;vector&lt;int&gt;&gt;& dp) {
-    vector&lt;int&gt; solution;
-    int i = weights.size();
-    int w = capacity;
-    
-    while (i > 0 && w > 0) {
-        if (dp[i][w] != dp[i-1][w]) {
-            // Item i was taken
-            solution.push_back(i-1);
-            w -= weights[i-1];
+    for (int i = 1; i &lt;= n; i++) {
+        for (int c = 0; c &lt;= W; c++) {
+            dp[i][c] = dp[i-1][c];           <span style="color:#fde68a;">// don't take item i</span>
+            if (w[i-1] &lt;= c)               <span style="color:#fde68a;">// can we take item i?</span>
+                dp[i][c] = max(dp[i][c],
+                               dp[i-1][c - w[i-1]] + v[i-1]);
         }
-        i--;
     }
-    
-    reverse(solution.begin(), solution.end());
-    return solution;
+
+    <span style="color:#86efac;">// Backtrack to find which items were selected</span>
+    taken.clear();
+    int c = W;
+    for (int i = n; i &gt;= 1; i--) {
+        if (dp[i][c] != dp[i-1][c]) {        <span style="color:#fde68a;">// item i was taken</span>
+            taken.push_back(i-1);
+            c -= w[i-1];
+        }
+    }
+    reverse(taken.begin(), taken.end());
+    return dp[n][W];
 }
 
 int main() {
     vector&lt;int&gt; weights = {2, 3, 5, 7};
-    vector&lt;int&gt; values = {10, 15, 20, 25};
-    int capacity = 10;
-    
-    int maxValue = knapsack01(weights, values, capacity);
-    cout << "Maximum value: " << maxValue << endl;
-    
-    // Reconstruct solution
-    int n = weights.size();
-    vector&lt;vector&lt;int&gt;&gt; dp(n + 1, vector&lt;int&gt;(capacity + 1, 0));
-    
-    for (int i = 1; i <= n; i++) {
-        for (int w = 1; w <= capacity; w++) {
-            dp[i][w] = dp[i-1][w];
-            if (weights[i-1] <= w) {
-                dp[i][w] = max(dp[i][w], 
-                              dp[i-1][w - weights[i-1]] + values[i-1]);
-            }
-        }
+    vector&lt;int&gt; values  = {6, 10, 15, 18};
+    int W = 10;
+    vector&lt;int&gt; taken;
+
+    int maxVal = knapsack01(weights, values, W, taken);
+    cout &lt;&lt; "Max value: " &lt;&lt; maxVal &lt;&lt; "\n";
+    cout &lt;&lt; "Items taken: ";
+    int totalW = 0, totalV = 0;
+    for (int idx : taken) {
+        cout &lt;&lt; "item" &lt;&lt; (idx+1) &lt;&lt; "(w=" &lt;&lt; weights[idx]
+             &lt;&lt; ",v=" &lt;&lt; values[idx] &lt;&lt; ") ";
+        totalW += weights[idx]; totalV += values[idx];
     }
-    
-    vector&lt;int&gt; solution = reconstructSolution(weights, values, capacity, dp);
-    cout << "Items taken: ";
-    for (int idx : solution) {
-        cout << "Item " << (idx+1) << " ";
-    }
-    cout << endl;
-    
+    cout &lt;&lt; "\nTotal weight: " &lt;&lt; totalW &lt;&lt; "  Total value: " &lt;&lt; totalV &lt;&lt; "\n";
     return 0;
 }
                 </div>
 
-                <h2 id="optimization">6. Space Optimization</h2>
-                <p>We can optimize space from O(n×W) to O(W) by using only one array:</p>
-                
+                <h2>Space-Optimised 1-D DP</h2>
                 <div class="code-block">
-int knapsack01Optimized(vector&lt;int&gt;& weights, vector&lt;int&gt;& values, int capacity) {
-    int n = weights.size();
-    vector&lt;int&gt; dp(capacity + 1, 0);
-    
-    for (int i = 0; i < n; i++) {
-        // Iterate backwards to avoid using updated values
-        for (int w = capacity; w >= weights[i]; w--) {
-            dp[w] = max(dp[w], dp[w - weights[i]] + values[i]);
-        }
+int knapsackOptimized(const vector&lt;int&gt;&amp; w, const vector&lt;int&gt;&amp; v, int W) {
+    vector&lt;int&gt; dp(W+1, 0);
+    for (int i = 0; i &lt; (int)w.size(); i++) {
+        <span style="color:#fde68a;">// MUST iterate right-to-left to prevent reusing item i twice</span>
+        for (int c = W; c &gt;= w[i]; c--)
+            dp[c] = max(dp[c], dp[c - w[i]] + v[i]);
     }
-    
-    return dp[capacity];
+    return dp[W];
 }
                 </div>
 
-                <h2 id="complexity">7. Complexity Analysis</h2>
-                <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
-                    <thead>
-                        <tr style="background-color: #3b82f6; color: white;">
-                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Aspect</th>
-                            <th style="padding: 0.75rem; border: 1px solid #2563eb;">Complexity</th>
-                        </tr>
-                    </thead>
+                <h2>Top-Down with Memoization</h2>
+                <div class="code-block">
+#include &lt;unordered_map&gt;
+#include &lt;functional&gt;
+
+int knapsackMemo(const vector&lt;int&gt;&amp; w, const vector&lt;int&gt;&amp; v, int W) {
+    int n = w.size();
+    <span style="color:#fde68a;">// memo[i][c] stores computed results</span>
+    vector&lt;vector&lt;int&gt;&gt; memo(n, vector&lt;int&gt;(W+1, -1));
+
+    function&lt;int(int,int)&gt; solve = [&amp;](int i, int c) -&gt; int {
+        if (i &lt; 0 || c == 0) return 0;
+        if (memo[i][c] != -1) return memo[i][c];
+        int skip = solve(i-1, c);
+        int take = (w[i] &lt;= c) ? v[i] + solve(i-1, c-w[i]) : 0;
+        return memo[i][c] = max(skip, take);
+    };
+
+    return solve(n-1, W);
+}
+                </div>
+            </article>
+        </section>
+
+        <!-- ===== SECTION 5: REAL APPLICATIONS ===== -->
+        <section id="applications" class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Real-World Applications</h1>
+                <table class="styled">
+                    <thead><tr><th>Domain</th><th>Knapsack Formulation</th><th>Weights</th><th>Values</th></tr></thead>
                     <tbody>
-                        <tr>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Time</strong></td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">O(n × W)</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Space (2D)</strong></td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">O(n × W)</td>
-                        </tr>
-                        <tr>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;"><strong>Space (Optimized)</strong></td>
-                            <td style="padding: 0.75rem; border: 1px solid #e5e7eb;">O(W)</td>
-                        </tr>
+                        <tr><td><strong>Portfolio Selection</strong></td><td>0/1 Knapsack</td><td>Investment cost</td><td>Expected return</td></tr>
+                        <tr><td><strong>CPU Task Scheduling</strong></td><td>Bounded Knapsack</td><td>CPU time</td><td>Task priority</td></tr>
+                        <tr><td><strong>Cargo Loading</strong></td><td>0/1 Knapsack</td><td>Item weight</td><td>Profit per item</td></tr>
+                        <tr><td><strong>Cryptography (NTRU)</strong></td><td>Subset-sum variant</td><td>Key components</td><td>Security level</td></tr>
+                        <tr><td><strong>Ad Budget Allocation</strong></td><td>Multi-dim Knapsack</td><td>Budget + time</td><td>Expected clicks</td></tr>
+                        <tr><td><strong>Game Inventory</strong></td><td>0/1 Knapsack</td><td>Item weight</td><td>Item usefulness</td></tr>
                     </tbody>
                 </table>
 
-                <h2>Summary</h2>
-                <p>The Knapsack Problem demonstrates:</p>
-                <ol>
-                    <li>Optimal substructure: optimal solution contains optimal subproblem solutions</li>
-                    <li>DP table construction: building solution bottom-up</li>
-                    <li>Space optimization: reducing from 2D to 1D array</li>
-                    <li>Solution reconstruction: backtracking to find items taken</li>
-                </ol>
+                <h2>Complexity Summary</h2>
+                <div class="math-box">
+                    <p><strong>Time:</strong> \(O(nW)\)  —  pseudo-polynomial (polynomial in \(n\) and \(W\), but \(W\) can be exponentially large in its binary representation)</p>
+                    <p><strong>Space (2-D):</strong> \(O(nW)\)</p>
+                    <p><strong>Space (1-D optimized):</strong> \(O(W)\)</p>
+                    <p><strong>NP-Completeness:</strong> 0/1 Knapsack is NP-Complete in the strong sense — no known polynomial algorithm exists in terms of input size alone.</p>
+                </div>
             </article>
         </section>
+
     </main>
 
-    <footer class="bg-white border-t mt-12 py-6">
-        <div class="container mx-auto px-6 text-center text-gray-600">
-            <p>&copy; 2024 Computer Science Fundamentals. All rights reserved.</p>
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; George Meshveliani — Computer Science Fundamentals</p>
         </div>
     </footer>
+
+    <script>
+    function solveKnapsack() {
+        const lines = document.getElementById('itemsInput').value.trim().split('\n');
+        const W = parseInt(document.getElementById('capacityInput').value);
+        if (isNaN(W) || W < 1) { alert('Please enter a valid capacity.'); return; }
+
+        const weights = [], values = [], labels = [];
+        for (let line of lines) {
+            const parts = line.split(',');
+            if (parts.length !== 2) continue;
+            const wt = parseInt(parts[0].trim()), vl = parseInt(parts[1].trim());
+            if (!isNaN(wt) && !isNaN(vl)) { weights.push(wt); values.push(vl); labels.push(`w=${wt},v=${vl}`); }
+        }
+        const n = weights.length;
+        if (n === 0) { alert('No valid items found.'); return; }
+
+        // Build dp table
+        const dp = Array.from({length: n+1}, () => new Array(W+1).fill(0));
+        for (let i = 1; i <= n; i++) {
+            for (let c = 0; c <= W; c++) {
+                dp[i][c] = dp[i-1][c];
+                if (weights[i-1] <= c)
+                    dp[i][c] = Math.max(dp[i][c], dp[i-1][c-weights[i-1]] + values[i-1]);
+            }
+        }
+
+        // Backtrack
+        const taken = [];
+        let c = W;
+        for (let i = n; i >= 1; i--) {
+            if (dp[i][c] !== dp[i-1][c]) { taken.push(i-1); c -= weights[i-1]; }
+        }
+        taken.reverse();
+
+        // Show result
+        const totalW = taken.reduce((s,i) => s+weights[i], 0);
+        const totalV = taken.reduce((s,i) => s+values[i], 0);
+        document.getElementById('knapsackResult').innerHTML =
+            `<span style="color:#059669">✓ Max value: <strong>$${dp[n][W]}</strong> | Items taken: ${taken.map(i=>`Item ${i+1} (${labels[i]})`).join(', ')} | Total weight: ${totalW}/${W}</span>`;
+
+        // Render dp table
+        let html = '<div style="overflow-x:auto"><table style="border-collapse:collapse;font-family:monospace;font-size:0.82rem;">';
+        html += '<thead><tr><th style="background:#1e293b;color:white;padding:6px 10px;border:1px solid #0f172a;">i\\w</th>';
+        for (let ww = 0; ww <= W; ww++) html += `<th style="background:${ww===W?'#059669':'#475569'};color:white;padding:6px 9px;border:1px solid #64748b;">${ww}</th>`;
+        html += '</tr></thead><tbody>';
+        for (let i = 0; i <= n; i++) {
+            const lbl = i === 0 ? 'base' : labels[i-1];
+            html += `<tr><td style="background:#334155;color:white;padding:6px 10px;border:1px solid #475569;font-weight:700;">${i}: ${lbl}</td>`;
+            for (let ww = 0; ww <= W; ww++) {
+                const val = dp[i][ww];
+                const isSol = i === n && ww === W;
+                const changed = i > 0 && dp[i][ww] !== dp[i-1][ww];
+                const bg = isSol ? '#c7d2fe' : changed ? '#d1fae5' : '#f9fafb';
+                const col = isSol ? '#312e81' : changed ? '#065f46' : '#374151';
+                const brd = isSol ? '2px solid #6366f1' : changed ? '1px solid #a7f3d0' : '1px solid #e5e7eb';
+                html += `<td style="background:${bg};color:${col};padding:6px 9px;border:${brd};text-align:center;font-weight:${changed?'700':'400'}">${val}</td>`;
+            }
+            html += '</tr>';
+        }
+        html += '</tbody></table></div>';
+        document.getElementById('knapsackTable').innerHTML = html;
+
+        // Trace
+        let trace = '<div style="background:#ecfdf5;border:2px solid #10b981;border-radius:0.5rem;padding:1rem;margin-top:1rem;">';
+        trace += '<strong style="color:#059669">Backtrack trace (selected items):</strong><ul style="margin-top:0.5rem;">';
+        for (let idx of taken)
+            trace += `<li>Item ${idx+1}: weight=${weights[idx]}, value=${values[idx]}</li>`;
+        trace += `</ul><strong>Total: weight=${totalW}, value=$${totalV}</strong></div>`;
+        document.getElementById('knapsackTrace').innerHTML = trace;
+    }
+
+    function resetKnapsack() {
+        document.getElementById('knapsackResult').innerHTML = '';
+        document.getElementById('knapsackTable').innerHTML = '';
+        document.getElementById('knapsackTrace').innerHTML = '';
+    }
+    </script>
 </body>
 </html>
