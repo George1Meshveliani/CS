@@ -21,6 +21,18 @@
         table.styled thead tr { background-color: #1e293b; color: white; }
         table.styled th, table.styled td { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; text-align: left; }
         table.styled tbody tr:nth-child(even) { background-color: #f8fafc; }
+        .problem-card { background-color: white; border-radius: 0.5rem; padding: 1.25rem; margin: 1rem 0; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); border-left: 4px solid #3b82f6; }
+        .problem-card.easy { border-left-color: #10b981; }
+        .problem-card.medium { border-left-color: #f59e0b; }
+        .problem-card.hard { border-left-color: #ef4444; }
+        .difficulty-badge { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 0.375rem; font-size: 0.8rem; font-weight: 700; margin-left: 0.5rem; }
+        .difficulty-easy { background-color: #d1fae5; color: #065f46; }
+        .difficulty-medium { background-color: #fef3c7; color: #92400e; }
+        .difficulty-hard { background-color: #fee2e2; color: #991b1b; }
+        .solution-content { display: none; margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #e5e7eb; }
+        .solution-content.show { display: block; }
+        .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; transition: background 0.2s; }
+        .toggle-btn:hover { background-color: #2563eb; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -45,6 +57,7 @@
                     <li><a href="#partition-quicksort">Partition procedure and Quicksort</a></li>
                     <li><a href="#haskell-vs-cpp">Quicksort in Haskell vs C/C++</a></li>
                     <li><a href="#quickhull">Quickhull for convex hull</a></li>
+                    <li><a href="#practice-problems">Problems by level (hidden solutions)</a></li>
                 </ol>
 
                 <h2 id="linux-timing">1) Linux Stuff: Measuring the Running Time</h2>
@@ -217,6 +230,137 @@ void quickHullRec(const vector&lt;Point&gt;&amp; pts, Point a, Point b, int side
                 <div class="insight-box">
                     <p><strong>Result:</strong> Quickhull is very fast in many practical geometric datasets, but still has quadratic worst-case behavior on adversarial or highly pathological point distributions.</p>
                 </div>
+
+                <h2 id="practice-problems">7) Problems by Level</h2>
+                <p>Practice problems focused on Quicksort partitioning, recurrence reasoning, and Quickhull geometry.</p>
+
+                <h3>Easy</h3>
+                <div class="problem-card easy">
+                    <h4>Problem E1: Partition Index <span class="difficulty-badge difficulty-easy">Easy</span></h4>
+                    <p><strong>Task:</strong> Given an array and pivot at the last index, perform Lomuto partition and return the final pivot index.</p>
+                    <pre><code>Input: [9, 3, 7, 1, 8], pivot=8
+Output: pivotIndex=3, array could be [3, 7, 1, 8, 9]</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('qprob-e1')">Show Solution</button>
+                    <div id="qprob-e1" class="solution-content">
+                        <div class="code-block">
+int partitionLomuto(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    int pivot = a[hi];
+    int i = lo - 1;
+    for (int j = lo; j &lt; hi; ++j) {
+        if (a[j] &lt;= pivot) {
+            ++i;
+            swap(a[i], a[j]);
+        }
+    }
+    swap(a[i + 1], a[hi]);
+    return i + 1;
+}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="problem-card easy">
+                    <h4>Problem E2: Count Quicksort Calls <span class="difficulty-badge difficulty-easy">Easy</span></h4>
+                    <p><strong>Task:</strong> Instrument quicksort to count recursive calls and compare random input vs sorted input.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('qprob-e2')">Show Solution</button>
+                    <div id="qprob-e2" class="solution-content">
+                        <div class="code-block">
+long long calls = 0;
+void quicksortCount(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    calls++;
+    if (lo &gt;= hi) return;
+    int p = partitionLomuto(a, lo, hi);
+    quicksortCount(a, lo, p - 1);
+    quicksortCount(a, p + 1, hi);
+}
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Medium</h3>
+                <div class="problem-card medium">
+                    <h4>Problem M1: Randomized Quicksort <span class="difficulty-badge difficulty-medium">Medium</span></h4>
+                    <p><strong>Task:</strong> Improve quicksort by selecting a random pivot before partitioning.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('qprob-m1')">Show Solution</button>
+                    <div id="qprob-m1" class="solution-content">
+                        <div class="code-block">
+int partitionRandom(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    int pivotPos = lo + rand() % (hi - lo + 1);
+    swap(a[pivotPos], a[hi]);
+    return partitionLomuto(a, lo, hi);
+}
+
+void quicksortRandom(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    if (lo &gt;= hi) return;
+    int p = partitionRandom(a, lo, hi);
+    quicksortRandom(a, lo, p - 1);
+    quicksortRandom(a, p + 1, hi);
+}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="problem-card medium">
+                    <h4>Problem M2: Solve the Recurrence <span class="difficulty-badge difficulty-medium">Medium</span></h4>
+                    <p><strong>Task:</strong> Bound complexity for <code>T(n) = 2T(n/2) + n</code> and <code>T(n) = T(n-1) + n</code>.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('qprob-m2')">Show Solution</button>
+                    <div id="qprob-m2" class="solution-content">
+                        <div class="code-block">
+1) T(n) = 2T(n/2) + n
+   Master theorem: a=2, b=2, f(n)=n
+   n^(log_b a)=n^1=n, so case 2:
+   T(n)=Theta(n log n)
+
+2) T(n) = T(n-1) + n
+   Unroll:
+   T(n)=T(1)+2+3+...+n
+   => Theta(n^2)
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Hard</h3>
+                <div class="problem-card hard">
+                    <h4>Problem H1: Iterative Quicksort <span class="difficulty-badge difficulty-hard">Hard</span></h4>
+                    <p><strong>Task:</strong> Implement quicksort without recursion using an explicit stack of ranges.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('qprob-h1')">Show Solution</button>
+                    <div id="qprob-h1" class="solution-content">
+                        <div class="code-block">
+void quicksortIterative(vector&lt;int&gt;&amp; a) {
+    if (a.empty()) return;
+    vector&lt;pair&lt;int,int&gt;&gt; st;
+    st.push_back({0, (int)a.size() - 1});
+    while (!st.empty()) {
+        auto [lo, hi] = st.back();
+        st.pop_back();
+        if (lo &gt;= hi) continue;
+        int p = partitionLomuto(a, lo, hi);
+        if (p - 1 &gt; lo) st.push_back({lo, p - 1});
+        if (p + 1 &lt; hi) st.push_back({p + 1, hi});
+    }
+}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="problem-card hard">
+                    <h4>Problem H2: Full Quickhull Implementation <span class="difficulty-badge difficulty-hard">Hard</span></h4>
+                    <p><strong>Task:</strong> Return convex hull points (counterclockwise order) using Quickhull and remove duplicates.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('qprob-h2')">Show Solution</button>
+                    <div id="qprob-h2" class="solution-content">
+                        <div class="code-block">
+// High-level outline:
+// 1) Find min-x point A and max-x point B
+// 2) Split points into leftSet(AB) and rightSet(BA)
+// 3) Recurse: farthest point P from line AB
+// 4) Recurse on A-P and P-B subsets
+// 5) Insert hull points into set to avoid duplicates
+//
+// Complexity:
+// Average ~ O(n log n), worst O(n^2)
+                        </div>
+                    </div>
+                </div>
             </article>
         </section>
     </main>
@@ -226,5 +370,13 @@ void quickHullRec(const vector&lt;Point&gt;&amp; pts, Point a, Point b, int side
             <p>&copy; George Meshveliani — Computer Science Fundamentals</p>
         </div>
     </footer>
+    <script>
+        function toggleSolution(id) {
+            const el = document.getElementById(id);
+            el.classList.toggle('show');
+            const btn = el.previousElementSibling;
+            btn.textContent = el.classList.contains('show') ? 'Hide Solution' : 'Show Solution';
+        }
+    </script>
 </body>
 </html>
