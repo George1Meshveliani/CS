@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quicksort and Quickhull Algorithms</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 90ch; }
+        .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .code-block { background-color: #0f172a; color: #d1d5db; padding: 1.25rem; border-radius: 0.5rem; margin: 1rem 0; font-family: 'Courier New', monospace; overflow-x: auto; white-space: pre; line-height: 1.75; }
+        .theory-box { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #3b82f6; padding: 1.25rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .insight-box { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 5px solid #10b981; padding: 1.25rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .warn-box { background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%); border-left: 5px solid #ef4444; padding: 1.25rem; margin: 1rem 0; border-radius: 0.5rem; }
+        table.styled { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        table.styled thead tr { background-color: #1e293b; color: white; }
+        table.styled th, table.styled td { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; text-align: left; }
+        table.styled tbody tr:nth-child(even) { background-color: #f8fafc; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-900">Quicksort and Quickhull</h1>
+            <div class="text-sm text-gray-500">Lecture Section</div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Quicksort and Quickhull Algorithms</h1>
+                <p>This lecture section combines algorithmic theory and practice: Linux runtime measurement, time and memory complexity, recurrence solving, Quicksort partitioning, Haskell vs C/C++ implementation style, and Quickhull for the convex hull problem.</p>
+
+                <h2>Topics of Discussion</h2>
+                <ol>
+                    <li><a href="#linux-timing">Linux: measuring running time</a></li>
+                    <li><a href="#complexity">Time and memory computational complexity</a></li>
+                    <li><a href="#recurrences">Bounding complexity with recurrences</a></li>
+                    <li><a href="#partition-quicksort">Partition procedure and Quicksort</a></li>
+                    <li><a href="#haskell-vs-cpp">Quicksort in Haskell vs C/C++</a></li>
+                    <li><a href="#quickhull">Quickhull for convex hull</a></li>
+                </ol>
+
+                <h2 id="linux-timing">1) Linux Stuff: Measuring the Running Time</h2>
+                <div class="theory-box">
+                    <p>Use Linux tools to measure real execution behavior:</p>
+                    <ul>
+                        <li><code>time</code> for wall/user/system time</li>
+                        <li><code>/usr/bin/time -v</code> for memory footprint and page faults</li>
+                        <li><code>perf stat</code> for CPU-level counters (cycles, instructions, cache misses)</li>
+                    </ul>
+                </div>
+
+                <div class="code-block">
+# Compile (C++)
+g++ -O2 -std=c++17 quicksort.cpp -o quicksort
+
+# Basic timing
+time ./quicksort 1000000
+
+# Detailed timing + memory report
+/usr/bin/time -v ./quicksort 1000000
+
+# Hardware counters (if available)
+perf stat ./quicksort 1000000
+                </div>
+
+                <div class="insight-box">
+                    <p><strong>Practical note:</strong> Run each test multiple times and report average + standard deviation. Also isolate input generation from algorithm timing.</p>
+                </div>
+
+                <h2 id="complexity">2) Time and Memory Computational Complexity</h2>
+                <p>Complexity describes growth of resource usage as input size <code>n</code> increases.</p>
+                <table class="styled">
+                    <thead>
+                        <tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th><th>Aux Memory</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Quicksort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n²)</td><td>O(log n) stack avg, O(n) worst</td></tr>
+                        <tr><td>Quickhull</td><td>O(n log n)</td><td>~O(n log n)</td><td>O(n²)</td><td>O(n) typical recursion/data</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="warn-box">
+                    <p><strong>Important:</strong> Big-O hides constants. For real systems, cache locality, branch prediction, and memory allocation overhead can dominate smaller inputs.</p>
+                </div>
+
+                <h2 id="recurrences">3) How to Bound Computational Complexity (Recurrences)</h2>
+                <p>Divide-and-conquer algorithms are naturally described by recurrence equations.</p>
+                <div class="code-block">
+Quicksort recurrence:
+T(n) = T(k) + T(n-k-1) + Theta(n)
+
+Balanced case (k ≈ n/2):
+T(n) = 2T(n/2) + Theta(n) => Theta(n log n)
+
+Worst case (k = 0 or n-1):
+T(n) = T(n-1) + Theta(n) => Theta(n^2)
+                </div>
+
+                <p>For balanced splits, Master theorem applies directly:</p>
+                <p>\[
+T(n) = aT\left(\frac{n}{b}\right) + f(n)
+\]</p>
+                <p>If <code>a=2</code>, <code>b=2</code>, and <code>f(n)=Theta(n)</code>, then <code>T(n)=Theta(n\log n)</code>.</p>
+
+                <h2 id="partition-quicksort">4) Partition Procedure and Quicksort Algorithm</h2>
+                <h3>Lomuto Partition (simple, educational)</h3>
+                <div class="code-block">
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+int partitionLomuto(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    int pivot = a[hi];
+    int i = lo - 1;
+    for (int j = lo; j &lt; hi; ++j) {
+        if (a[j] &lt;= pivot) {
+            ++i;
+            swap(a[i], a[j]);
+        }
+    }
+    swap(a[i + 1], a[hi]);
+    return i + 1;
+}
+
+void quicksort(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    if (lo &gt;= hi) return;
+    int p = partitionLomuto(a, lo, hi);
+    quicksort(a, lo, p - 1);
+    quicksort(a, p + 1, hi);
+}
+                </div>
+
+                <h3>Optimization ideas</h3>
+                <ul>
+                    <li>Randomized pivot to avoid adversarial worst-case</li>
+                    <li>Median-of-three pivot selection</li>
+                    <li>Switch to insertion sort for tiny partitions</li>
+                    <li>Tail-recursion elimination to reduce stack depth</li>
+                </ul>
+
+                <h2 id="haskell-vs-cpp">5) Implementations: Haskell vs C/C++</h2>
+                <h3>Haskell (declarative, immutable lists)</h3>
+                <div class="code-block">
+quicksort :: Ord a =&gt; [a] -&gt; [a]
+quicksort [] = []
+quicksort (x:xs) =
+    quicksort [y | y &lt;- xs, y &lt;= x]
+    ++ [x] ++
+    quicksort [y | y &lt;- xs, y &gt; x]
+                </div>
+
+                <h3>C++ (in-place, imperative)</h3>
+                <div class="code-block">
+vector&lt;int&gt; a = {9,4,7,3,1,8,2,5,6};
+quicksort(a, 0, (int)a.size() - 1);
+                </div>
+
+                <table class="styled">
+                    <thead>
+                        <tr><th>Aspect</th><th>Haskell</th><th>C/C++</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Style</td><td>Functional, concise</td><td>Imperative, explicit control</td></tr>
+                        <tr><td>Memory behavior</td><td>Creates new lists</td><td>In-place partitioning possible</td></tr>
+                        <tr><td>Performance tuning</td><td>Less low-level control</td><td>Fine-grained control over cache/allocations</td></tr>
+                        <tr><td>Readability</td><td>Very expressive</td><td>Verbose but transparent</td></tr>
+                    </tbody>
+                </table>
+
+                <h2 id="quickhull">6) Quickhull Algorithm for Convex Hull</h2>
+                <p>Quickhull finds convex hull points by recursively selecting the point farthest from a line segment and splitting into subproblems, conceptually similar to Quicksort partitioning.</p>
+
+                <h3>Core idea</h3>
+                <ol>
+                    <li>Find leftmost and rightmost points: <code>A</code>, <code>B</code></li>
+                    <li>Split remaining points into two sets by line <code>AB</code></li>
+                    <li>Pick farthest point <code>P</code> from line segment</li>
+                    <li>Recurse on <code>A-P</code> and <code>P-B</code> subsets</li>
+                </ol>
+
+                <h3>C++ Skeleton</h3>
+                <div class="code-block">
+struct Point { double x, y; };
+
+double cross(const Point&amp; a, const Point&amp; b, const Point&amp; c) {
+    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+
+void quickHullRec(const vector&lt;Point&gt;&amp; pts, Point a, Point b, int side, vector&lt;Point&gt;&amp; hull) {
+    int idx = -1;
+    double maxDist = 0.0;
+    for (int i = 0; i &lt; (int)pts.size(); ++i) {
+        double val = cross(a, b, pts[i]) * side;
+        if (val &gt; 0 &amp;&amp; abs(val) &gt; maxDist) {
+            idx = i;
+            maxDist = abs(val);
+        }
+    }
+    if (idx == -1) {
+        hull.push_back(a);
+        hull.push_back(b);
+        return;
+    }
+    Point p = pts[idx];
+    quickHullRec(pts, a, p, -((cross(a, p, b) &gt; 0) ? 1 : -1), hull);
+    quickHullRec(pts, p, b, -((cross(p, b, a) &gt; 0) ? 1 : -1), hull);
+}
+                </div>
+
+                <div class="insight-box">
+                    <p><strong>Result:</strong> Quickhull is very fast in many practical geometric datasets, but still has quadratic worst-case behavior on adversarial or highly pathological point distributions.</p>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; George Meshveliani — Computer Science Fundamentals</p>
+        </div>
+    </footer>
+</body>
+</html>

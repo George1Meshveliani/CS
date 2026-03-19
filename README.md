@@ -40,6 +40,7 @@
 
 ### Algorithms
 - [`Karatsuba Algorithm: Fast Integer Multiplication`](https://george1meshveliani.github.io/CS/KaratsubaAlgorithm)
+- [`Quicksort and Quickhull Algorithms`](https://george1meshveliani.github.io/CS/QuicksortQuickhull)
 
 ### Dynamic Programming Problems
 - [`Knapsack Problem: 0/1 Knapsack with DP`](https://george1meshveliani.github.io/CS/KnapsackProblem)
