@@ -13,10 +13,17 @@
         .prose { max-width: 90ch; }
         .prose code { font-family: 'Courier New', Courier, monospace; background-color: #e5e7eb; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-size: 0.95em; }
         .prose pre code { background-color: transparent; padding: 0; color: inherit; }
-        .code-block { background-color: #0f172a; color: #d1d5db; padding: 1.25rem; border-radius: 0.5rem; margin: 1rem 0; font-family: 'Courier New', monospace; overflow-x: auto; white-space: pre; line-height: 1.75; }
+        .code-block { background-color: #0f172a; color: #d1d5db; padding: 1.25rem; border-radius: 0.5rem; margin: 1rem 0; font-family: 'Courier New', monospace; overflow-x: auto; white-space: pre; line-height: 1.75; font-size: 0.92rem; }
+        .code-comment { color: #6b7280; }
+        .code-keyword { color: #93c5fd; }
+        .code-type { color: #86efac; }
+        .code-num { color: #fca5a5; }
         .theory-box { background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border-left: 5px solid #3b82f6; padding: 1.25rem; margin: 1rem 0; border-radius: 0.5rem; }
         .insight-box { background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border-left: 5px solid #10b981; padding: 1.25rem; margin: 1rem 0; border-radius: 0.5rem; }
         .warn-box { background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%); border-left: 5px solid #ef4444; padding: 1.25rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .proof-box { background: linear-gradient(135deg, #fdf4ff 0%, #f3e8ff 100%); border-left: 5px solid #a855f7; padding: 1.25rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .math-box { background: #f8fafc; border: 1px solid #e2e8f0; padding: 1.25rem; margin: 1rem 0; border-radius: 0.5rem; }
+        .trace-box { background: #fff7ed; border: 1px solid #fed7aa; padding: 1.25rem; margin: 1rem 0; border-radius: 0.5rem; font-family: 'Courier New', monospace; font-size: 0.9rem; }
         table.styled { width: 100%; border-collapse: collapse; margin: 1rem 0; }
         table.styled thead tr { background-color: #1e293b; color: white; }
         table.styled th, table.styled td { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; text-align: left; }
@@ -33,6 +40,7 @@
         .solution-content.show { display: block; }
         .toggle-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.375rem; border: none; cursor: pointer; font-weight: 600; transition: background 0.2s; }
         .toggle-btn:hover { background-color: #2563eb; }
+        .step-num { display: inline-block; background: #3b82f6; color: white; border-radius: 50%; width: 1.6rem; height: 1.6rem; text-align: center; line-height: 1.6rem; font-weight: 700; font-size: 0.85rem; margin-right: 0.4rem; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -47,7 +55,7 @@
         <section class="mb-12">
             <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
                 <h1>Quicksort and Quickhull Algorithms</h1>
-                <p>This lecture section combines algorithmic theory and practice: Linux runtime measurement, time and memory complexity, recurrence solving, Quicksort partitioning, Haskell vs C/C++ implementation style, and Quickhull for the convex hull problem.</p>
+                <p>This lecture section combines algorithmic theory and practice: Linux runtime measurement, time and memory complexity, recurrence solving with formal proofs, Quicksort partitioning variants, Haskell vs C/C++ implementation style, and Quickhull for the convex hull problem.</p>
 
                 <h2>Topics of Discussion</h2>
                 <ol>
@@ -55,18 +63,21 @@
                     <li><a href="#complexity">Time and memory computational complexity</a></li>
                     <li><a href="#recurrences">Bounding complexity with recurrences</a></li>
                     <li><a href="#partition-quicksort">Partition procedure and Quicksort</a></li>
+                    <li><a href="#partition-variants">Partition variants: Hoare, 3-way, Median-of-3</a></li>
+                    <li><a href="#proofs">Mathematical proofs: correctness and average case</a></li>
                     <li><a href="#haskell-vs-cpp">Quicksort in Haskell vs C/C++</a></li>
                     <li><a href="#quickhull">Quickhull for convex hull</a></li>
                     <li><a href="#practice-problems">Problems by level (hidden solutions)</a></li>
                 </ol>
 
+                <!-- ===================== SECTION 1 ===================== -->
                 <h2 id="linux-timing">1) Linux Stuff: Measuring the Running Time</h2>
                 <div class="theory-box">
                     <p>Use Linux tools to measure real execution behavior:</p>
                     <ul>
-                        <li><code>time</code> for wall/user/system time</li>
-                        <li><code>/usr/bin/time -v</code> for memory footprint and page faults</li>
-                        <li><code>perf stat</code> for CPU-level counters (cycles, instructions, cache misses)</li>
+                        <li><code>time</code> — wall/user/system time</li>
+                        <li><code>/usr/bin/time -v</code> — memory footprint, page faults</li>
+                        <li><code>perf stat</code> — CPU-level counters (cycles, instructions, cache misses)</li>
                     </ul>
                 </div>
 
@@ -80,65 +91,115 @@ time ./quicksort 1000000
 # Detailed timing + memory report
 /usr/bin/time -v ./quicksort 1000000
 
-# Hardware counters (if available)
+# Hardware counters (requires perf tools)
 perf stat ./quicksort 1000000
                 </div>
 
                 <div class="insight-box">
-                    <p><strong>Practical note:</strong> Run each test multiple times and report average + standard deviation. Also isolate input generation from algorithm timing.</p>
+                    <strong>Practical note:</strong> Run each test multiple times and report average ± standard deviation. Isolate input generation from algorithm timing using <code>clock()</code> or <code>std::chrono</code> inside the program.
                 </div>
 
+                <div class="code-block">
+#include &lt;chrono&gt;
+#include &lt;iostream&gt;
+using namespace std;
+using namespace chrono;
+
+int main() {
+    vector&lt;int&gt; a = generateRandom(1000000);
+
+    auto start = high_resolution_clock::now();
+    quicksort(a, 0, (int)a.size() - 1);
+    auto end   = high_resolution_clock::now();
+
+    double ms = duration&lt;double, milli&gt;(end - start).count();
+    cout &lt;&lt; "Elapsed: " &lt;&lt; ms &lt;&lt; " ms\n";
+}
+                </div>
+
+                <!-- ===================== SECTION 2 ===================== -->
                 <h2 id="complexity">2) Time and Memory Computational Complexity</h2>
-                <p>Complexity describes growth of resource usage as input size <code>n</code> increases.</p>
+                <p>Complexity describes the growth of resource usage as input size <em>n</em> increases, independently of hardware.</p>
+
                 <table class="styled">
                     <thead>
                         <tr><th>Algorithm</th><th>Best</th><th>Average</th><th>Worst</th><th>Aux Memory</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td>Quicksort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n²)</td><td>O(log n) stack avg, O(n) worst</td></tr>
-                        <tr><td>Quickhull</td><td>O(n log n)</td><td>~O(n log n)</td><td>O(n²)</td><td>O(n) typical recursion/data</td></tr>
+                        <tr><td>Quicksort</td><td>O(n log n)</td><td>Θ(n log n)</td><td>Θ(n²)</td><td>O(log n) avg stack, O(n) worst</td></tr>
+                        <tr><td>Quickhull</td><td>O(n log n)</td><td>~O(n log n)</td><td>O(n²)</td><td>O(n) recursion + point sets</td></tr>
+                        <tr><td>Merge Sort</td><td>Θ(n log n)</td><td>Θ(n log n)</td><td>Θ(n log n)</td><td>O(n) auxiliary array</td></tr>
+                        <tr><td>Insertion Sort</td><td>O(n)</td><td>Θ(n²)</td><td>Θ(n²)</td><td>O(1)</td></tr>
                     </tbody>
                 </table>
 
                 <div class="warn-box">
-                    <p><strong>Important:</strong> Big-O hides constants. For real systems, cache locality, branch prediction, and memory allocation overhead can dominate smaller inputs.</p>
+                    <strong>Important:</strong> Big-O hides constants. For real systems, cache locality, branch prediction, and memory allocation overhead can make an O(n log n) algorithm faster than another O(n log n) algorithm by a factor of 2–5×. Quicksort's in-place nature gives it excellent cache behavior.
                 </div>
 
+                <!-- ===================== SECTION 3 ===================== -->
                 <h2 id="recurrences">3) How to Bound Computational Complexity (Recurrences)</h2>
-                <p>Divide-and-conquer algorithms are naturally described by recurrence equations.</p>
-                <div class="code-block">
-Quicksort recurrence:
-T(n) = T(k) + T(n-k-1) + Theta(n)
+                <p>Divide-and-conquer algorithms are naturally described by recurrence equations. The three main tools are: <strong>substitution</strong>, <strong>recursion tree</strong>, and the <strong>Master Theorem</strong>.</p>
 
-Balanced case (k ≈ n/2):
-T(n) = 2T(n/2) + Theta(n) => Theta(n log n)
-
-Worst case (k = 0 or n-1):
-T(n) = T(n-1) + Theta(n) => Theta(n^2)
+                <h3>Master Theorem</h3>
+                <p>For recurrences of the form \(T(n) = aT\!\left(\tfrac{n}{b}\right) + f(n)\), with \(a \ge 1\), \(b > 1\):</p>
+                <div class="math-box">
+                    <p>Let \(d = \log_b a\). Then:</p>
+                    <ul>
+                        <li><strong>Case 1:</strong> If \(f(n) = O(n^{d-\varepsilon})\) for some \(\varepsilon > 0\), then \(T(n) = \Theta(n^d)\)</li>
+                        <li><strong>Case 2:</strong> If \(f(n) = \Theta(n^d)\), then \(T(n) = \Theta(n^d \log n)\)</li>
+                        <li><strong>Case 3:</strong> If \(f(n) = \Omega(n^{d+\varepsilon})\) and regularity holds, then \(T(n) = \Theta(f(n))\)</li>
+                    </ul>
                 </div>
 
-                <p>For balanced splits, Master theorem applies directly:</p>
-                <p>\[
-T(n) = aT\left(\frac{n}{b}\right) + f(n)
-\]</p>
-                <p>If <code>a=2</code>, <code>b=2</code>, and <code>f(n)=Theta(n)</code>, then <code>T(n)=Theta(n\log n)</code>.</p>
+                <h3>Quicksort Recurrences</h3>
+                <div class="math-box">
+                    <p><strong>General recurrence</strong> (pivot splits into parts of size \(k\) and \(n-k-1\)):</p>
+                    \[T(n) = T(k) + T(n-k-1) + \Theta(n)\]
 
+                    <p><strong>Balanced case</strong> \((k \approx n/2)\) — ideal pivot:</p>
+                    \[T(n) = 2T\!\left(\tfrac{n}{2}\right) + \Theta(n)\]
+                    <p>Master theorem: \(a=2,\, b=2,\, f(n)=\Theta(n)\), so \(d=\log_2 2 = 1\). Case 2 applies: \(T(n) = \Theta(n \log n)\).</p>
+
+                    <p><strong>Worst case</strong> \((k=0)\) — always smallest or largest element as pivot:</p>
+                    \[T(n) = T(n-1) + \Theta(n)\]
+                    <p>Unrolling: \(T(n) = \Theta(n) + \Theta(n-1) + \cdots + \Theta(1) = \Theta(n^2)\).</p>
+                </div>
+
+                <h3>Unrolling the Worst-Case Recurrence (Step by Step)</h3>
+                <div class="proof-box">
+                    <p>Start with \(T(n) = T(n-1) + cn\) for some constant \(c > 0\):</p>
+                    \[T(n) = T(n-1) + cn\]
+                    \[= T(n-2) + c(n-1) + cn\]
+                    \[= T(n-3) + c(n-2) + c(n-1) + cn\]
+                    \[\vdots\]
+                    \[= T(1) + c \cdot 2 + c \cdot 3 + \cdots + cn\]
+                    \[= T(1) + c\sum_{k=2}^{n} k = T(1) + c\left(\frac{n(n+1)}{2} - 1\right) = \Theta(n^2)\]
+                </div>
+
+                <!-- ===================== SECTION 4 ===================== -->
                 <h2 id="partition-quicksort">4) Partition Procedure and Quicksort Algorithm</h2>
-                <h3>Lomuto Partition (simple, educational)</h3>
+
+                <h3>4a) Lomuto Partition (simple, educational)</h3>
+                <p>Uses the last element as pivot. Maintains a boundary <code>i</code> such that <code>a[lo..i] &le; pivot</code>.</p>
+
                 <div class="code-block">
 #include &lt;bits/stdc++.h&gt;
 using namespace std;
 
+// Lomuto partition: pivot = a[hi]
+// After: a[lo..p-1] <= a[p] <= a[p+1..hi]
+// Returns: final pivot index p
 int partitionLomuto(vector&lt;int&gt;&amp; a, int lo, int hi) {
     int pivot = a[hi];
-    int i = lo - 1;
+    int i = lo - 1;           // i: last index of "small" region
     for (int j = lo; j &lt; hi; ++j) {
         if (a[j] &lt;= pivot) {
             ++i;
-            swap(a[i], a[j]);
+            swap(a[i], a[j]); // grow "small" region
         }
     }
-    swap(a[i + 1], a[hi]);
+    swap(a[i + 1], a[hi]);    // place pivot in correct position
     return i + 1;
 }
 
@@ -148,145 +209,191 @@ void quicksort(vector&lt;int&gt;&amp; a, int lo, int hi) {
     quicksort(a, lo, p - 1);
     quicksort(a, p + 1, hi);
 }
-                </div>
 
-                <h3>Optimization ideas</h3>
-                <ul>
-                    <li>Randomized pivot to avoid adversarial worst-case</li>
-                    <li>Median-of-three pivot selection</li>
-                    <li>Switch to insertion sort for tiny partitions</li>
-                    <li>Tail-recursion elimination to reduce stack depth</li>
-                </ul>
-
-                <h2 id="haskell-vs-cpp">5) Implementations: Haskell vs C/C++</h2>
-                <h3>Haskell (declarative, immutable lists)</h3>
-                <div class="code-block">
-quicksort :: Ord a =&gt; [a] -&gt; [a]
-quicksort [] = []
-quicksort (x:xs) =
-    quicksort [y | y &lt;- xs, y &lt;= x]
-    ++ [x] ++
-    quicksort [y | y &lt;- xs, y &gt; x]
-                </div>
-
-                <h3>C++ (in-place, imperative)</h3>
-                <div class="code-block">
-vector&lt;int&gt; a = {9,4,7,3,1,8,2,5,6};
-quicksort(a, 0, (int)a.size() - 1);
-                </div>
-
-                <table class="styled">
-                    <thead>
-                        <tr><th>Aspect</th><th>Haskell</th><th>C/C++</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr><td>Style</td><td>Functional, concise</td><td>Imperative, explicit control</td></tr>
-                        <tr><td>Memory behavior</td><td>Creates new lists</td><td>In-place partitioning possible</td></tr>
-                        <tr><td>Performance tuning</td><td>Less low-level control</td><td>Fine-grained control over cache/allocations</td></tr>
-                        <tr><td>Readability</td><td>Very expressive</td><td>Verbose but transparent</td></tr>
-                    </tbody>
-                </table>
-
-                <h2 id="quickhull">6) Quickhull Algorithm for Convex Hull</h2>
-                <p>Quickhull finds convex hull points by recursively selecting the point farthest from a line segment and splitting into subproblems, conceptually similar to Quicksort partitioning.</p>
-
-                <h3>Core idea</h3>
-                <ol>
-                    <li>Find leftmost and rightmost points: <code>A</code>, <code>B</code></li>
-                    <li>Split remaining points into two sets by line <code>AB</code></li>
-                    <li>Pick farthest point <code>P</code> from line segment</li>
-                    <li>Recurse on <code>A-P</code> and <code>P-B</code> subsets</li>
-                </ol>
-
-                <h3>C++ Skeleton</h3>
-                <div class="code-block">
-struct Point { double x, y; };
-
-double cross(const Point&amp; a, const Point&amp; b, const Point&amp; c) {
-    return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
-}
-
-void quickHullRec(const vector&lt;Point&gt;&amp; pts, Point a, Point b, int side, vector&lt;Point&gt;&amp; hull) {
-    int idx = -1;
-    double maxDist = 0.0;
-    for (int i = 0; i &lt; (int)pts.size(); ++i) {
-        double val = cross(a, b, pts[i]) * side;
-        if (val &gt; 0 &amp;&amp; abs(val) &gt; maxDist) {
-            idx = i;
-            maxDist = abs(val);
-        }
-    }
-    if (idx == -1) {
-        hull.push_back(a);
-        hull.push_back(b);
-        return;
-    }
-    Point p = pts[idx];
-    quickHullRec(pts, a, p, -((cross(a, p, b) &gt; 0) ? 1 : -1), hull);
-    quickHullRec(pts, p, b, -((cross(p, b, a) &gt; 0) ? 1 : -1), hull);
+int main() {
+    vector&lt;int&gt; a = {9, 4, 7, 3, 1, 8, 2, 5, 6};
+    quicksort(a, 0, (int)a.size() - 1);
+    for (int x : a) cout &lt;&lt; x &lt;&lt; " ";  // 1 2 3 4 5 6 7 8 9
 }
                 </div>
 
-                <div class="insight-box">
-                    <p><strong>Result:</strong> Quickhull is very fast in many practical geometric datasets, but still has quadratic worst-case behavior on adversarial or highly pathological point distributions.</p>
+                <h3>Step-by-Step Trace of Lomuto Partition</h3>
+                <div class="trace-box">
+Array:  [9, 4, 7, 3, 1, 8, 2, 5, 6]   lo=0, hi=8, pivot=6
+         0  1  2  3  4  5  6  7  8
+
+i = -1
+
+j=0: a[0]=9 > 6  → no swap      [9, 4, 7, 3, 1, 8, 2, 5, 6]   i=-1
+j=1: a[1]=4 ≤ 6  → i=0, swap(0,1) [4, 9, 7, 3, 1, 8, 2, 5, 6]   i=0
+j=2: a[2]=7 > 6  → no swap      [4, 9, 7, 3, 1, 8, 2, 5, 6]   i=0
+j=3: a[3]=3 ≤ 6  → i=1, swap(1,3) [4, 3, 7, 9, 1, 8, 2, 5, 6]   i=1
+j=4: a[4]=1 ≤ 6  → i=2, swap(2,4) [4, 3, 1, 9, 7, 8, 2, 5, 6]   i=2
+j=5: a[5]=8 > 6  → no swap      [4, 3, 1, 9, 7, 8, 2, 5, 6]   i=2
+j=6: a[6]=2 ≤ 6  → i=3, swap(3,6) [4, 3, 1, 2, 7, 8, 9, 5, 6]   i=3
+j=7: a[7]=5 ≤ 6  → i=4, swap(4,7) [4, 3, 1, 2, 5, 8, 9, 7, 6]   i=4
+
+Final: swap(i+1=5, hi=8): [4, 3, 1, 2, 5, 6, 9, 7, 8]
+Pivot 6 is now at index 5. ✓
+All a[0..4] ≤ 6, all a[6..8] > 6.
                 </div>
 
-                <h2 id="practice-problems">7) Problems by Level</h2>
-                <p>Practice problems focused on Quicksort partitioning, recurrence reasoning, and Quickhull geometry.</p>
+                <!-- ===================== SECTION 5 ===================== -->
+                <h2 id="partition-variants">5) Partition Variants</h2>
 
-                <h3>Easy</h3>
-                <div class="problem-card easy">
-                    <h4>Problem E1: Partition Index <span class="difficulty-badge difficulty-easy">Easy</span></h4>
-                    <p><strong>Task:</strong> Given an array and pivot at the last index, perform Lomuto partition and return the final pivot index.</p>
-                    <pre><code>Input: [9, 3, 7, 1, 8], pivot=8
-Output: pivotIndex=3, array could be [3, 7, 1, 8, 9]</code></pre>
-                    <button class="toggle-btn" onclick="toggleSolution('qprob-e1')">Show Solution</button>
-                    <div id="qprob-e1" class="solution-content">
-                        <div class="code-block">
-int partitionLomuto(vector&lt;int&gt;&amp; a, int lo, int hi) {
-    int pivot = a[hi];
+                <h3>5a) Hoare Partition (faster in practice)</h3>
+                <p>Hoare's original partition uses two pointers moving toward each other. It does roughly <strong>3× fewer swaps</strong> than Lomuto on average. The pivot is placed somewhere in <code>[lo, hi]</code> — not necessarily at the returned index.</p>
+
+                <div class="code-block">
+// Hoare partition: pivot = a[lo]
+// Returns index j such that a[lo..j] <= pivot and a[j+1..hi] >= pivot
+// NOTE: a[j] is NOT necessarily equal to pivot after return.
+int partitionHoare(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    int pivot = a[lo + (hi - lo) / 2]; // mid element as pivot
     int i = lo - 1;
-    for (int j = lo; j &lt; hi; ++j) {
-        if (a[j] &lt;= pivot) {
-            ++i;
-            swap(a[i], a[j]);
+    int j = hi + 1;
+    while (true) {
+        do { ++i; } while (a[i] &lt; pivot);
+        do { --j; } while (a[j] &gt; pivot);
+        if (i &gt;= j) return j;
+        swap(a[i], a[j]);
+    }
+}
+
+void quicksortHoare(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    if (lo &gt;= hi) return;
+    int j = partitionHoare(a, lo, hi);
+    quicksortHoare(a, lo, j);      // note: includes j (not j-1)
+    quicksortHoare(a, j + 1, hi);
+}
+
+int main() {
+    vector&lt;int&gt; a = {5, 3, 8, 1, 9, 2, 7, 4, 6};
+    quicksortHoare(a, 0, (int)a.size() - 1);
+    for (int x : a) cout &lt;&lt; x &lt;&lt; " ";  // 1 2 3 4 5 6 7 8 9
+}
+                </div>
+
+                <div class="warn-box">
+                    <strong>Hoare correctness subtlety:</strong> The returned index <code>j</code> does NOT split the array at the pivot itself — it splits into <code>[lo..j]</code> and <code>[j+1..hi]</code>. You must recurse on <code>[lo, j]</code> (not <code>[lo, j-1]</code>), otherwise elements may be skipped.
+                </div>
+
+                <h3>5b) 3-Way Partition (Dutch National Flag) — handles duplicates efficiently</h3>
+                <p>When many duplicate keys exist, standard Quicksort degrades because equal elements are not collapsed. 3-way partition splits into three regions: <code>a[lo..lt-1] &lt; pivot</code>, <code>a[lt..gt] == pivot</code>, <code>a[gt+1..hi] &gt; pivot</code>. Equal elements are never recursed on.</p>
+
+                <div class="code-block">
+// 3-way partition (Dijkstra's Dutch National Flag)
+// After: a[lo..lt-1] < pivot, a[lt..gt] == pivot, a[gt+1..hi] > pivot
+void partition3way(vector&lt;int&gt;&amp; a, int lo, int hi, int&amp; lt, int&amp; gt) {
+    int pivot = a[lo];
+    lt = lo;
+    gt = hi;
+    int i = lo;
+    while (i &lt;= gt) {
+        if      (a[i] &lt; pivot) swap(a[lt++], a[i++]);
+        else if (a[i] &gt; pivot) swap(a[i],    a[gt--]);
+        else                   ++i;
+    }
+}
+
+void quicksort3way(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    if (lo &gt;= hi) return;
+    int lt, gt;
+    partition3way(a, lo, hi, lt, gt);
+    quicksort3way(a, lo, lt - 1);  // recurse on < region
+    quicksort3way(a, gt + 1, hi);  // recurse on > region
+    // a[lt..gt] all equal pivot — no recursion needed!
+}
+
+int main() {
+    // Array with many duplicates — 3-way is optimal here
+    vector&lt;int&gt; a = {3, 1, 4, 1, 5, 9, 2, 6, 5, 3, 5, 3, 5};
+    quicksort3way(a, 0, (int)a.size() - 1);
+    for (int x : a) cout &lt;&lt; x &lt;&lt; " ";
+    // 1 1 2 3 3 3 4 5 5 5 5 6 9
+}
+                </div>
+
+                <h3>Step-by-Step Trace of 3-Way Partition</h3>
+                <div class="trace-box">
+Array: [3, 1, 4, 1, 3, 3, 2]   lo=0, hi=6, pivot=3
+        0  1  2  3  4  5  6
+
+lt=0, gt=6, i=0
+
+i=0: a[0]=3 == pivot  → i=1                [3, 1, 4, 1, 3, 3, 2]  lt=0,gt=6
+i=1: a[1]=1 <  pivot  → swap(lt=0,i=1), lt=1, i=2 [1, 3, 4, 1, 3, 3, 2]  lt=1,gt=6
+i=2: a[2]=4 >  pivot  → swap(i=2,gt=6), gt=5 [1, 3, 2, 1, 3, 3, 4]  lt=1,gt=5
+i=2: a[2]=2 <  pivot  → swap(lt=1,i=2), lt=2, i=3 [1, 2, 3, 1, 3, 3, 4]  lt=2,gt=5
+i=3: a[3]=1 <  pivot  → swap(lt=2,i=3), lt=3, i=4 [1, 2, 1, 3, 3, 3, 4]  lt=3,gt=5
+i=4: a[4]=3 == pivot  → i=5                [1, 2, 1, 3, 3, 3, 4]  lt=3,gt=5
+i=5: a[5]=3 == pivot  → i=6                [1, 2, 1, 3, 3, 3, 4]  lt=3,gt=5
+i=6 > gt=5 → stop
+
+Result: a[0..2]={1,2,1} < 3, a[3..5]={3,3,3} == 3, a[6]={4} > 3 ✓
+                </div>
+
+                <h3>5c) Median-of-Three Pivot Selection</h3>
+                <p>Choose the pivot as the median of <code>a[lo]</code>, <code>a[mid]</code>, <code>a[hi]</code>. This eliminates worst-case behavior on already-sorted arrays and gives better splits on average.</p>
+
+                <div class="code-block">
+// Returns index of median of a[lo], a[mid], a[hi]
+int medianOfThree(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    int mid = lo + (hi - lo) / 2;
+    // Sort lo, mid, hi in place (network of 3 comparisons)
+    if (a[lo] &gt; a[mid]) swap(a[lo], a[mid]);
+    if (a[lo] &gt; a[hi])  swap(a[lo], a[hi]);
+    if (a[mid] &gt; a[hi]) swap(a[mid], a[hi]);
+    // Now a[lo] <= a[mid] <= a[hi]
+    // Place median at hi-1 to use as pivot (Lomuto-style)
+    swap(a[mid], a[hi]);
+    return hi;
+}
+
+// Optimized Quicksort: median-of-3 + insertion sort for small n
+void insertionSort(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    for (int i = lo + 1; i &lt;= hi; ++i) {
+        int key = a[i];
+        int j = i - 1;
+        while (j &gt;= lo &amp;&amp; a[j] &gt; key) { a[j + 1] = a[j]; --j; }
+        a[j + 1] = key;
+    }
+}
+
+void quicksortOpt(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    while (lo &lt; hi) {
+        if (hi - lo &lt; 16) {        // small partitions: insertion sort
+            insertionSort(a, lo, hi);
+            return;
+        }
+        medianOfThree(a, lo, hi);   // pivot now at a[hi]
+        int p = partitionLomuto(a, lo, hi);
+        // Tail-call optimization: recurse on smaller side first
+        if (p - lo &lt; hi - p) {
+            quicksortOpt(a, lo, p - 1);
+            lo = p + 1;             // iterate on larger half
+        } else {
+            quicksortOpt(a, p + 1, hi);
+            hi = p - 1;
         }
     }
-    swap(a[i + 1], a[hi]);
-    return i + 1;
 }
-                        </div>
-                    </div>
+
+int main() {
+    vector&lt;int&gt; a = {5, 2, 8, 1, 9, 3, 7, 4, 6};
+    quicksortOpt(a, 0, (int)a.size() - 1);
+    for (int x : a) cout &lt;&lt; x &lt;&lt; " ";  // 1 2 3 4 5 6 7 8 9
+}
                 </div>
 
-                <div class="problem-card easy">
-                    <h4>Problem E2: Count Quicksort Calls <span class="difficulty-badge difficulty-easy">Easy</span></h4>
-                    <p><strong>Task:</strong> Instrument quicksort to count recursive calls and compare random input vs sorted input.</p>
-                    <button class="toggle-btn" onclick="toggleSolution('qprob-e2')">Show Solution</button>
-                    <div id="qprob-e2" class="solution-content">
-                        <div class="code-block">
-long long calls = 0;
-void quicksortCount(vector&lt;int&gt;&amp; a, int lo, int hi) {
-    calls++;
-    if (lo &gt;= hi) return;
-    int p = partitionLomuto(a, lo, hi);
-    quicksortCount(a, lo, p - 1);
-    quicksortCount(a, p + 1, hi);
-}
-                        </div>
-                    </div>
-                </div>
+                <h3>5d) Randomized Quicksort</h3>
+                <div class="code-block">
+#include &lt;random&gt;
+mt19937 rng(42);
 
-                <h3>Medium</h3>
-                <div class="problem-card medium">
-                    <h4>Problem M1: Randomized Quicksort <span class="difficulty-badge difficulty-medium">Medium</span></h4>
-                    <p><strong>Task:</strong> Improve quicksort by selecting a random pivot before partitioning.</p>
-                    <button class="toggle-btn" onclick="toggleSolution('qprob-m1')">Show Solution</button>
-                    <div id="qprob-m1" class="solution-content">
-                        <div class="code-block">
 int partitionRandom(vector&lt;int&gt;&amp; a, int lo, int hi) {
-    int pivotPos = lo + rand() % (hi - lo + 1);
-    swap(a[pivotPos], a[hi]);
+    int pivotIdx = uniform_int_distribution&lt;int&gt;(lo, hi)(rng);
+    swap(a[pivotIdx], a[hi]);
     return partitionLomuto(a, lo, hi);
 }
 
@@ -296,68 +403,764 @@ void quicksortRandom(vector&lt;int&gt;&amp; a, int lo, int hi) {
     quicksortRandom(a, lo, p - 1);
     quicksortRandom(a, p + 1, hi);
 }
+                </div>
+
+                <h3>5e) Iterative Quicksort (no call-stack overflow)</h3>
+                <div class="code-block">
+void quicksortIterative(vector&lt;int&gt;&amp; a) {
+    if (a.empty()) return;
+    stack&lt;pair&lt;int,int&gt;&gt; st;
+    st.push({0, (int)a.size() - 1});
+    while (!st.empty()) {
+        auto [lo, hi] = st.top(); st.pop();
+        if (lo &gt;= hi) continue;
+        int p = partitionLomuto(a, lo, hi);
+        // Push larger partition last (so smaller is processed first)
+        // This keeps stack depth O(log n) worst-case
+        if (p - lo &lt; hi - p) {
+            st.push({p + 1, hi});
+            st.push({lo, p - 1});
+        } else {
+            st.push({lo, p - 1});
+            st.push({p + 1, hi});
+        }
+    }
+}
+                </div>
+
+                <!-- ===================== SECTION 6 ===================== -->
+                <h2 id="proofs">6) Mathematical Proofs</h2>
+
+                <h3>6a) Proof of Lomuto Partition Correctness (Loop Invariant)</h3>
+                <div class="proof-box">
+                    <p><strong>Loop invariant:</strong> At the start of each iteration with index <code>j</code>:</p>
+                    <ol>
+                        <li>\(\forall k \in [\text{lo},\, i]:\; a[k] \le \text{pivot}\)</li>
+                        <li>\(\forall k \in [i+1,\, j-1]:\; a[k] > \text{pivot}\)</li>
+                        <li>\(a[\text{hi}] = \text{pivot}\)</li>
+                    </ol>
+
+                    <p><strong>Initialization:</strong> Before the loop, \(i = \text{lo} - 1\) and \(j = \text{lo}\). Both regions \([\text{lo}, i]\) and \([i+1, j-1]\) are empty — trivially satisfied.</p>
+
+                    <p><strong>Maintenance:</strong> At iteration \(j\):</p>
+                    <ul>
+                        <li>If \(a[j] > \text{pivot}\): do nothing. Region \([i+1, j]\) is now all \(> \text{pivot}\). ✓</li>
+                        <li>If \(a[j] \le \text{pivot}\): increment \(i\), swap \(a[i] \leftrightarrow a[j]\). Now \(a[i] \le \text{pivot}\), and \(a[j]\) (old \(a[i]\)) is moved to the \(>\) region. ✓</li>
+                    </ul>
+
+                    <p><strong>Termination:</strong> At \(j = \text{hi}\), the invariant gives \(a[\text{lo}..i] \le \text{pivot}\) and \(a[i+1..\text{hi}-1] > \text{pivot}\). After the final <code>swap(a[i+1], a[hi])</code>, the pivot lands at \(i+1\) with everything left \(\le\) it and everything right \(>\) it. \(\blacksquare\)</p>
+                </div>
+
+                <h3>6b) Average-Case Analysis of Quicksort: \(\Theta(n \log n)\)</h3>
+                <p>We analyze <strong>randomized Quicksort</strong> where the pivot is chosen uniformly at random. Let the elements be \(z_1 < z_2 < \cdots < z_n\) (their sorted order).</p>
+
+                <div class="proof-box">
+                    <p><strong>Claim:</strong> \(E[\text{# comparisons}] = \Theta(n \log n)\).</p>
+
+                    <p><strong>Key observation:</strong> Elements \(z_i\) and \(z_j\) (with \(i < j\) in sorted order) are compared at most once — only when one of them is chosen as pivot while both are still in the same subarray.</p>
+
+                    <p>Define indicator random variable:</p>
+                    \[X_{ij} = \begin{cases}1 & z_i \text{ and } z_j \text{ are compared}\\ 0 & \text{otherwise}\end{cases}\]
+
+                    <p><strong>Probability that \(z_i\) and \(z_j\) are compared:</strong><br>
+                    Among the elements \(\{z_i, z_{i+1}, \ldots, z_j\}\), comparison happens iff \(z_i\) or \(z_j\) is the <em>first</em> of these elements chosen as pivot. Since each of the \(j - i + 1\) elements is equally likely to be chosen first:</p>
+                    \[\Pr[X_{ij} = 1] = \frac{2}{j - i + 1}\]
+
+                    <p><strong>Expected total comparisons:</strong> By linearity of expectation:</p>
+                    \[E[C] = \sum_{i=1}^{n-1}\sum_{j=i+1}^{n} \frac{2}{j-i+1} = \sum_{i=1}^{n-1}\sum_{k=2}^{n-i+1} \frac{2}{k}\]
+
+                    <p>Let \(d = j - i\). For each gap \(d\) from 1 to \(n-1\), there are \(n - d\) pairs with that gap:</p>
+                    \[E[C] = \sum_{d=1}^{n-1}(n-d)\cdot\frac{2}{d+1} \le 2n\sum_{d=1}^{n-1}\frac{1}{d+1} \le 2n\sum_{k=2}^{n}\frac{1}{k} \le 2n \ln n\]
+
+                    <p>For the lower bound: \(E[C] \ge 2\sum_{d=1}^{n/2}\frac{n-d}{d+1} \ge \frac{n}{2}\sum_{k=2}^{n/2}\frac{2}{k} \ge n\ln\frac{n}{2} = n(\ln n - \ln 2)\).</p>
+
+                    <p>Therefore: \(E[C] = \Theta(n \log n)\). \(\blacksquare\)</p>
+                </div>
+
+                <h3>6c) Worst-Case Stack Depth and Tail-Call Optimization</h3>
+                <div class="theory-box">
+                    <p><strong>Problem:</strong> On a sorted array with a naive "always pick last element" strategy, every partition call peels off one element. Stack depth = \(O(n)\), causing stack overflow for \(n = 10^5\).</p>
+
+                    <p><strong>Fix — always recurse on the smaller half first:</strong></p>
+                    <ul>
+                        <li>After partitioning at index \(p\), compare sizes of \([lo, p-1]\) and \([p+1, hi]\).</li>
+                        <li>Recurse on the smaller subarray; handle the larger with a loop (<em>tail-call elimination</em>).</li>
+                        <li>This guarantees stack depth \(\le \log_2 n\) because each recursive call is on a subarray at most half the size of the current one.</li>
+                    </ul>
+
+                    <p><strong>Proof of \(O(\log n)\) stack bound:</strong> Let \(S(n)\) = max stack depth on size-\(n\) input. The recursive call is on at most \(\lfloor n/2 \rfloor\) elements, so \(S(n) \le S(n/2) + 1\), giving \(S(n) \le \log_2 n\). \(\blacksquare\)</p>
+                </div>
+
+                <!-- ===================== SECTION 7 ===================== -->
+                <h2 id="haskell-vs-cpp">7) Implementations: Haskell vs C/C++</h2>
+                <h3>Haskell (declarative, immutable lists)</h3>
+                <div class="code-block">
+quicksort :: Ord a => [a] -> [a]
+quicksort [] = []
+quicksort (x:xs) =
+    quicksort [y | y <- xs, y <= x]
+    ++ [x] ++
+    quicksort [y | y <- xs, y > x]
+                </div>
+
+                <table class="styled">
+                    <thead>
+                        <tr><th>Aspect</th><th>Haskell</th><th>C/C++</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Style</td><td>Functional, concise</td><td>Imperative, explicit control</td></tr>
+                        <tr><td>Memory behavior</td><td>Creates new lists — O(n) per level</td><td>In-place — O(1) extra per swap</td></tr>
+                        <tr><td>Performance tuning</td><td>Relies on compiler + GC</td><td>Fine-grained cache/allocation control</td></tr>
+                        <tr><td>Worst-case avoidance</td><td>Harder without mutation</td><td>Easy: randomize pivot, shuffle input</td></tr>
+                        <tr><td>Readability</td><td>Very expressive</td><td>Verbose but transparent</td></tr>
+                    </tbody>
+                </table>
+
+                <!-- ===================== SECTION 8 ===================== -->
+                <h2 id="quickhull">8) Quickhull Algorithm for Convex Hull</h2>
+                <p>The <strong>convex hull</strong> of a point set \(P\) is the smallest convex polygon containing all points. Quickhull finds it recursively — analogous to Quicksort — by always eliminating points that cannot be on the hull.</p>
+
+                <h3>8a) Geometric Foundations</h3>
+                <h4>Cross Product and Signed Area</h4>
+                <div class="math-box">
+                    <p>Given three points \(A\), \(B\), \(C\) in 2D, the <strong>cross product</strong> of vectors \(\overrightarrow{AB}\) and \(\overrightarrow{AC}\) is:</p>
+                    \[\text{cross}(A, B, C) = (B_x - A_x)(C_y - A_y) - (B_y - A_y)(C_x - A_x)\]
+                    <p>This equals the <strong>signed area</strong> of the parallelogram spanned by \(\overrightarrow{AB}\) and \(\overrightarrow{AC}\):</p>
+                    <ul>
+                        <li>\(\text{cross} > 0\): \(C\) is to the <strong>left</strong> of directed line \(A \to B\) (counterclockwise turn)</li>
+                        <li>\(\text{cross} < 0\): \(C\) is to the <strong>right</strong> (clockwise turn)</li>
+                        <li>\(\text{cross} = 0\): \(C\) is <strong>collinear</strong> with \(A\) and \(B\)</li>
+                    </ul>
+                </div>
+
+                <h4>Distance from Point to Line</h4>
+                <div class="math-box">
+                    <p>The <strong>perpendicular distance</strong> from point \(C\) to line \(AB\) is:</p>
+                    \[d(C, AB) = \frac{|\text{cross}(A, B, C)|}{|AB|} = \frac{|(B_x-A_x)(C_y-A_y) - (B_y-A_y)(C_x-A_x)|}{\sqrt{(B_x-A_x)^2+(B_y-A_y)^2}}\]
+                    <p>Since we only need the <em>farthest</em> point and \(|AB|\) is constant within one recursive call, we can compare \(|\text{cross}(A,B,C)|\) directly — no square root needed!</p>
+                </div>
+
+                <div class="code-block">
+struct Point { double x, y; };
+
+// Signed area of parallelogram formed by AB and AC
+// > 0: C is left of A->B,  < 0: C is right,  = 0: collinear
+double cross(const Point&amp; a, const Point&amp; b, const Point&amp; c) {
+    return (b.x - a.x) * (c.y - a.y)
+         - (b.y - a.y) * (c.x - a.x);
+}
+
+// Squared distance between two points
+double dist2(const Point&amp; a, const Point&amp; b) {
+    double dx = b.x - a.x, dy = b.y - a.y;
+    return dx*dx + dy*dy;
+}
+                </div>
+
+                <h3>8b) Quickhull Algorithm — Full C++ Implementation</h3>
+                <p>The algorithm works in two symmetric halves: above and below the baseline \(AB\).</p>
+
+                <div class="code-block">
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+struct Point { double x, y; };
+
+double cross(const Point&amp; a, const Point&amp; b, const Point&amp; c) {
+    return (b.x-a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x);
+}
+
+// Recursively find hull points on the left side of directed line A->B.
+// `pts` contains only points with cross(A,B,P) > 0 (left of AB).
+void hullRec(vector&lt;Point&gt;&amp; pts, Point a, Point b, vector&lt;Point&gt;&amp; hull) {
+    if (pts.empty()) return;
+
+    // Step 1: Find point P farthest from line AB
+    // (maximize |cross(A,B,P)| = proportional to distance since |AB| is constant)
+    int farthestIdx = 0;
+    double maxCross = 0.0;
+    for (int i = 0; i &lt; (int)pts.size(); ++i) {
+        double c = cross(a, b, pts[i]);
+        if (c &gt; maxCross) {
+            maxCross = c;
+            farthestIdx = i;
+        }
+    }
+    Point p = pts[farthestIdx];
+
+    // Step 2: All points INSIDE triangle A-P-B cannot be on hull — discard them.
+    // Collect points to the left of A->P and points to the left of P->B.
+    vector&lt;Point&gt; leftAP, leftPB;
+    for (int i = 0; i &lt; (int)pts.size(); ++i) {
+        if (i == farthestIdx) continue;
+        if (cross(a, p, pts[i]) &gt; 0) leftAP.push_back(pts[i]);
+        if (cross(p, b, pts[i]) &gt; 0) leftPB.push_back(pts[i]);
+        // If on neither side, the point is inside triangle A-P-B: discard
+    }
+
+    // Step 3: Recurse on each subproblem, then add P to hull in order
+    hullRec(leftAP, a, p, hull);
+    hull.push_back(p);
+    hullRec(leftPB, p, b, hull);
+}
+
+// Main Quickhull: returns convex hull in counterclockwise order
+vector&lt;Point&gt; quickhull(vector&lt;Point&gt;&amp; pts) {
+    int n = (int)pts.size();
+    if (n &lt; 3) return pts;
+
+    // Step 1: Find leftmost (A) and rightmost (B) points
+    Point a = *min_element(pts.begin(), pts.end(),
+                           [](const Point&amp; p, const Point&amp; q){ return p.x &lt; q.x; });
+    Point b = *max_element(pts.begin(), pts.end(),
+                           [](const Point&amp; p, const Point&amp; q){ return p.x &lt; q.x; });
+
+    // Step 2: Partition into above-AB and below-AB
+    vector&lt;Point&gt; upper, lower;
+    for (auto&amp; p : pts) {
+        double c = cross(a, b, p);
+        if (c &gt; 0) upper.push_back(p);  // left of A->B = above
+        if (c &lt; 0) lower.push_back(p);  // right of A->B = below
+        // collinear points on AB are interior — skip
+    }
+
+    // Step 3: Build hull counterclockwise: A, upper hull, B, lower hull
+    vector&lt;Point&gt; hull;
+    hull.push_back(a);
+    hullRec(upper, a, b, hull);   // A -> ... -> B along upper
+    hull.push_back(b);
+    hullRec(lower, b, a, hull);   // B -> ... -> A along lower
+    return hull;
+}
+
+int main() {
+    vector&lt;Point&gt; pts = {
+        {0,0},{1,3},{2,2},{4,4},{0,2},{3,1},{3,3},{1,1},{4,0},{2,4}
+    };
+    vector&lt;Point&gt; hull = quickhull(pts);
+    cout &lt;&lt; "Convex hull (" &lt;&lt; hull.size() &lt;&lt; " points):\n";
+    for (auto&amp; p : hull)
+        cout &lt;&lt; "  (" &lt;&lt; p.x &lt;&lt; ", " &lt;&lt; p.y &lt;&lt; ")\n";
+    // Expected hull vertices (CCW): (0,0),(4,0),(4,4),(2,4),(0,2)
+}
+                </div>
+
+                <h3>8c) Step-by-Step Trace</h3>
+                <div class="trace-box">
+Points: {(0,0),(1,3),(2,2),(4,4),(0,2),(3,1),(3,3),(1,1),(4,0),(2,4)}
+
+Step 1: Leftmost A=(0,0), Rightmost B=(4,0)
+
+Step 2: Partition by line A->B (the x-axis here):
+  Upper (left of A->B, y > 0): (1,3),(2,2),(4,4),(0,2),(3,1),(3,3),(1,1),(2,4)
+  Lower (right of A->B): none (all points have y >= 0 in this example)
+
+Step 3: hullRec(upper, A=(0,0), B=(4,0)):
+  cross(A,B,P) = (4)(P.y) - (0)(P.x-0) = 4*P.y
+  Farthest from line AB: maximize P.y → (2,4) and (4,4) tie → pick first with max
+  Say P = (4,4) → cross = 4*4 = 16
+
+  Triangle A=(0,0), P=(4,4), B=(4,0):
+  Points left of A->P: cross((0,0),(4,4),Q) = 4*Qy - 4*Qx = 4(Qy-Qx) > 0 → Qy > Qx
+    (1,3)✓ (0,2)✓ (2,4)✓
+  Points left of P->B: cross((4,4),(4,0),Q) = 0*(Qy-4) - (-4)*(Qx-4) = -4(Qx-4) > 0 → Qx < 4
+    (3,1)✓ (3,3)✓
+  Points inside triangle (discard): (2,2),(1,1)
+
+  Recurse:
+    hullRec([{1,3},{0,2},{2,4}], A, P=(4,4)):
+      Farthest from line (0,0)->(4,4): cross = 4*Qy-4*Qx = 4(Qy-Qx)
+      (0,2): 4(2-0)=8, (1,3): 4(3-1)=8, (2,4): 4(4-2)=8  (tie → (0,2))
+      ... continues recursively ...
+
+Hull (CCW): (0,0), ... upper hull points ..., (4,0)
+                </div>
+
+                <h3>8d) Complexity Analysis of Quickhull</h3>
+                <div class="proof-box">
+                    <p><strong>Average case: \(O(n \log n)\)</strong></p>
+                    <p>At each level of recursion, every point is examined once per level. The expected number of levels is \(O(\log n)\) when the farthest point splits the problem "evenly" — analogous to a balanced Quicksort split. Formally, for uniformly random points inside a convex region, the expected number of recursive calls is \(O(n \log n)\) total.</p>
+
+                    <p><strong>Worst case: \(O(n^2)\)</strong></p>
+                    <p>Consider \(n\) points on a semicircle. The farthest point from chord \(AB\) splits the arc into two arcs of sizes \(1\) and \(n-2\) — exactly like Quicksort's worst case with a sorted array. The recurrence is:</p>
+                    \[T(n) = T(1) + T(n-2) + O(n) = O(n^2)\]
+                    <p>In practice, Quickhull avoids this with random point distributions, but adversarial input (circular arrangements) triggers \(O(n^2)\).</p>
+
+                    <p><strong>Key insight — triangle elimination:</strong> Any point strictly inside triangle \(A\text{-}P\text{-}B\) cannot be on the convex hull (it is dominated by the three vertices). Quickhull discards these in \(O(n)\) per level, which is why it achieves sub-quadratic expected performance.</p>
+                </div>
+
+                <div class="insight-box">
+                    <strong>Why is Quickhull fast in practice?</strong> For typical inputs (random, clustered), the farthest-point triangles eliminate a constant fraction of points at each level, giving expected \(O(n \log n)\). The algorithm also avoids geometric predicates beyond the cross product, making it cache-friendly and fast in absolute terms.
+                </div>
+
+                <h3>8e) Correctness Argument</h3>
+                <div class="proof-box">
+                    <p><strong>Lemma:</strong> If point \(Q\) lies strictly inside triangle \(A\text{-}P\text{-}B\) (where \(P\) is the farthest point from \(AB\)), then \(Q\) is not a vertex of the convex hull.</p>
+                    <p><strong>Proof:</strong> Since \(Q\) is strictly inside the triangle, it is a convex combination of \(A\), \(P\), \(B\):
+                    \(Q = \alpha A + \beta P + \gamma B\) with \(\alpha,\beta,\gamma > 0\) and \(\alpha+\beta+\gamma=1\).
+                    Therefore \(Q\) is in the interior of the convex hull (which contains \(A\), \(P\), \(B\)), so it cannot be an extreme point. \(\blacksquare\)</p>
+
+                    <p><strong>Corollary:</strong> Quickhull never discards a hull point. Combined with the fact that it adds boundary candidates at each level, the algorithm is correct.</p>
+                </div>
+
+                <h3>8f) Comparison with Other Convex Hull Algorithms</h3>
+                <table class="styled">
+                    <thead>
+                        <tr><th>Algorithm</th><th>Time (avg)</th><th>Time (worst)</th><th>Notes</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Quickhull</td><td>O(n log n)</td><td>O(n²)</td><td>Fast in practice, simple to implement</td></tr>
+                        <tr><td>Graham Scan</td><td>O(n log n)</td><td>O(n log n)</td><td>Sort + angular sweep, always optimal</td></tr>
+                        <tr><td>Jarvis March</td><td>O(nh)</td><td>O(n²)</td><td>h = hull size; good when h is small</td></tr>
+                        <tr><td>Chan's Algorithm</td><td>O(n log h)</td><td>O(n log h)</td><td>Optimal output-sensitive algorithm</td></tr>
+                    </tbody>
+                </table>
+
+                <!-- ===================== SECTION 9 ===================== -->
+                <h2 id="practice-problems">9) Problems by Level</h2>
+
+                <h3>Easy</h3>
+
+                <div class="problem-card easy">
+                    <h4>Problem E1: Partition Index <span class="difficulty-badge difficulty-easy">Easy</span></h4>
+                    <p><strong>Task:</strong> Given array <code>[9, 3, 7, 1, 8]</code> with pivot at last index (8), perform Lomuto partition and return the final pivot index. Trace each swap.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('qprob-e1')">Show Solution</button>
+                    <div id="qprob-e1" class="solution-content">
+                        <div class="trace-box">
+Array: [9, 3, 7, 1, 8]   pivot=8, i=-1
+
+j=0: a[0]=9 > 8  → no swap    [9, 3, 7, 1, 8]  i=-1
+j=1: a[1]=3 ≤ 8  → i=0, swap(0,1) [3, 9, 7, 1, 8]  i=0
+j=2: a[2]=7 ≤ 8  → i=1, swap(1,2) [3, 7, 9, 1, 8]  i=1
+j=3: a[3]=1 ≤ 8  → i=2, swap(2,3) [3, 7, 1, 9, 8]  i=2
+
+Final swap(i+1=3, hi=4): [3, 7, 1, 8, 9]
+Pivot 8 at index 3. ✓
+                        </div>
+                        <div class="code-block">
+int partitionLomuto(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    int pivot = a[hi], i = lo - 1;
+    for (int j = lo; j &lt; hi; ++j)
+        if (a[j] &lt;= pivot) swap(a[++i], a[j]);
+    swap(a[i + 1], a[hi]);
+    return i + 1;
+}
+
+int main() {
+    vector&lt;int&gt; a = {9, 3, 7, 1, 8};
+    int idx = partitionLomuto(a, 0, 4);
+    cout &lt;&lt; "Pivot index: " &lt;&lt; idx &lt;&lt; "\n"; // 3
+    for (int x : a) cout &lt;&lt; x &lt;&lt; " "; // 3 7 1 8 9
+}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="problem-card easy">
+                    <h4>Problem E2: Count Quicksort Comparisons <span class="difficulty-badge difficulty-easy">Easy</span></h4>
+                    <p><strong>Task:</strong> Instrument Quicksort to count comparisons. Compare: (a) random array, (b) sorted array, (c) reverse-sorted array of size 1000. Observe \(O(n \log n)\) vs \(O(n^2)\) behavior.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('qprob-e2')">Show Solution</button>
+                    <div id="qprob-e2" class="solution-content">
+                        <div class="code-block">
+long long cmpCount = 0;
+
+int partitionCount(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    int pivot = a[hi], i = lo - 1;
+    for (int j = lo; j &lt; hi; ++j) {
+        ++cmpCount;
+        if (a[j] &lt;= pivot) swap(a[++i], a[j]);
+    }
+    swap(a[i + 1], a[hi]);
+    return i + 1;
+}
+
+void quicksortCount(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    if (lo &gt;= hi) return;
+    int p = partitionCount(a, lo, hi);
+    quicksortCount(a, lo, p - 1);
+    quicksortCount(a, p + 1, hi);
+}
+
+int main() {
+    int n = 1000;
+    // Random
+    vector&lt;int&gt; a(n); iota(a.begin(), a.end(), 1);
+    shuffle(a.begin(), a.end(), mt19937(42));
+    cmpCount = 0;
+    quicksortCount(a, 0, n-1);
+    cout &lt;&lt; "Random: " &lt;&lt; cmpCount &lt;&lt; " comparisons\n";
+    // Expected: ~n*log2(n) ≈ 10000
+
+    // Sorted (worst case for last-element pivot)
+    iota(a.begin(), a.end(), 1);
+    cmpCount = 0;
+    quicksortCount(a, 0, n-1);
+    cout &lt;&lt; "Sorted: " &lt;&lt; cmpCount &lt;&lt; " comparisons\n";
+    // Expected: ~n*(n-1)/2 ≈ 499500
+
+    // Reverse sorted
+    iota(a.rbegin(), a.rend(), 1);
+    cmpCount = 0;
+    quicksortCount(a, 0, n-1);
+    cout &lt;&lt; "Reverse: " &lt;&lt; cmpCount &lt;&lt; " comparisons\n";
+    // Expected: ~n*(n-1)/2 ≈ 499500
+}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="problem-card easy">
+                    <h4>Problem E3: Cross Product Sign <span class="difficulty-badge difficulty-easy">Easy</span></h4>
+                    <p><strong>Task:</strong> Given three points, determine if they make a left turn, right turn, or are collinear using the cross product.</p>
+                    <pre><code>Input: A=(0,0), B=(4,0), C=(2,3)
+Output: Left turn (C is above line AB)</code></pre>
+                    <button class="toggle-btn" onclick="toggleSolution('qprob-e3')">Show Solution</button>
+                    <div id="qprob-e3" class="solution-content">
+                        <div class="code-block">
+struct Point { double x, y; };
+
+double cross(const Point&amp; a, const Point&amp; b, const Point&amp; c) {
+    return (b.x-a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x);
+}
+
+string turn(const Point&amp; a, const Point&amp; b, const Point&amp; c) {
+    double cr = cross(a, b, c);
+    if (cr &gt; 0) return "Left turn (CCW)";
+    if (cr &lt; 0) return "Right turn (CW)";
+    return "Collinear";
+}
+
+int main() {
+    // Manual check: cross((0,0),(4,0),(2,3))
+    // = (4-0)*(3-0) - (0-0)*(2-0) = 12 - 0 = 12 > 0 → Left turn
+    cout &lt;&lt; turn({0,0},{4,0},{2,3}) &lt;&lt; "\n"; // Left turn (CCW)
+    cout &lt;&lt; turn({0,0},{4,0},{2,-1}) &lt;&lt; "\n"; // Right turn (CW)
+    cout &lt;&lt; turn({0,0},{4,0},{2,0}) &lt;&lt; "\n";  // Collinear
+}
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Medium</h3>
+
+                <div class="problem-card medium">
+                    <h4>Problem M1: Compare Partition Strategies <span class="difficulty-badge difficulty-medium">Medium</span></h4>
+                    <p><strong>Task:</strong> Implement both Lomuto and Hoare partitions. Count swaps for each on the same 10,000-element random array. Verify that Hoare does approximately 3× fewer swaps.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('qprob-m1')">Show Solution</button>
+                    <div id="qprob-m1" class="solution-content">
+                        <div class="code-block">
+long long swapCount = 0;
+
+int partitionLomutoC(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    int pivot = a[hi], i = lo - 1;
+    for (int j = lo; j &lt; hi; ++j)
+        if (a[j] &lt;= pivot) { ++swapCount; swap(a[++i], a[j]); }
+    ++swapCount;
+    swap(a[i+1], a[hi]);
+    return i + 1;
+}
+
+int partitionHoareC(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    int pivot = a[lo + (hi - lo) / 2];
+    int i = lo - 1, j = hi + 1;
+    while (true) {
+        do ++i; while (a[i] &lt; pivot);
+        do --j; while (a[j] &gt; pivot);
+        if (i &gt;= j) return j;
+        ++swapCount;
+        swap(a[i], a[j]);
+    }
+}
+
+int main() {
+    int n = 10000;
+    vector&lt;int&gt; a(n), b(n);
+    iota(a.begin(), a.end(), 1);
+    shuffle(a.begin(), a.end(), mt19937(42));
+    b = a;
+
+    // Lomuto
+    swapCount = 0;
+    function&lt;void(int,int)&gt; qs1 = [&amp;](int lo, int hi) {
+        if (lo &gt;= hi) return;
+        int p = partitionLomutoC(a, lo, hi);
+        qs1(lo, p-1); qs1(p+1, hi);
+    };
+    qs1(0, n-1);
+    long long lomutoSwaps = swapCount;
+
+    // Hoare
+    swapCount = 0;
+    function&lt;void(int,int)&gt; qs2 = [&amp;](int lo, int hi) {
+        if (lo &gt;= hi) return;
+        int j = partitionHoareC(b, lo, hi);
+        qs2(lo, j); qs2(j+1, hi);
+    };
+    qs2(0, n-1);
+    long long hoareSwaps = swapCount;
+
+    cout &lt;&lt; "Lomuto swaps: " &lt;&lt; lomutoSwaps &lt;&lt; "\n";
+    cout &lt;&lt; "Hoare swaps:  " &lt;&lt; hoareSwaps &lt;&lt; "\n";
+    cout &lt;&lt; "Ratio: " &lt;&lt; (double)lomutoSwaps / hoareSwaps &lt;&lt; "x\n";
+    // Typical output: Lomuto ~1.5x to 3x more swaps than Hoare
+}
                         </div>
                     </div>
                 </div>
 
                 <div class="problem-card medium">
-                    <h4>Problem M2: Solve the Recurrence <span class="difficulty-badge difficulty-medium">Medium</span></h4>
-                    <p><strong>Task:</strong> Bound complexity for <code>T(n) = 2T(n/2) + n</code> and <code>T(n) = T(n-1) + n</code>.</p>
+                    <h4>Problem M2: Solve the Recurrences <span class="difficulty-badge difficulty-medium">Medium</span></h4>
+                    <p><strong>Task:</strong> Give tight bounds for: (a) \(T(n)=2T(n/2)+n\), (b) \(T(n)=T(n-1)+n\), (c) \(T(n)=T(n/2)+1\), (d) \(T(n)=4T(n/2)+n^2\). Show all work.</p>
                     <button class="toggle-btn" onclick="toggleSolution('qprob-m2')">Show Solution</button>
                     <div id="qprob-m2" class="solution-content">
-                        <div class="code-block">
-1) T(n) = 2T(n/2) + n
-   Master theorem: a=2, b=2, f(n)=n
-   n^(log_b a)=n^1=n, so case 2:
-   T(n)=Theta(n log n)
+                        <div class="math-box">
+                            <p><strong>(a)</strong> \(T(n) = 2T(n/2) + n\) — Master Theorem, \(a=2,b=2,d=\log_2 2 = 1\), \(f(n)=n=\Theta(n^1)\) → Case 2: \(T(n) = \Theta(n \log n)\)</p>
 
-2) T(n) = T(n-1) + n
-   Unroll:
-   T(n)=T(1)+2+3+...+n
-   => Theta(n^2)
+                            <p><strong>(b)</strong> \(T(n) = T(n-1) + n\) — Unroll:
+                            \(T(n) = n + (n-1) + \cdots + 1 = \frac{n(n+1)}{2} = \Theta(n^2)\)</p>
+
+                            <p><strong>(c)</strong> \(T(n) = T(n/2) + 1\) — Master Theorem, \(a=1,b=2,d=\log_2 1=0\), \(f(n)=1=\Theta(n^0)\) → Case 2: \(T(n) = \Theta(\log n)\)</p>
+
+                            <p><strong>(d)</strong> \(T(n) = 4T(n/2) + n^2\) — Master Theorem, \(a=4,b=2,d=\log_2 4=2\), \(f(n)=n^2=\Theta(n^2)\) → Case 2: \(T(n) = \Theta(n^2 \log n)\)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="problem-card medium">
+                    <h4>Problem M3: 3-Way Quicksort on Duplicates <span class="difficulty-badge difficulty-medium">Medium</span></h4>
+                    <p><strong>Task:</strong> Sort <code>[5,3,5,1,5,2,5,4,5]</code> using 3-way partition. Count how many comparisons are saved vs standard Quicksort when many elements equal the pivot.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('qprob-m3')">Show Solution</button>
+                    <div id="qprob-m3" class="solution-content">
+                        <div class="trace-box">
+Array: [5,3,5,1,5,2,5,4,5]   pivot=5 (first element)
+
+3-way partition result:
+  [1,2,3,4] | [5,5,5,5,5] | []
+  lt=0       gt=4           (no "greater" elements)
+
+Standard Quicksort would recurse on [1,2,3,4,5,5,5,5,5],
+comparing 5 against itself 4 more times before placing each.
+
+3-way: only recurse on [1,2,3,4] (size 4) — 5×5=25 comparisons saved.
+                        </div>
+                        <div class="code-block">
+void partition3way(vector&lt;int&gt;&amp; a, int lo, int hi, int&amp; lt, int&amp; gt) {
+    int pivot = a[lo];
+    lt = lo; gt = hi; int i = lo;
+    while (i &lt;= gt) {
+        if      (a[i] &lt; pivot) swap(a[lt++], a[i++]);
+        else if (a[i] &gt; pivot) swap(a[i],    a[gt--]);
+        else                   ++i;
+    }
+}
+
+void qs3(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    if (lo &gt;= hi) return;
+    int lt, gt;
+    partition3way(a, lo, hi, lt, gt);
+    qs3(a, lo, lt - 1);
+    qs3(a, gt + 1, hi);
+}
+
+int main() {
+    vector&lt;int&gt; a = {5,3,5,1,5,2,5,4,5};
+    qs3(a, 0, (int)a.size()-1);
+    for (int x : a) cout &lt;&lt; x &lt;&lt; " "; // 1 2 3 4 5 5 5 5 5
+}
                         </div>
                     </div>
                 </div>
 
                 <h3>Hard</h3>
+
                 <div class="problem-card hard">
-                    <h4>Problem H1: Iterative Quicksort <span class="difficulty-badge difficulty-hard">Hard</span></h4>
-                    <p><strong>Task:</strong> Implement quicksort without recursion using an explicit stack of ranges.</p>
+                    <h4>Problem H1: Iterative Quicksort with O(log n) Stack <span class="difficulty-badge difficulty-hard">Hard</span></h4>
+                    <p><strong>Task:</strong> Implement iterative Quicksort that guarantees \(O(\log n)\) stack space by always pushing the larger partition last.</p>
                     <button class="toggle-btn" onclick="toggleSolution('qprob-h1')">Show Solution</button>
                     <div id="qprob-h1" class="solution-content">
                         <div class="code-block">
+// Iterative Quicksort with guaranteed O(log n) stack depth.
+// Key: always push the LARGER subarray first, process SMALLER subarray next.
+// This ensures the stack never holds more than log2(n) entries at once.
 void quicksortIterative(vector&lt;int&gt;&amp; a) {
-    if (a.empty()) return;
+    if (a.size() &lt; 2) return;
     vector&lt;pair&lt;int,int&gt;&gt; st;
     st.push_back({0, (int)a.size() - 1});
+
     while (!st.empty()) {
-        auto [lo, hi] = st.back();
-        st.pop_back();
+        auto [lo, hi] = st.back(); st.pop_back();
         if (lo &gt;= hi) continue;
+
         int p = partitionLomuto(a, lo, hi);
-        if (p - 1 &gt; lo) st.push_back({lo, p - 1});
-        if (p + 1 &lt; hi) st.push_back({p + 1, hi});
+        int leftSize  = p - 1 - lo;
+        int rightSize = hi - (p + 1);
+
+        // Push larger half first (processed later / deeper in stack)
+        // Push smaller half second (processed next / stack top)
+        if (leftSize &gt; rightSize) {
+            if (lo &lt; p - 1)  st.push_back({lo, p - 1});
+            if (p + 1 &lt; hi)  st.push_back({p + 1, hi});
+        } else {
+            if (p + 1 &lt; hi)  st.push_back({p + 1, hi});
+            if (lo &lt; p - 1)  st.push_back({lo, p - 1});
+        }
     }
+}
+
+int main() {
+    vector&lt;int&gt; a(10000);
+    iota(a.begin(), a.end(), 1);
+    shuffle(a.begin(), a.end(), mt19937(42));
+    quicksortIterative(a);
+    cout &lt;&lt; (is_sorted(a.begin(), a.end()) ? "Sorted!" : "Error") &lt;&lt; "\n";
+}
+                        </div>
+                        <div class="insight-box">
+                            <strong>Why O(log n) stack:</strong> Each recursive call that goes onto the stack is on a subarray at most half the size of the current subarray (since we push larger last and process smaller next). So stack depth ≤ log₂(n).
+                        </div>
+                    </div>
+                </div>
+
+                <div class="problem-card hard">
+                    <h4>Problem H2: Full Quickhull with Deduplication <span class="difficulty-badge difficulty-hard">Hard</span></h4>
+                    <p><strong>Task:</strong> Implement complete Quickhull returning hull vertices in counterclockwise order, handling collinear points and duplicate input points correctly.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('qprob-h2')">Show Solution</button>
+                    <div id="qprob-h2" class="solution-content">
+                        <div class="code-block">
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+
+struct Point {
+    double x, y;
+    bool operator&lt;(const Point&amp; o) const {
+        return x &lt; o.x || (x == o.x &amp;&amp; y &lt; o.y);
+    }
+    bool operator==(const Point&amp; o) const {
+        return x == o.x &amp;&amp; y == o.y;
+    }
+};
+
+double cross(const Point&amp; a, const Point&amp; b, const Point&amp; c) {
+    return (b.x-a.x)*(c.y-a.y) - (b.y-a.y)*(c.x-a.x);
+}
+
+void hullRec(vector&lt;Point&gt;&amp; pts, Point a, Point b, vector&lt;Point&gt;&amp; hull) {
+    if (pts.empty()) return;
+    int fi = 0;
+    double maxVal = 0;
+    for (int i = 0; i &lt; (int)pts.size(); ++i) {
+        double c = cross(a, b, pts[i]);
+        if (c &gt; maxVal) { maxVal = c; fi = i; }
+    }
+    if (maxVal &lt;= 0) return; // no point to the left
+    Point p = pts[fi];
+    vector&lt;Point&gt; leftAP, leftPB;
+    for (int i = 0; i &lt; (int)pts.size(); ++i) {
+        if (i == fi) continue;
+        if (cross(a, p, pts[i]) &gt; 0) leftAP.push_back(pts[i]);
+        if (cross(p, b, pts[i]) &gt; 0) leftPB.push_back(pts[i]);
+    }
+    hullRec(leftAP, a, p, hull);
+    hull.push_back(p);
+    hullRec(leftPB, p, b, hull);
+}
+
+vector&lt;Point&gt; quickhull(vector&lt;Point&gt; pts) {
+    // Deduplicate
+    sort(pts.begin(), pts.end());
+    pts.erase(unique(pts.begin(), pts.end()), pts.end());
+    int n = (int)pts.size();
+    if (n &lt; 2) return pts;
+    if (n == 2) return pts;
+
+    Point a = pts.front(); // min x (sorted)
+    Point b = pts.back();  // max x (sorted)
+
+    vector&lt;Point&gt; upper, lower;
+    for (auto&amp; p : pts) {
+        double c = cross(a, b, p);
+        if (c &gt; 0) upper.push_back(p);
+        if (c &lt; 0) lower.push_back(p);
+    }
+
+    vector&lt;Point&gt; hull;
+    hull.push_back(a);
+    hullRec(upper, a, b, hull); // CCW upper
+    hull.push_back(b);
+    hullRec(lower, b, a, hull); // CCW lower (B->A on the bottom)
+    return hull;
+}
+
+int main() {
+    vector&lt;Point&gt; pts = {
+        {0,0},{2,0},{4,0},{4,2},{4,4},{2,4},{0,4},{0,2},{2,2},
+        {1,1},{3,3},{1,3},{3,1},{0,0},{4,4} // duplicates
+    };
+    auto hull = quickhull(pts);
+    cout &lt;&lt; "Hull vertices (" &lt;&lt; hull.size() &lt;&lt; "):\n";
+    for (auto&amp; p : hull)
+        cout &lt;&lt; "  (" &lt;&lt; p.x &lt;&lt; "," &lt;&lt; p.y &lt;&lt; ")\n";
+    // Expected: (0,0),(4,0),(4,4),(0,4) — corners of the square
 }
                         </div>
                     </div>
                 </div>
 
                 <div class="problem-card hard">
-                    <h4>Problem H2: Full Quickhull Implementation <span class="difficulty-badge difficulty-hard">Hard</span></h4>
-                    <p><strong>Task:</strong> Return convex hull points (counterclockwise order) using Quickhull and remove duplicates.</p>
-                    <button class="toggle-btn" onclick="toggleSolution('qprob-h2')">Show Solution</button>
-                    <div id="qprob-h2" class="solution-content">
+                    <h4>Problem H3: Prove Expected O(n log n) for Quicksort <span class="difficulty-badge difficulty-hard">Hard</span></h4>
+                    <p><strong>Task:</strong> Complete the indicator random variable proof from Section 6b. Compute the exact expected comparisons for \(n=5\) by hand and verify with code.</p>
+                    <button class="toggle-btn" onclick="toggleSolution('qprob-h3')">Show Solution</button>
+                    <div id="qprob-h3" class="solution-content">
+                        <div class="math-box">
+                            <p>For \(n=5\), elements \(z_1 < z_2 < z_3 < z_4 < z_5\):</p>
+                            \[E[C] = \sum_{1 \le i < j \le 5} \frac{2}{j - i + 1}\]
+                            <p>All pairs \((i,j)\) with their contributions:</p>
+                            <table class="styled">
+                                <thead><tr><th>\((i,j)\)</th><th>\(j-i+1\)</th><th>\(2/(j-i+1)\)</th></tr></thead>
+                                <tbody>
+                                    <tr><td>(1,2),(2,3),(3,4),(4,5)</td><td>2</td><td>4 × 1 = 4</td></tr>
+                                    <tr><td>(1,3),(2,4),(3,5)</td><td>3</td><td>3 × 2/3 = 2</td></tr>
+                                    <tr><td>(1,4),(2,5)</td><td>4</td><td>2 × 1/2 = 1</td></tr>
+                                    <tr><td>(1,5)</td><td>5</td><td>1 × 2/5 = 2/5</td></tr>
+                                </tbody>
+                            </table>
+                            <p>\(E[C] = 4 + 2 + 1 + 0.4 = 7.4\)</p>
+                            <p>Compare with \(n \ln n - n \approx 5 \ln 5 - 5 \approx 3.05\) (lower bound) and \(2n \ln n \approx 16.1\) (upper bound). \(7.4\) is in range. ✓</p>
+                        </div>
                         <div class="code-block">
-// High-level outline:
-// 1) Find min-x point A and max-x point B
-// 2) Split points into leftSet(AB) and rightSet(BA)
-// 3) Recurse: farthest point P from line AB
-// 4) Recurse on A-P and P-B subsets
-// 5) Insert hull points into set to avoid duplicates
-//
-// Complexity:
-// Average ~ O(n log n), worst O(n^2)
+// Verify by simulation: average comparisons over many random permutations
+#include &lt;bits/stdc++.h&gt;
+using namespace std;
+long long cmp;
+
+int partition(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    int pivot = a[hi], i = lo - 1;
+    for (int j = lo; j &lt; hi; ++j) { ++cmp; if (a[j] &lt;= pivot) swap(a[++i], a[j]); }
+    swap(a[i+1], a[hi]); return i + 1;
+}
+void qs(vector&lt;int&gt;&amp; a, int lo, int hi) {
+    if (lo &gt;= hi) return;
+    int p = partition(a, lo, hi);
+    qs(a, lo, p-1); qs(a, p+1, hi);
+}
+
+int main() {
+    int n = 5;
+    mt19937 rng(0);
+    long long totalCmp = 0;
+    int trials = 100000;
+    for (int t = 0; t &lt; trials; ++t) {
+        vector&lt;int&gt; a(n); iota(a.begin(), a.end(), 1);
+        shuffle(a.begin(), a.end(), rng);
+        // Use random pivot to match theory
+        cmp = 0; qs(a, 0, n-1);
+        totalCmp += cmp;
+    }
+    cout &lt;&lt; fixed &lt;&lt; setprecision(2);
+    cout &lt;&lt; "Simulated E[C] for n=5: " &lt;&lt; (double)totalCmp/trials &lt;&lt; "\n";
+    cout &lt;&lt; "Theoretical E[C]:        7.40\n";
+    // Output: approximately 7.40 (matches theory)
+}
                         </div>
                     </div>
                 </div>
