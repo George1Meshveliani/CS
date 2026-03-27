@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vectors in C++ — std::vector Deep Dive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 80ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2 { font-size: 1.9rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.25rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose h4 { font-size: 1.15rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .prose p, .prose li { font-size: 1.1rem; line-height: 1.8; }
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #e5e7eb;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.93em;
+        }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .code-block {
+            background-color: #0f172a;
+            color: #d1d5db;
+            padding: 1.25rem 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.75;
+            font-size: 0.91rem;
+        }
+        .kw  { color: #93c5fd; }
+        .cm  { color: #6b7280; font-style: italic; }
+        .st  { color: #86efac; }
+        .nm  { color: #fde68a; }
+        .fn  { color: #c4b5fd; }
+        .pp  { color: #f9a8d4; }
+        .theory-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 5px solid #3b82f6;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .insight-box {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-left: 5px solid #10b981;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .warn-box {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border-left: 5px solid #ef4444;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .note-box {
+            background: linear-gradient(135deg, #fefce8 0%, #fef08a 100%);
+            border-left: 5px solid #eab308;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .diagram-wrap {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 2px solid #0ea5e9;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        table.styled { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        table.styled thead tr { background-color: #1e293b; color: white; }
+        table.styled th, table.styled td {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+            vertical-align: top;
+        }
+        table.styled tbody tr:nth-child(even) { background-color: #f8fafc; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-900">Vectors in C++ — <code class="text-blue-600 text-xl">std::vector</code></h1>
+            <div class="text-sm text-gray-500">C++ Programming</div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+
+                <h1>Vectors in C++ — <code>std::vector</code></h1>
+                <p><code>std::vector</code> is the most-used container in the C++ standard library. It is a dynamic array: it stores elements in a single contiguous block of heap memory, supports random access in O(1), and grows automatically when new elements are pushed in. Understanding how it works internally — and especially how growth, reallocation, and iterator invalidation operate — is essential for writing correct and efficient C++ code.</p>
+
+                <!-- ============================================================ -->
+                <h2>Topics of Discussion</h2>
+                <ol>
+                    <li><a href="#what-is-vector">What is std::vector?</a></li>
+                    <li><a href="#memory-model">Memory model — internal structure</a></li>
+                    <li><a href="#size-capacity">Size vs capacity and growth strategy</a></li>
+                    <li><a href="#construction">Construction and initialisation</a></li>
+                    <li><a href="#operations">Core operations and their complexity</a></li>
+                    <li><a href="#reserve-resize">reserve() vs resize()</a></li>
+                    <li><a href="#iterators">Iterators and pointer/iterator invalidation</a></li>
+                    <li><a href="#2d-vector">2D vectors</a></li>
+                    <li><a href="#move">Move semantics with vectors</a></li>
+                    <li><a href="#vs-array">std::vector vs raw array vs std::array</a></li>
+                    <li><a href="#pitfalls">Common pitfalls</a></li>
+                </ol>
+
+                <!-- ============================================================ -->
+                <h2 id="what-is-vector">1. What is <code>std::vector</code>?</h2>
+
+                <div class="theory-box">
+                    <p><code>std::vector&lt;T&gt;</code> is a <strong>contiguous, dynamically resizable array</strong>. Its elements are always stored next to each other in memory (like a C array), but unlike a C array its size can change at runtime. The vector object itself is small and lives on the stack (or wherever you declare it); the actual elements live on the heap.</p>
+                </div>
+
+                <p>Key guarantees from the standard:</p>
+                <ul>
+                    <li>Elements are stored in <strong>contiguous memory</strong> — <code>&amp;v[0]</code> is a valid C-style array pointer.</li>
+                    <li>Random access (<code>v[i]</code>) is <strong>O(1)</strong>.</li>
+                    <li><code>push_back</code> is <strong>amortised O(1)</strong>.</li>
+                    <li>Insertion and deletion in the middle is <strong>O(n)</strong> — elements must be shifted.</li>
+                </ul>
+
+                <!-- ============================================================ -->
+                <h2 id="memory-model">2. Memory Model — Internal Structure</h2>
+
+                <p>A <code>std::vector</code> object holds exactly three things:</p>
+                <ul>
+                    <li><strong><code>data</code></strong> — a pointer to the heap-allocated element array.</li>
+                    <li><strong><code>size</code></strong> — the number of elements currently stored.</li>
+                    <li><strong><code>capacity</code></strong> — the total number of elements the current allocation can hold before a reallocation is needed.</li>
+                </ul>
+                <p>On a 64-bit system each of those is 8 bytes, so <code>sizeof(std::vector&lt;T&gt;) == 24</code> bytes regardless of how many elements it contains.</p>
+
+                <!-- Diagram 1: vector struct on stack → heap -->
+                <div class="diagram-wrap">
+                    <svg width="100%" height="320" viewBox="0 0 960 320" style="max-width:960px;display:block;margin:0 auto;background:white;border-radius:0.75rem;padding:12px;">
+                        <defs>
+                            <linearGradient id="stackGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#4338ca;stop-opacity:1"/>
+                            </linearGradient>
+                            <linearGradient id="heapGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#0284c7;stop-opacity:1"/>
+                            </linearGradient>
+                            <linearGradient id="emptyGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#e2e8f0;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#cbd5e1;stop-opacity:1"/>
+                            </linearGradient>
+                            <filter id="sh1"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.18"/></filter>
+                            <marker id="arr1" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0,10 3.5,0 7" fill="#6366f1"/>
+                            </marker>
+                        </defs>
+
+                        <text x="480" y="22" text-anchor="middle" font-size="15" font-weight="700" fill="#1e293b">std::vector&lt;int&gt; v = {10, 20, 30}  —  Memory Layout</text>
+
+                        <!-- STACK label -->
+                        <rect x="30" y="40" width="240" height="220" rx="10" fill="#f1f5f9" stroke="#94a3b8" stroke-width="2"/>
+                        <text x="150" y="62" text-anchor="middle" font-size="13" font-weight="700" fill="#64748b">STACK</text>
+
+                        <!-- vector object fields -->
+                        <!-- data ptr field -->
+                        <rect x="50" y="75" width="200" height="52" rx="6" fill="url(#stackGrad)" filter="url(#sh1)"/>
+                        <text x="150" y="98" text-anchor="middle" font-size="12" font-weight="700" fill="white">data</text>
+                        <text x="150" y="116" text-anchor="middle" font-size="11" fill="#c7d2fe">pointer → heap</text>
+
+                        <!-- size field -->
+                        <rect x="50" y="137" width="200" height="52" rx="6" fill="url(#stackGrad)" filter="url(#sh1)"/>
+                        <text x="150" y="160" text-anchor="middle" font-size="12" font-weight="700" fill="white">size</text>
+                        <text x="150" y="178" text-anchor="middle" font-size="11" fill="#c7d2fe">3</text>
+
+                        <!-- capacity field -->
+                        <rect x="50" y="199" width="200" height="52" rx="6" fill="url(#stackGrad)" filter="url(#sh1)"/>
+                        <text x="150" y="222" text-anchor="middle" font-size="12" font-weight="700" fill="white">capacity</text>
+                        <text x="150" y="240" text-anchor="middle" font-size="11" fill="#c7d2fe">5</text>
+
+                        <!-- sizeof annotation -->
+                        <text x="150" y="280" text-anchor="middle" font-size="11" fill="#64748b">sizeof(vector) = 24 bytes</text>
+
+                        <!-- Arrow from data ptr to heap -->
+                        <line x1="252" y1="101" x2="380" y2="101" stroke="#6366f1" stroke-width="2.5" marker-end="url(#arr1)"/>
+
+                        <!-- HEAP label -->
+                        <rect x="380" y="40" width="540" height="220" rx="10" fill="#f0f9ff" stroke="#0ea5e9" stroke-width="2"/>
+                        <text x="650" y="62" text-anchor="middle" font-size="13" font-weight="700" fill="#0284c7">HEAP  —  contiguous allocation (capacity = 5 slots)</text>
+
+                        <!-- 5 heap slots -->
+                        <!-- slot 0 — filled -->
+                        <rect x="400" y="78" width="88" height="60" rx="6" fill="url(#heapGrad)" filter="url(#sh1)"/>
+                        <text x="444" y="104" text-anchor="middle" font-size="16" font-weight="700" fill="white">10</text>
+                        <text x="444" y="124" text-anchor="middle" font-size="11" fill="#bae6fd">[0]</text>
+                        <text x="444" y="154" text-anchor="middle" font-size="10" fill="#0ea5e9">0x1000</text>
+
+                        <!-- slot 1 — filled -->
+                        <rect x="498" y="78" width="88" height="60" rx="6" fill="url(#heapGrad)" filter="url(#sh1)"/>
+                        <text x="542" y="104" text-anchor="middle" font-size="16" font-weight="700" fill="white">20</text>
+                        <text x="542" y="124" text-anchor="middle" font-size="11" fill="#bae6fd">[1]</text>
+                        <text x="542" y="154" text-anchor="middle" font-size="10" fill="#0ea5e9">0x1004</text>
+
+                        <!-- slot 2 — filled -->
+                        <rect x="596" y="78" width="88" height="60" rx="6" fill="url(#heapGrad)" filter="url(#sh1)"/>
+                        <text x="640" y="104" text-anchor="middle" font-size="16" font-weight="700" fill="white">30</text>
+                        <text x="640" y="124" text-anchor="middle" font-size="11" fill="#bae6fd">[2]</text>
+                        <text x="640" y="154" text-anchor="middle" font-size="10" fill="#0ea5e9">0x1008</text>
+
+                        <!-- slot 3 — empty/reserved -->
+                        <rect x="694" y="78" width="88" height="60" rx="6" fill="url(#emptyGrad)" filter="url(#sh1)"/>
+                        <text x="738" y="111" text-anchor="middle" font-size="13" font-weight="600" fill="#94a3b8">—</text>
+                        <text x="738" y="124" text-anchor="middle" font-size="11" fill="#94a3b8">[3]</text>
+                        <text x="738" y="154" text-anchor="middle" font-size="10" fill="#94a3b8">reserved</text>
+
+                        <!-- slot 4 — empty/reserved -->
+                        <rect x="792" y="78" width="88" height="60" rx="6" fill="url(#emptyGrad)" filter="url(#sh1)"/>
+                        <text x="836" y="111" text-anchor="middle" font-size="13" font-weight="600" fill="#94a3b8">—</text>
+                        <text x="836" y="124" text-anchor="middle" font-size="11" fill="#94a3b8">[4]</text>
+                        <text x="836" y="154" text-anchor="middle" font-size="10" fill="#94a3b8">reserved</text>
+
+                        <!-- size bracket -->
+                        <line x1="400" y1="170" x2="488" y2="170" stroke="#10b981" stroke-width="2"/>
+                        <line x1="400" y1="165" x2="400" y2="175" stroke="#10b981" stroke-width="2"/>
+                        <line x1="488" y1="165" x2="488" y2="175" stroke="#10b981" stroke-width="2"/>
+                        <text x="444" y="186" text-anchor="middle" font-size="11" font-weight="700" fill="#10b981">size = 3</text>
+
+                        <!-- capacity bracket -->
+                        <line x1="400" y1="200" x2="880" y2="200" stroke="#f59e0b" stroke-width="2"/>
+                        <line x1="400" y1="195" x2="400" y2="205" stroke="#f59e0b" stroke-width="2"/>
+                        <line x1="880" y1="195" x2="880" y2="205" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="640" y="218" text-anchor="middle" font-size="11" font-weight="700" fill="#d97706">capacity = 5</text>
+
+                        <!-- contiguous note -->
+                        <text x="640" y="245" text-anchor="middle" font-size="11" fill="#64748b">All elements are adjacent in memory — address increments by sizeof(T) = 4 bytes</text>
+                    </svg>
+                </div>
+
+                <p>Because elements are contiguous, the compiler can vectorise loops over a <code>std::vector</code> exactly as it would over a C array. The data pointer is the only indirection: once dereferenced, the CPU accesses a flat array and cache prefetchers work perfectly.</p>
+
+                <h3>What the vector object looks like in code</h3>
+                <div class="code-block"><span class="cm">// Conceptual equivalent of what the standard library stores internally:</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">class</span> vector {
+    T*     data_;      <span class="cm">// pointer to heap array</span>
+    size_t size_;      <span class="cm">// number of live elements</span>
+    size_t capacity_;  <span class="cm">// allocated slots</span>
+    <span class="cm">// ... allocator + methods</span>
+};
+
+<span class="cm">// On a 64-bit system:</span>
+std::vector&lt;<span class="kw">int</span>&gt; v;
+std::cout &lt;&lt; <span class="kw">sizeof</span>(v) &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// prints 24</span>
+
+<span class="cm">// The elements live on the heap, not inside 'v':</span>
+v.push_back(<span class="nm">10</span>);
+<span class="kw">int</span>* raw = v.data();               <span class="cm">// pointer to the heap block</span></div>
+
+                <!-- ============================================================ -->
+                <h2 id="size-capacity">3. Size vs Capacity and Growth Strategy</h2>
+
+                <p><strong>size</strong> is how many elements are currently in the vector. <strong>capacity</strong> is how many elements fit in the current allocation before a new one is needed. <code>capacity &gt;= size</code> always holds.</p>
+
+                <p>When <code>push_back</code> is called and <code>size == capacity</code>, the vector must <em>reallocate</em>:</p>
+                <ol>
+                    <li>Allocate a new, larger heap block (typically <strong>2× the old capacity</strong>, but the factor is implementation-defined).</li>
+                    <li>Move (or copy) every existing element into the new block.</li>
+                    <li>Destroy elements in and deallocate the old block.</li>
+                    <li>Update the internal pointer, size, and capacity.</li>
+                </ol>
+
+                <!-- Diagram 2: reallocation during push_back -->
+                <div class="diagram-wrap">
+                    <svg width="100%" height="400" viewBox="0 0 960 400" style="max-width:960px;display:block;margin:0 auto;background:white;border-radius:0.75rem;padding:12px;">
+                        <defs>
+                            <linearGradient id="hg2" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#0284c7;stop-opacity:1"/>
+                            </linearGradient>
+                            <linearGradient id="ng2" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1"/>
+                            </linearGradient>
+                            <linearGradient id="eg2" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#e2e8f0;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#cbd5e1;stop-opacity:1"/>
+                            </linearGradient>
+                            <linearGradient id="dg2" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1"/>
+                            </linearGradient>
+                            <filter id="sh2"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.2"/></filter>
+                            <marker id="arr2" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0,10 3.5,0 7" fill="#64748b"/>
+                            </marker>
+                            <marker id="arr3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                <polygon points="0 0,10 3.5,0 7" fill="#10b981"/>
+                            </marker>
+                        </defs>
+
+                        <text x="480" y="22" text-anchor="middle" font-size="15" font-weight="700" fill="#1e293b">push_back — Reallocation when size == capacity</text>
+
+                        <!-- BEFORE -->
+                        <text x="30" y="55" font-size="13" font-weight="700" fill="#1e293b">BEFORE  push_back(40)  —  size=3, capacity=3 (FULL)</text>
+
+                        <!-- old heap block (full) -->
+                        <rect x="30" y="66" width="86" height="56" rx="6" fill="url(#hg2)" filter="url(#sh2)"/>
+                        <text x="73" y="91" text-anchor="middle" font-size="15" font-weight="700" fill="white">10</text>
+                        <text x="73" y="110" text-anchor="middle" font-size="11" fill="#bae6fd">[0]</text>
+
+                        <rect x="126" y="66" width="86" height="56" rx="6" fill="url(#hg2)" filter="url(#sh2)"/>
+                        <text x="169" y="91" text-anchor="middle" font-size="15" font-weight="700" fill="white">20</text>
+                        <text x="169" y="110" text-anchor="middle" font-size="11" fill="#bae6fd">[1]</text>
+
+                        <rect x="222" y="66" width="86" height="56" rx="6" fill="url(#hg2)" filter="url(#sh2)"/>
+                        <text x="265" y="91" text-anchor="middle" font-size="15" font-weight="700" fill="white">30</text>
+                        <text x="265" y="110" text-anchor="middle" font-size="11" fill="#bae6fd">[2]</text>
+
+                        <text x="330" y="97" font-size="13" font-weight="700" fill="#ef4444">FULL — reallocation triggered</text>
+
+                        <!-- Arrow down -->
+                        <line x1="480" y1="140" x2="480" y2="175" stroke="#64748b" stroke-width="2" marker-end="url(#arr2)"/>
+                        <text x="490" y="163" font-size="12" fill="#64748b">allocate 2× block, move elements, free old block</text>
+
+                        <!-- AFTER -->
+                        <text x="30" y="202" font-size="13" font-weight="700" fill="#1e293b">AFTER  —  size=4, capacity=6  (new allocation, 2× growth)</text>
+
+                        <rect x="30" y="212" width="86" height="56" rx="6" fill="url(#ng2)" filter="url(#sh2)"/>
+                        <text x="73" y="237" text-anchor="middle" font-size="15" font-weight="700" fill="white">10</text>
+                        <text x="73" y="256" text-anchor="middle" font-size="11" fill="#bbf7d0">[0]</text>
+
+                        <rect x="126" y="212" width="86" height="56" rx="6" fill="url(#ng2)" filter="url(#sh2)"/>
+                        <text x="169" y="237" text-anchor="middle" font-size="15" font-weight="700" fill="white">20</text>
+                        <text x="169" y="256" text-anchor="middle" font-size="11" fill="#bbf7d0">[1]</text>
+
+                        <rect x="222" y="212" width="86" height="56" rx="6" fill="url(#ng2)" filter="url(#sh2)"/>
+                        <text x="265" y="237" text-anchor="middle" font-size="15" font-weight="700" fill="white">30</text>
+                        <text x="265" y="256" text-anchor="middle" font-size="11" fill="#bbf7d0">[2]</text>
+
+                        <!-- new element -->
+                        <rect x="318" y="212" width="86" height="56" rx="6" fill="url(#dg2)" filter="url(#sh2)"/>
+                        <text x="361" y="237" text-anchor="middle" font-size="15" font-weight="700" fill="white">40</text>
+                        <text x="361" y="256" text-anchor="middle" font-size="11" fill="#fecaca">[3] ← new</text>
+
+                        <!-- empty slots -->
+                        <rect x="414" y="212" width="86" height="56" rx="6" fill="url(#eg2)" filter="url(#sh2)"/>
+                        <text x="457" y="243" text-anchor="middle" font-size="13" fill="#94a3b8">—</text>
+                        <text x="457" y="256" text-anchor="middle" font-size="11" fill="#94a3b8">[4]</text>
+
+                        <rect x="510" y="212" width="86" height="56" rx="6" fill="url(#eg2)" filter="url(#sh2)"/>
+                        <text x="553" y="243" text-anchor="middle" font-size="13" fill="#94a3b8">—</text>
+                        <text x="553" y="256" text-anchor="middle" font-size="11" fill="#94a3b8">[5]</text>
+
+                        <!-- size bracket -->
+                        <line x1="30" y1="285" x2="404" y2="285" stroke="#10b981" stroke-width="2"/>
+                        <line x1="30" y1="280" x2="30" y2="290" stroke="#10b981" stroke-width="2"/>
+                        <line x1="404" y1="280" x2="404" y2="290" stroke="#10b981" stroke-width="2"/>
+                        <text x="217" y="303" text-anchor="middle" font-size="11" font-weight="700" fill="#10b981">size = 4</text>
+
+                        <!-- capacity bracket -->
+                        <line x1="30" y1="320" x2="596" y2="320" stroke="#f59e0b" stroke-width="2"/>
+                        <line x1="30" y1="315" x2="30" y2="325" stroke="#f59e0b" stroke-width="2"/>
+                        <line x1="596" y1="315" x2="596" y2="325" stroke="#f59e0b" stroke-width="2"/>
+                        <text x="313" y="338" text-anchor="middle" font-size="11" font-weight="700" fill="#d97706">capacity = 6  (doubled from 3)</text>
+
+                        <!-- note about old pointers -->
+                        <text x="480" y="370" text-anchor="middle" font-size="12" fill="#ef4444" font-weight="700">All pointers, references, and iterators to the old block are now INVALID</text>
+                    </svg>
+                </div>
+
+                <h3>Why doubling gives amortised O(1)</h3>
+                <p>Suppose we start with capacity 1 and push n elements. Reallocations happen at sizes 1, 2, 4, 8, …, n. The total copy work across all reallocations is <strong>1 + 2 + 4 + … + n = 2n − 1</strong>, so the average cost per <code>push_back</code> is constant — O(1) amortised.</p>
+
+                <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">int</span> main() {
+    std::vector&lt;<span class="kw">int</span>&gt; v;
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">10</span>; ++i) {
+        v.push_back(i);
+        std::cout &lt;&lt; <span class="st">"size="</span> &lt;&lt; v.size()
+                  &lt;&lt; <span class="st">"  cap="</span> &lt;&lt; v.capacity() &lt;&lt; <span class="st">'\n'</span>;
+    }
+}
+<span class="cm">// Typical output (libstdc++ / MSVC may differ slightly):
+// size=1  cap=1
+// size=2  cap=2
+// size=3  cap=4
+// size=4  cap=4
+// size=5  cap=8
+// size=6  cap=8
+// size=7  cap=8
+// size=8  cap=8
+// size=9  cap=16
+// size=10 cap=16</span></div>
+
+                <!-- ============================================================ -->
+                <h2 id="construction">4. Construction and Initialisation</h2>
+
+                <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="cm">// 1. Default — empty vector, no allocation yet</span>
+std::vector&lt;<span class="kw">int</span>&gt; a;
+
+<span class="cm">// 2. Fill — 5 elements, all zero-initialised</span>
+std::vector&lt;<span class="kw">int</span>&gt; b(<span class="nm">5</span>);          <span class="cm">// {0, 0, 0, 0, 0}</span>
+
+<span class="cm">// 3. Fill with value</span>
+std::vector&lt;<span class="kw">int</span>&gt; c(<span class="nm">5</span>, <span class="nm">42</span>);      <span class="cm">// {42, 42, 42, 42, 42}</span>
+
+<span class="cm">// 4. Initialiser list</span>
+std::vector&lt;<span class="kw">int</span>&gt; d = {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>};
+
+<span class="cm">// 5. Copy construction — deep copy</span>
+std::vector&lt;<span class="kw">int</span>&gt; e = d;          <span class="cm">// new heap allocation, elements copied</span>
+
+<span class="cm">// 6. Move construction — steals the heap buffer</span>
+std::vector&lt;<span class="kw">int</span>&gt; f = std::move(d);  <span class="cm">// d becomes empty, no copy</span>
+
+<span class="cm">// 7. Range construction — from any iterators</span>
+<span class="kw">int</span> arr[] = {<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>};
+std::vector&lt;<span class="kw">int</span>&gt; g(arr, arr + <span class="nm">3</span>);
+
+<span class="cm">// 8. Works with any element type</span>
+std::vector&lt;std::string&gt; names = {<span class="st">"Alice"</span>, <span class="st">"Bob"</span>, <span class="st">"Carol"</span>};</div>
+
+                <!-- ============================================================ -->
+                <h2 id="operations">5. Core Operations and Their Complexity</h2>
+
+                <table class="styled">
+                    <thead>
+                        <tr><th>Operation</th><th>Method</th><th>Time complexity</th><th>Notes</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Random access</td><td><code>v[i]</code> / <code>v.at(i)</code></td><td>O(1)</td><td><code>at()</code> throws on out-of-range; <code>[]</code> does not</td></tr>
+                        <tr><td>First element</td><td><code>v.front()</code></td><td>O(1)</td><td>UB if empty</td></tr>
+                        <tr><td>Last element</td><td><code>v.back()</code></td><td>O(1)</td><td>UB if empty</td></tr>
+                        <tr><td>Append at back</td><td><code>v.push_back(x)</code></td><td>O(1) amortised</td><td>May reallocate</td></tr>
+                        <tr><td>Construct at back</td><td><code>v.emplace_back(args)</code></td><td>O(1) amortised</td><td>Constructs in-place, avoids copy</td></tr>
+                        <tr><td>Remove last</td><td><code>v.pop_back()</code></td><td>O(1)</td><td>Does not reallocate</td></tr>
+                        <tr><td>Insert at position</td><td><code>v.insert(it, x)</code></td><td>O(n)</td><td>Shifts all following elements right</td></tr>
+                        <tr><td>Erase at position</td><td><code>v.erase(it)</code></td><td>O(n)</td><td>Shifts all following elements left</td></tr>
+                        <tr><td>Erase range</td><td><code>v.erase(first, last)</code></td><td>O(n)</td><td>Shifts suffix</td></tr>
+                        <tr><td>Clear all elements</td><td><code>v.clear()</code></td><td>O(n)</td><td>Destroys elements; keeps capacity</td></tr>
+                        <tr><td>Number of elements</td><td><code>v.size()</code></td><td>O(1)</td><td></td></tr>
+                        <tr><td>Current capacity</td><td><code>v.capacity()</code></td><td>O(1)</td><td></td></tr>
+                        <tr><td>Empty check</td><td><code>v.empty()</code></td><td>O(1)</td><td></td></tr>
+                        <tr><td>Raw pointer to data</td><td><code>v.data()</code></td><td>O(1)</td><td>Valid C-array pointer</td></tr>
+                        <tr><td>Shrink allocation</td><td><code>v.shrink_to_fit()</code></td><td>O(n)</td><td>Non-binding hint to release excess capacity</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>push_back vs emplace_back</h3>
+                <div class="code-block"><span class="kw">struct</span> Point {
+    <span class="kw">int</span> x, y;
+    Point(<span class="kw">int</span> x, <span class="kw">int</span> y) : x(x), y(y) {}
+};
+
+std::vector&lt;Point&gt; pts;
+
+<span class="cm">// push_back: constructs a temporary Point, then moves it into the vector</span>
+pts.push_back(Point(<span class="nm">1</span>, <span class="nm">2</span>));
+
+<span class="cm">// emplace_back: forwards arguments directly to the constructor inside the vector</span>
+<span class="cm">// NO temporary — the object is constructed in-place in the reserved slot</span>
+pts.emplace_back(<span class="nm">3</span>, <span class="nm">4</span>);</div>
+
+                <div class="insight-box">
+                    Prefer <code>emplace_back</code> when constructing complex objects. For cheap-to-copy primitives like <code>int</code> or <code>double</code> the difference is negligible and the compiler will optimise both identically.
+                </div>
+
+                <h3>insert and erase — with diagram</h3>
+                <div class="code-block">std::vector&lt;<span class="kw">int</span>&gt; v = {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>};
+
+<span class="cm">// Insert 99 before index 2:  {1, 2, 99, 3, 4, 5}</span>
+v.insert(v.begin() + <span class="nm">2</span>, <span class="nm">99</span>);
+<span class="cm">// Elements at [2], [3], [4] are shifted right — O(n)</span>
+
+<span class="cm">// Erase element at index 1:  {1, 99, 3, 4, 5}</span>
+v.erase(v.begin() + <span class="nm">1</span>);
+<span class="cm">// Elements at [2], [3], [4] are shifted left — O(n)</span>
+
+<span class="cm">// Erase range [1, 3):  {1, 4, 5}</span>
+v.erase(v.begin() + <span class="nm">1</span>, v.begin() + <span class="nm">3</span>);</div>
+
+                <!-- ============================================================ -->
+                <h2 id="reserve-resize">6. <code>reserve()</code> vs <code>resize()</code></h2>
+
+                <div class="theory-box">
+                    <p>These two methods look similar but do very different things:</p>
+                    <ul>
+                        <li><strong><code>reserve(n)</code></strong> — ensures the vector can hold at least <code>n</code> elements without reallocation. It changes <code>capacity</code> only; <code>size</code> is unchanged. No elements are constructed.</li>
+                        <li><strong><code>resize(n)</code></strong> — changes <code>size</code> to <code>n</code>. If <code>n &gt; size</code>, new elements are value-initialised (zero for ints). If <code>n &lt; size</code>, excess elements are destroyed.</li>
+                    </ul>
+                </div>
+
+                <div class="code-block">std::vector&lt;<span class="kw">int</span>&gt; v;
+
+<span class="cm">// reserve — capacity grows, size stays 0</span>
+v.reserve(<span class="nm">100</span>);
+std::cout &lt;&lt; v.size()     &lt;&lt; <span class="st">'\n'</span>;  <span class="cm">// 0</span>
+std::cout &lt;&lt; v.capacity() &lt;&lt; <span class="st">'\n'</span>;  <span class="cm">// >= 100</span>
+
+<span class="cm">// Now 100 push_backs happen without any reallocation</span>
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; <span class="nm">100</span>; ++i) v.push_back(i);
+
+<span class="cm">// resize — size grows, elements initialised to 0</span>
+std::vector&lt;<span class="kw">int</span>&gt; w;
+w.resize(<span class="nm">5</span>);              <span class="cm">// {0, 0, 0, 0, 0}</span>
+w.resize(<span class="nm">8</span>, <span class="nm">99</span>);          <span class="cm">// {0, 0, 0, 0, 0, 99, 99, 99}</span>
+w.resize(<span class="nm">3</span>);              <span class="cm">// {0, 0, 0}  — elements destroyed</span></div>
+
+                <div class="insight-box">
+                    <strong>Performance pattern:</strong> if you know the final size of the vector up front, call <code>reserve(n)</code> before filling it. This eliminates all reallocations and the associated memory copies, halving the constant factor for build-and-fill workloads.
+                </div>
+
+                <!-- ============================================================ -->
+                <h2 id="iterators">7. Iterators and Iterator Invalidation</h2>
+
+                <h3>Iterating over a vector</h3>
+                <div class="code-block">std::vector&lt;<span class="kw">int</span>&gt; v = {<span class="nm">10</span>, <span class="nm">20</span>, <span class="nm">30</span>, <span class="nm">40</span>};
+
+<span class="cm">// Range-for (most idiomatic)</span>
+<span class="kw">for</span> (<span class="kw">const auto</span>&amp; x : v) std::cout &lt;&lt; x &lt;&lt; <span class="st">' '</span>;
+
+<span class="cm">// Iterator-based</span>
+<span class="kw">for</span> (<span class="kw">auto</span> it = v.begin(); it != v.end(); ++it)
+    std::cout &lt;&lt; *it &lt;&lt; <span class="st">' '</span>;
+
+<span class="cm">// Index-based</span>
+<span class="kw">for</span> (size_t i = <span class="nm">0</span>; i &lt; v.size(); ++i)
+    std::cout &lt;&lt; v[i] &lt;&lt; <span class="st">' '</span>;
+
+<span class="cm">// Reverse</span>
+<span class="kw">for</span> (<span class="kw">auto</span> it = v.rbegin(); it != v.rend(); ++it)
+    std::cout &lt;&lt; *it &lt;&lt; <span class="st">' '</span>;
+
+<span class="cm">// STL algorithm</span>
+std::for_each(v.begin(), v.end(), [](<span class="kw">int</span> x){ std::cout &lt;&lt; x &lt;&lt; <span class="st">' '</span>; });</div>
+
+                <h3>Iterator invalidation rules</h3>
+
+                <div class="warn-box">
+                    <strong>Iterator invalidation</strong> is one of the most common sources of bugs with <code>std::vector</code>. An iterator (or pointer, or reference) to a vector element becomes invalid — it may point to garbage or a deallocated address — after certain operations.
+                </div>
+
+                <table class="styled">
+                    <thead>
+                        <tr><th>Operation</th><th>Iterators / pointers / references invalidated</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td><code>push_back</code> / <code>emplace_back</code> (causes reallocation)</td><td><strong>All</strong> iterators, pointers, and references to all elements</td></tr>
+                        <tr><td><code>push_back</code> / <code>emplace_back</code> (no reallocation)</td><td>None — end iterator is invalidated but element iterators stay valid</td></tr>
+                        <tr><td><code>insert</code> (causes reallocation)</td><td><strong>All</strong></td></tr>
+                        <tr><td><code>insert</code> (no reallocation)</td><td>Iterator to insertion point and everything after it</td></tr>
+                        <tr><td><code>erase</code></td><td>Iterator to erased element and everything after it</td></tr>
+                        <tr><td><code>pop_back</code></td><td>Iterator to the removed last element and <code>end()</code></td></tr>
+                        <tr><td><code>clear</code></td><td>All element iterators</td></tr>
+                        <tr><td><code>resize</code> / <code>reserve</code> (if reallocation)</td><td><strong>All</strong></td></tr>
+                        <tr><td>Index access, <code>front()</code>, <code>back()</code></td><td>None</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="code-block"><span class="cm">// WRONG — iterator used after push_back may have reallocated</span>
+std::vector&lt;<span class="kw">int</span>&gt; v = {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>};
+<span class="kw">auto</span> it = v.begin();       <span class="cm">// iterator to element 1</span>
+v.push_back(<span class="nm">4</span>);            <span class="cm">// may reallocate</span>
+std::cout &lt;&lt; *it;          <span class="cm">// UNDEFINED BEHAVIOUR — it may be dangling</span>
+
+<span class="cm">// CORRECT — re-obtain iterator after modifying the vector</span>
+v.push_back(<span class="nm">5</span>);
+it = v.begin();            <span class="cm">// refresh iterator</span>
+std::cout &lt;&lt; *it;          <span class="cm">// safe: 1</span>
+
+<span class="cm">// CORRECT — use index instead of iterator when mutating</span>
+size_t idx = <span class="nm">0</span>;
+v.push_back(<span class="nm">6</span>);
+std::cout &lt;&lt; v[idx];       <span class="cm">// safe: v[0] is always 1</span></div>
+
+                <!-- ============================================================ -->
+                <h2 id="2d-vector">8. 2D Vectors</h2>
+
+                <p>A <code>vector&lt;vector&lt;T&gt;&gt;</code> is a vector of vectors. Each inner vector is an independent heap allocation — the rows are NOT contiguous with each other in memory.</p>
+
+                <div class="code-block"><span class="cm">// Declare a 3×4 grid of zeros</span>
+<span class="kw">int</span> rows = <span class="nm">3</span>, cols = <span class="nm">4</span>;
+std::vector&lt;std::vector&lt;<span class="kw">int</span>&gt;&gt; grid(rows, std::vector&lt;<span class="kw">int</span>&gt;(cols, <span class="nm">0</span>));
+
+<span class="cm">// Access and modify</span>
+grid[<span class="nm">1</span>][<span class="nm">2</span>] = <span class="nm">42</span>;
+
+<span class="cm">// Iterate</span>
+<span class="kw">for</span> (<span class="kw">const auto</span>&amp; row : grid) {
+    <span class="kw">for</span> (<span class="kw">int</span> val : row) std::cout &lt;&lt; val &lt;&lt; <span class="st">' '</span>;
+    std::cout &lt;&lt; <span class="st">'\n'</span>;
+}
+
+<span class="cm">// Jagged (irregular) — each row can have different length</span>
+std::vector&lt;std::vector&lt;<span class="kw">int</span>&gt;&gt; jagged;
+jagged.push_back({<span class="nm">1</span>});
+jagged.push_back({<span class="nm">2</span>, <span class="nm">3</span>});
+jagged.push_back({<span class="nm">4</span>, <span class="nm">5</span>, <span class="nm">6</span>});</div>
+
+                <!-- Memory layout diagram for 2D vector -->
+                <div class="diagram-wrap">
+                    <svg width="100%" height="280" viewBox="0 0 960 280" style="max-width:960px;display:block;margin:0 auto;background:white;border-radius:0.75rem;padding:12px;">
+                        <defs>
+                            <linearGradient id="og3" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#4338ca;stop-opacity:1"/>
+                            </linearGradient>
+                            <linearGradient id="r0g3" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#0284c7;stop-opacity:1"/>
+                            </linearGradient>
+                            <linearGradient id="r1g3" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#10b981;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#059669;stop-opacity:1"/>
+                            </linearGradient>
+                            <linearGradient id="r2g3" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1"/>
+                                <stop offset="100%" style="stop-color:#d97706;stop-opacity:1"/>
+                            </linearGradient>
+                            <filter id="sh3"><feDropShadow dx="0" dy="2" stdDeviation="2" flood-opacity="0.18"/></filter>
+                            <marker id="arr4" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                                <polygon points="0 0,8 3,0 6" fill="#6366f1"/>
+                            </marker>
+                            <marker id="arr5" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                                <polygon points="0 0,8 3,0 6" fill="#0ea5e9"/>
+                            </marker>
+                            <marker id="arr6" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                                <polygon points="0 0,8 3,0 6" fill="#10b981"/>
+                            </marker>
+                            <marker id="arr7" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                                <polygon points="0 0,8 3,0 6" fill="#f59e0b"/>
+                            </marker>
+                        </defs>
+
+                        <text x="480" y="20" text-anchor="middle" font-size="14" font-weight="700" fill="#1e293b">vector&lt;vector&lt;int&gt;&gt; — Each row is a separate heap allocation</text>
+
+                        <!-- Outer vector object -->
+                        <text x="30" y="48" font-size="12" font-weight="700" fill="#6366f1">Outer vector (stack)</text>
+                        <rect x="30" y="55" width="130" height="42" rx="5" fill="url(#og3)" filter="url(#sh3)"/>
+                        <text x="95" y="74" text-anchor="middle" font-size="11" font-weight="700" fill="white">data / size=3</text>
+                        <text x="95" y="89" text-anchor="middle" font-size="10" fill="#c7d2fe">→ inner vec array</text>
+
+                        <!-- Arrow to inner vec array -->
+                        <line x1="162" y1="76" x2="220" y2="76" stroke="#6366f1" stroke-width="2" marker-end="url(#arr4)"/>
+
+                        <!-- Inner vec array (heap, 3 vector objects) -->
+                        <text x="280" y="48" font-size="12" font-weight="700" fill="#64748b">Inner vector objects (heap)</text>
+
+                        <!-- inner[0] -->
+                        <rect x="222" y="55" width="110" height="42" rx="5" fill="url(#r0g3)" filter="url(#sh3)"/>
+                        <text x="277" y="74" text-anchor="middle" font-size="11" font-weight="700" fill="white">row[0] data</text>
+                        <text x="277" y="89" text-anchor="middle" font-size="10" fill="#bae6fd">→ row data</text>
+
+                        <!-- inner[1] -->
+                        <rect x="222" y="107" width="110" height="42" rx="5" fill="url(#r1g3)" filter="url(#sh3)"/>
+                        <text x="277" y="126" text-anchor="middle" font-size="11" font-weight="700" fill="white">row[1] data</text>
+                        <text x="277" y="141" text-anchor="middle" font-size="10" fill="#bbf7d0">→ row data</text>
+
+                        <!-- inner[2] -->
+                        <rect x="222" y="159" width="110" height="42" rx="5" fill="url(#r2g3)" filter="url(#sh3)"/>
+                        <text x="277" y="178" text-anchor="middle" font-size="11" font-weight="700" fill="white">row[2] data</text>
+                        <text x="277" y="193" text-anchor="middle" font-size="10" fill="#fef08a">→ row data</text>
+
+                        <!-- Arrows to row data -->
+                        <line x1="334" y1="76"  x2="420" y2="76"  stroke="#0ea5e9" stroke-width="2" marker-end="url(#arr5)"/>
+                        <line x1="334" y1="128" x2="420" y2="138" stroke="#10b981" stroke-width="2" marker-end="url(#arr6)"/>
+                        <line x1="334" y1="180" x2="420" y2="200" stroke="#f59e0b" stroke-width="2" marker-end="url(#arr7)"/>
+
+                        <!-- Row 0 data -->
+                        <text x="500" y="48" font-size="12" font-weight="700" fill="#64748b">Row data (separate heap allocs — NOT adjacent)</text>
+                        <rect x="422" y="57" width="52" height="36" rx="4" fill="url(#r0g3)" filter="url(#sh3)"/>
+                        <text x="448" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="white">1</text>
+                        <rect x="480" y="57" width="52" height="36" rx="4" fill="url(#r0g3)" filter="url(#sh3)"/>
+                        <text x="506" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="white">2</text>
+                        <rect x="538" y="57" width="52" height="36" rx="4" fill="url(#r0g3)" filter="url(#sh3)"/>
+                        <text x="564" y="80" text-anchor="middle" font-size="13" font-weight="700" fill="white">3</text>
+
+                        <!-- Row 1 data -->
+                        <rect x="422" y="119" width="52" height="36" rx="4" fill="url(#r1g3)" filter="url(#sh3)"/>
+                        <text x="448" y="142" text-anchor="middle" font-size="13" font-weight="700" fill="white">4</text>
+                        <rect x="480" y="119" width="52" height="36" rx="4" fill="url(#r1g3)" filter="url(#sh3)"/>
+                        <text x="506" y="142" text-anchor="middle" font-size="13" font-weight="700" fill="white">5</text>
+                        <rect x="538" y="119" width="52" height="36" rx="4" fill="url(#r1g3)" filter="url(#sh3)"/>
+                        <text x="564" y="142" text-anchor="middle" font-size="13" font-weight="700" fill="white">6</text>
+
+                        <!-- Row 2 data -->
+                        <rect x="422" y="181" width="52" height="36" rx="4" fill="url(#r2g3)" filter="url(#sh3)"/>
+                        <text x="448" y="204" text-anchor="middle" font-size="13" font-weight="700" fill="white">7</text>
+                        <rect x="480" y="181" width="52" height="36" rx="4" fill="url(#r2g3)" filter="url(#sh3)"/>
+                        <text x="506" y="204" text-anchor="middle" font-size="13" font-weight="700" fill="white">8</text>
+                        <rect x="538" y="181" width="52" height="36" rx="4" fill="url(#r2g3)" filter="url(#sh3)"/>
+                        <text x="564" y="204" text-anchor="middle" font-size="13" font-weight="700" fill="white">9</text>
+
+                        <text x="480" y="250" text-anchor="middle" font-size="12" fill="#ef4444" font-weight="600">Rows are NOT contiguous — each row is at a different heap address</text>
+                        <text x="480" y="268" text-anchor="middle" font-size="11" fill="#64748b">For cache-friendly dense matrices use a flat vector&lt;T&gt; of size rows×cols instead</text>
+                    </svg>
+                </div>
+
+                <div class="note-box">
+                    For a dense matrix where all rows have the same length, a <strong>flat 1D vector</strong> is much better for cache performance. Access element [r][c] as <code>v[r * cols + c]</code>.
+                </div>
+                <div class="code-block"><span class="cm">// Cache-friendly flat matrix — single contiguous allocation</span>
+<span class="kw">int</span> rows = <span class="nm">3</span>, cols = <span class="nm">4</span>;
+std::vector&lt;<span class="kw">int</span>&gt; matrix(rows * cols, <span class="nm">0</span>);
+
+<span class="cm">// Access element at (r, c)</span>
+matrix[<span class="nm">1</span> * cols + <span class="nm">2</span>] = <span class="nm">42</span>;   <span class="cm">// row 1, col 2</span>
+
+<span class="cm">// Iterate all elements — perfect for CPU prefetcher</span>
+<span class="kw">for</span> (<span class="kw">int</span> r = <span class="nm">0</span>; r &lt; rows; ++r)
+    <span class="kw">for</span> (<span class="kw">int</span> c = <span class="nm">0</span>; c &lt; cols; ++c)
+        std::cout &lt;&lt; matrix[r * cols + c] &lt;&lt; <span class="st">' '</span>;</div>
+
+                <!-- ============================================================ -->
+                <h2 id="move">9. Move Semantics with Vectors</h2>
+
+                <p>Move semantics (<code>std::move</code>) let you transfer ownership of a vector's heap buffer to another vector in O(1) — no element copying.</p>
+
+                <div class="code-block">std::vector&lt;<span class="kw">int</span>&gt; a = {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>};
+
+<span class="cm">// Move construction — steals a's buffer; a becomes empty</span>
+std::vector&lt;<span class="kw">int</span>&gt; b = std::move(a);
+<span class="cm">// b: {1,2,3,4,5}   a: {}   (a.data() == nullptr, a.size() == 0)</span>
+
+<span class="cm">// Move assignment — same idea</span>
+std::vector&lt;<span class="kw">int</span>&gt; c;
+c = std::move(b);
+<span class="cm">// c: {1,2,3,4,5}   b: {}</span>
+
+<span class="cm">// Return value optimisation (RVO/NRVO) — compiler elides the copy/move entirely</span>
+std::vector&lt;<span class="kw">int</span>&gt; <span class="fn">make_vec</span>(<span class="kw">int</span> n) {
+    std::vector&lt;<span class="kw">int</span>&gt; v(n);
+    std::iota(v.begin(), v.end(), <span class="nm">0</span>);
+    <span class="kw">return</span> v;   <span class="cm">// No copy; compiler constructs directly in the caller's variable</span>
+}
+<span class="kw">auto</span> v = make_vec(<span class="nm">1000</span>);   <span class="cm">// zero copies</span></div>
+
+                <div class="insight-box">
+                    <strong>Passing vectors to functions:</strong>
+                    <ul>
+                        <li><code>const std::vector&lt;T&gt;&amp;</code> — read-only access, no copy. Use for most function parameters.</li>
+                        <li><code>std::vector&lt;T&gt;&amp;</code> — modifiable reference to the caller's vector.</li>
+                        <li><code>std::vector&lt;T&gt;</code> (by value) — makes a copy. Use when the function needs its own independent copy or you pass with <code>std::move</code>.</li>
+                        <li><code>std::vector&lt;T&gt;&amp;&amp;</code> (rvalue ref) — explicit move parameter for sink functions.</li>
+                    </ul>
+                </div>
+
+                <!-- ============================================================ -->
+                <h2 id="vs-array">10. <code>std::vector</code> vs Raw Array vs <code>std::array</code></h2>
+
+                <table class="styled">
+                    <thead>
+                        <tr><th>Property</th><th>Raw array <code>int[N]</code></th><th><code>std::array&lt;int,N&gt;</code></th><th><code>std::vector&lt;int&gt;</code></th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Size known at compile time</td><td>Yes (fixed)</td><td>Yes (fixed)</td><td>No (runtime)</td></tr>
+                        <tr><td>Memory location</td><td>Stack (or static)</td><td>Stack (or static)</td><td>Object on stack, elements on heap</td></tr>
+                        <tr><td>Dynamic resize</td><td>No</td><td>No</td><td>Yes</td></tr>
+                        <tr><td>Contiguous elements</td><td>Yes</td><td>Yes</td><td>Yes</td></tr>
+                        <tr><td>Bounds checking</td><td>No</td><td><code>at()</code> yes, <code>[]</code> no</td><td><code>at()</code> yes, <code>[]</code> no</td></tr>
+                        <tr><td>Copy / assign</td><td>No (decays to pointer)</td><td>Yes (value semantics)</td><td>Yes (value semantics)</td></tr>
+                        <tr><td>STL algorithms compatible</td><td>Via <code>std::begin/end</code></td><td>Yes</td><td>Yes</td></tr>
+                        <tr><td>Overhead over raw array</td><td>None</td><td>None</td><td>3 pointer-sized fields + heap alloc</td></tr>
+                        <tr><td>Best use case</td><td>Low-level C interop</td><td>Fixed-size, stack, constexpr</td><td>General purpose, size unknown at compile time</td></tr>
+                    </tbody>
+                </table>
+
+                <!-- ============================================================ -->
+                <h2 id="pitfalls">11. Common Pitfalls</h2>
+
+                <h3>Pitfall 1 — Out-of-bounds access with <code>[]</code></h3>
+                <div class="code-block">std::vector&lt;<span class="kw">int</span>&gt; v = {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>};
+v[<span class="nm">5</span>];       <span class="cm">// UNDEFINED BEHAVIOUR — no bounds check</span>
+v.at(<span class="nm">5</span>);    <span class="cm">// throws std::out_of_range — safe for debugging</span></div>
+
+                <h3>Pitfall 2 — Storing a pointer/reference and then modifying the vector</h3>
+                <div class="code-block">std::vector&lt;<span class="kw">int</span>&gt; v = {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>};
+<span class="kw">int</span>&amp; ref = v[<span class="nm">0</span>];           <span class="cm">// reference to first element</span>
+v.push_back(<span class="nm">4</span>);             <span class="cm">// may reallocate</span>
+std::cout &lt;&lt; ref;           <span class="cm">// UNDEFINED BEHAVIOUR — ref is dangling</span></div>
+
+                <h3>Pitfall 3 — Not reserving when size is known</h3>
+                <div class="code-block"><span class="cm">// Slow — N reallocations for N pushes from empty</span>
+std::vector&lt;<span class="kw">int</span>&gt; v;
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; N; ++i) v.push_back(i);
+
+<span class="cm">// Fast — zero reallocations</span>
+std::vector&lt;<span class="kw">int</span>&gt; v;
+v.reserve(N);
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="nm">0</span>; i &lt; N; ++i) v.push_back(i);</div>
+
+                <h3>Pitfall 4 — Erasing inside a range-for loop</h3>
+                <div class="code-block"><span class="cm">// WRONG — erasing while iterating with range-for is undefined</span>
+<span class="kw">for</span> (<span class="kw">const auto</span>&amp; x : v)
+    <span class="kw">if</span> (x == <span class="nm">3</span>) v.erase(...);  <span class="cm">// iterator invalidated mid-loop</span>
+
+<span class="cm">// CORRECT — erase-remove idiom</span>
+<span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span>
+v.erase(std::remove(v.begin(), v.end(), <span class="nm">3</span>), v.end());
+
+<span class="cm">// CORRECT — erase_if (C++20)</span>
+std::erase_if(v, [](<span class="kw">int</span> x){ <span class="kw">return</span> x == <span class="nm">3</span>; });</div>
+
+                <h3>Pitfall 5 — <code>vector&lt;bool&gt;</code> is not a regular vector</h3>
+                <div class="code-block"><span class="cm">// std::vector&lt;bool&gt; is a special case — it packs bits (1 bit per bool)
+// This means: operator[] does NOT return a bool& — it returns a proxy object
+// You cannot take the address of an element, and auto& may not work as expected</span>
+
+std::vector&lt;<span class="kw">bool</span>&gt; flags = {<span class="kw">true</span>, <span class="kw">false</span>, <span class="kw">true</span>};
+<span class="kw">auto</span> f = flags[<span class="nm">0</span>];   <span class="cm">// f is a proxy, not bool&amp;</span>
+<span class="kw">bool</span>* p = &amp;flags[<span class="nm">0</span>];  <span class="cm">// COMPILE ERROR — cannot take address of proxy</span>
+
+<span class="cm">// If you need a real array of bools, use:</span>
+std::vector&lt;<span class="kw">uint8_t</span>&gt; flags2 = {<span class="nm">1</span>, <span class="nm">0</span>, <span class="nm">1</span>};  <span class="cm">// or std::deque&lt;bool&gt;</span></div>
+
+                <div class="warn-box">
+                    <code>std::vector&lt;bool&gt;</code> is a well-known design mistake in the standard library. It specialises vector to store bits (1 bit per element instead of 1 byte), which violates the usual container semantics. Unless you specifically need the space optimisation, avoid it.
+                </div>
+
+            </article>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; George Meshveliani — Computer Science Fundamentals</p>
+        </div>
+    </footer>
+</body>
+</html>
