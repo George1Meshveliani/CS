@@ -10,44 +10,63 @@
         html { scroll-behavior: smooth; }
         body { font-family: 'Inter', sans-serif; }
         .prose { max-width: 90ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2 { font-size: 1.9rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.25rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose h4 { font-size: 1.15rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .prose p, .prose li { font-size: 1.1rem; line-height: 1.8; }
         .prose code {
             font-family: 'Courier New', Courier, monospace;
             background-color: #e5e7eb;
             padding: 0.2rem 0.4rem;
             border-radius: 0.25rem;
-            font-size: 0.95em;
+            font-size: 0.93em;
         }
         .prose pre code { background-color: transparent; padding: 0; color: inherit; }
         .code-block {
             background-color: #0f172a;
             color: #d1d5db;
-            padding: 1.25rem;
+            padding: 1.25rem 1.5rem;
             border-radius: 0.5rem;
             margin: 1rem 0;
             font-family: 'Courier New', monospace;
             overflow-x: auto;
             white-space: pre;
-            line-height: 1.7;
-            font-size: 0.92rem;
+            line-height: 1.75;
+            font-size: 0.91rem;
         }
+        /* Syntax highlight helpers (applied manually via spans) */
+        .kw  { color: #93c5fd; }   /* keyword / type */
+        .cm  { color: #6b7280; font-style: italic; }   /* comment */
+        .st  { color: #86efac; }   /* string/char literal */
+        .nm  { color: #fde68a; }   /* number */
+        .fn  { color: #c4b5fd; }   /* function name */
+        .pp  { color: #f9a8d4; }   /* preprocessor */
         .theory-box {
             background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
             border-left: 5px solid #3b82f6;
-            padding: 1.25rem;
+            padding: 1.25rem 1.5rem;
             margin: 1rem 0;
             border-radius: 0.5rem;
         }
         .insight-box {
             background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
             border-left: 5px solid #10b981;
-            padding: 1.25rem;
+            padding: 1.25rem 1.5rem;
             margin: 1rem 0;
             border-radius: 0.5rem;
         }
         .warn-box {
             background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
             border-left: 5px solid #ef4444;
-            padding: 1.25rem;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .note-box {
+            background: linear-gradient(135deg, #fefce8 0%, #fef08a 100%);
+            border-left: 5px solid #eab308;
+            padding: 1.25rem 1.5rem;
             margin: 1rem 0;
             border-radius: 0.5rem;
         }
@@ -66,184 +85,898 @@
     <header class="bg-white shadow-md sticky top-0 z-10">
         <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
             <h1 class="text-2xl font-bold text-gray-900">Generics in C and C++</h1>
-            <div class="text-sm text-gray-500">C/C++ Programming Topic</div>
+            <div class="text-sm text-gray-500">C/C++ Programming — Advanced</div>
         </nav>
     </header>
 
     <main class="container mx-auto px-6 py-12">
         <section class="mb-12">
             <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
-                <h1>Generics in C and C++</h1>
-                <p>This topic explains how generic programming works in C and C++, why it matters, what principles guide good design, and how the two languages are similar and different.</p>
 
+                <h1>Generics in C and C++</h1>
+                <p>Generic programming is the discipline of writing code that is parameterised over types, so that the same algorithm or data structure can work with <code>int</code>, <code>double</code>, a custom class, or anything else that satisfies a required interface — without duplicating source code and without sacrificing runtime performance. This document goes from first principles through the most advanced techniques available in each language.</p>
+
+                <!-- ============================================================ -->
                 <h2>Topics of Discussion</h2>
                 <ol>
-                    <li><a href="#what-is-generic">What generic programming means</a></li>
-                    <li><a href="#generics-c">Generics in C</a></li>
-                    <li><a href="#generics-cpp">Generics in C++</a></li>
-                    <li><a href="#principles">Core principles</a></li>
-                    <li><a href="#similarities-differences">Similarities and differences</a></li>
-                    <li><a href="#when-to-use">Practical guidance</a></li>
+                    <li><a href="#what-is-generic">What generic programming means — theory</a></li>
+                    <li><a href="#generics-c">Generics in C</a>
+                        <ul>
+                            <li><a href="#c-macros">Macros — simple to advanced</a></li>
+                            <li><a href="#c-void">void* + size + callbacks — qsort pattern and custom containers</a></li>
+                            <li><a href="#c-xmacro">X-Macros — typed code generation</a></li>
+                            <li><a href="#c-generic">C11 _Generic — compile-time type dispatch</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#generics-cpp">Generics in C++</a>
+                        <ul>
+                            <li><a href="#cpp-func">Function templates</a></li>
+                            <li><a href="#cpp-class">Class templates and specialisation</a></li>
+                            <li><a href="#cpp-nontype">Non-type and template-template parameters</a></li>
+                            <li><a href="#cpp-variadic">Variadic templates and fold expressions</a></li>
+                            <li><a href="#cpp-sfinae">SFINAE, enable_if, and type traits</a></li>
+                            <li><a href="#cpp-ifconstexpr">if constexpr (C++17)</a></li>
+                            <li><a href="#cpp-concepts">C++20 Concepts</a></li>
+                            <li><a href="#cpp-crtp">CRTP — static polymorphism</a></li>
+                            <li><a href="#cpp-policy">Policy-based design</a></li>
+                        </ul>
+                    </li>
+                    <li><a href="#tmp">Template metaprogramming</a></li>
+                    <li><a href="#comparison">Comparison: C vs C++</a></li>
+                    <li><a href="#guidance">Practical guidance</a></li>
                 </ol>
 
-                <h2 id="what-is-generic">1) What Generic Programming Means</h2>
+                <!-- ============================================================ -->
+                <h2 id="what-is-generic">1. What Generic Programming Means — Theory</h2>
+
                 <div class="theory-box">
-                    <p><strong>Generic programming</strong> means writing one algorithm or data structure that can work with multiple types, instead of rewriting the same logic for <code>int</code>, <code>double</code>, <code>string</code>, and so on.</p>
+                    <p><strong>Generic programming</strong> is parametric abstraction: the algorithm is written once and the concrete type is supplied later — at the call site, at compile time, or at runtime depending on the mechanism. The goal is maximum code reuse with zero or near-zero overhead.</p>
                 </div>
-                <p>Common goals:</p>
+
+                <h3>Three models of polymorphism</h3>
+                <table class="styled">
+                    <thead><tr><th>Model</th><th>Resolution time</th><th>Mechanism (C++)</th><th>Mechanism (C)</th><th>Cost</th></tr></thead>
+                    <tbody>
+                        <tr><td><strong>Parametric</strong> (generics)</td><td>Compile-time</td><td>Templates / concepts</td><td>Macros, X-macros</td><td>Zero (code duplication by compiler)</td></tr>
+                        <tr><td><strong>Subtype</strong> (OOP)</td><td>Runtime</td><td>Virtual functions</td><td>Function pointers in structs</td><td>vtable indirection, cache misses</td></tr>
+                        <tr><td><strong>Ad-hoc</strong> (overloading)</td><td>Compile-time</td><td>Function overloading</td><td><code>_Generic</code></td><td>Zero</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>What a type must satisfy: type requirements</h3>
+                <p>Every generic algorithm implicitly or explicitly states what operations it needs from its type parameter. In C++ these are called <em>concepts</em> (formally since C++20). Examples:</p>
                 <ul>
-                    <li>Code reuse without copy-paste</li>
-                    <li>Strong correctness guarantees</li>
-                    <li>High performance and low overhead</li>
-                    <li>Clear, scalable library design</li>
+                    <li><code>Sortable</code>: elements must be comparable with <code>&lt;</code>.</li>
+                    <li><code>Hashable</code>: elements must support a hash function and equality.</li>
+                    <li><code>Copyable</code>: elements must be copy-constructible.</li>
                 </ul>
+                <p>Violating a type requirement produces a compiler error (C++) or undefined behaviour / wrong result (C).</p>
 
-                <h2 id="generics-c">2) Generics in C</h2>
-                <p>C has no templates, so generics are implemented through language patterns:</p>
+                <h3>Zero-overhead abstraction</h3>
+                <p>The C++ standard committee's guiding principle is: <em>"What you don't use, you don't pay for, and what you do use, you couldn't have written better by hand."</em> Templates enforce this by generating specialised machine code for every instantiated type — no boxing, no virtual dispatch, no runtime type checks unless the programmer explicitly requests them.</p>
 
-                <h3>2a) Macros</h3>
-                <div class="code-block">
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
+                <!-- ============================================================ -->
+                <h2 id="generics-c">2. Generics in C</h2>
+                <p>C has no built-in generic mechanism. Generic design in C relies on four complementary idioms: macros, <code>void*</code>-based APIs, X-Macros, and the C11 <code>_Generic</code> expression.</p>
 
-int main() {
-    int a = MAX(3, 10);
-    double b = MAX(3.5, 2.1);
-}
-                </div>
+                <!-- ----- 2a Macros ----- -->
+                <h3 id="c-macros">2a. Macros — from simple to advanced</h3>
+
+                <h4>Simple function-like macros</h4>
+                <div class="code-block"><span class="pp">#define MAX(a, b)   ((a) > (b) ? (a) : (b))</span>
+<span class="pp">#define MIN(a, b)   ((a) < (b) ? (a) : (b))</span>
+<span class="pp">#define SWAP(T, a, b) do { T _tmp = (a); (a) = (b); (b) = _tmp; } while(0)</span>
+
+<span class="kw">int</span> main() {
+    <span class="kw">int</span> x = MAX(<span class="nm">3</span>, <span class="nm">10</span>);          <span class="cm">// expands: ((3) > (10) ? (3) : (10))</span>
+    <span class="kw">double</span> y = MIN(<span class="nm">3.5</span>, <span class="nm">2.1</span>);
+
+    <span class="kw">int</span> a = <span class="nm">5</span>, b = <span class="nm">9</span>;
+    SWAP(<span class="kw">int</span>, a, b);             <span class="cm">// a == 9, b == 5</span>
+}</div>
+
                 <div class="warn-box">
-                    <strong>Important:</strong> macros are text substitution. They are not type-safe and can evaluate expressions more than once (e.g. <code>MAX(i++, j++)</code>).
+                    <strong>Pitfall 1 — double evaluation:</strong> <code>MAX(i++, j++)</code> increments both operands twice because the macro expands each argument wherever it appears. Use inline functions in C99+ or <code>_Generic</code> dispatch instead.
+                    <br><br>
+                    <strong>Pitfall 2 — operator precedence:</strong> always wrap every argument and the whole expression in parentheses. <code>#define SQ(x) x*x</code> gives <code>SQ(1+2)</code> = <code>1+2*1+2</code> = <code>5</code>, not <code>9</code>.
+                    <br><br>
+                    <strong>Pitfall 3 — no scope / hygiene:</strong> the <code>_tmp</code> variable in SWAP could shadow a caller variable with the same name. The <code>do { ... } while(0)</code> idiom at least enforces a single statement boundary.
                 </div>
 
-                <h3>2b) <code>void*</code> + callbacks (library style)</h3>
-                <p>This is the style used by <code>qsort</code>: data pointer + element size + comparator function.</p>
-                <div class="code-block">
-#include &lt;stdlib.h&gt;
+                <h4>Type-safe typed macro containers (poor-man's templates)</h4>
+                <p>A common C pattern generates a complete, type-specific data structure by wrapping struct and function definitions in a macro. Each macro invocation stamps out a new concrete type.</p>
+                <div class="code-block"><span class="cm">/* vec.h — generic growable array via macro instantiation */</span>
+<span class="pp">#define DEFINE_VEC(T, Name)                                         \</span>
+<span class="pp">  typedef struct { T* data; size_t len, cap; } Name;                \</span>
+<span class="pp">                                                                    \</span>
+<span class="pp">  static inline void Name##_init(Name* v) {                        \</span>
+<span class="pp">      v->data = NULL; v->len = 0; v->cap = 0;                      \</span>
+<span class="pp">  }                                                                 \</span>
+<span class="pp">                                                                    \</span>
+<span class="pp">  static inline void Name##_push(Name* v, T val) {                 \</span>
+<span class="pp">      if (v->len == v->cap) {                                       \</span>
+<span class="pp">          v->cap = v->cap ? v->cap * 2 : 8;                        \</span>
+<span class="pp">          v->data = realloc(v->data, v->cap * sizeof(T));           \</span>
+<span class="pp">      }                                                             \</span>
+<span class="pp">      v->data[v->len++] = val;                                      \</span>
+<span class="pp">  }                                                                 \</span>
+<span class="pp">                                                                    \</span>
+<span class="pp">  static inline T Name##_get(const Name* v, size_t i) {            \</span>
+<span class="pp">      return v->data[i];                                            \</span>
+<span class="pp">  }                                                                 \</span>
+<span class="pp">                                                                    \</span>
+<span class="pp">  static inline void Name##_free(Name* v) { free(v->data); }</span>
 
-int cmpInt(const void* a, const void* b) {
-    int x = *(const int*)a;
-    int y = *(const int*)b;
-    return (x &gt; y) - (x &lt; y);
-}
+<span class="cm">/* Instantiate once per type needed */</span>
+DEFINE_VEC(<span class="kw">int</span>,    IntVec)
+DEFINE_VEC(<span class="kw">double</span>, DblVec)
 
-int main() {
-    int arr[] = {7, 2, 9, 1, 5};
-    qsort(arr, 5, sizeof(int), cmpInt);
-}
-                </div>
-                <p>Pros: very flexible and portable.  
-                Cons: manual casting and weaker compile-time checks.</p>
-
-                <h3>2c) C11 <code>_Generic</code></h3>
-                <p><code>_Generic</code> provides compile-time selection by expression type.</p>
-                <div class="code-block">
-#include &lt;stdio.h&gt;
-
-#define type_name(x) _Generic((x), \
-    int: "int", \
-    double: "double", \
-    char*: "char*", \
-    default: "other")
-
-int main() {
-    printf("%s\n", type_name(10));      // int
-    printf("%s\n", type_name(3.14));    // double
-}
-                </div>
-
-                <h2 id="generics-cpp">3) Generics in C++</h2>
-                <p>C++ uses templates to generate type-specific code during compilation.</p>
-
-                <h3>3a) Function templates</h3>
-                <div class="code-block">
-template &lt;typename T&gt;
-T my_max(const T&amp; a, const T&amp; b) {
-    return (a &lt; b) ? b : a;
-}
-
-int main() {
-    int x = my_max(4, 9);
-    double y = my_max(1.2, 3.4);
-}
-                </div>
-
-                <h3>3b) Class templates</h3>
-                <div class="code-block">
-#include &lt;vector&gt;
-using namespace std;
-
-template &lt;typename T&gt;
-class Stack {
-    vector&lt;T&gt; data;
-public:
-    void push(const T&amp; v) { data.push_back(v); }
-    void pop() { if (!data.empty()) data.pop_back(); }
-    const T&amp; top() const { return data.back(); }
-    bool empty() const { return data.empty(); }
-};
-                </div>
-
-                <h3>3c) Template constraints (C++20 concepts)</h3>
-                <div class="code-block">
-#include &lt;concepts&gt;
-
-template &lt;typename T&gt;
-concept Number = std::integral&lt;T&gt; || std::floating_point&lt;T&gt;;
-
-template &lt;Number T&gt;
-T add(T a, T b) {
-    return a + b;
-}
-                </div>
+<span class="kw">int</span> main() {
+    IntVec iv;
+    IntVec_init(&amp;iv);
+    IntVec_push(&amp;iv, <span class="nm">10</span>);
+    IntVec_push(&amp;iv, <span class="nm">20</span>);
+    printf(<span class="st">"%d\n"</span>, IntVec_get(&amp;iv, <span class="nm">1</span>));  <span class="cm">// 20</span>
+    IntVec_free(&amp;iv);
+}</div>
                 <div class="insight-box">
-                    Concepts improve readability and compiler diagnostics by expressing requirements directly in the function signature.
+                    Each <code>DEFINE_VEC</code> call generates a fully separate, type-safe set of functions. The compiler sees real typed code, so pointer arithmetic and size calculations are all correct. This is essentially how <a href="https://github.com/nicowillis/vec">small C generic libraries</a> work.
                 </div>
 
-                <h2 id="principles">4) Core Principles</h2>
-                <ul>
-                    <li><strong>Abstraction:</strong> separate algorithm behavior from concrete type.</li>
-                    <li><strong>Type requirements:</strong> define what operations the type must support.</li>
-                    <li><strong>Zero-overhead intent:</strong> abstractions should not force runtime penalties.</li>
-                    <li><strong>Composability:</strong> generic components should work together predictably.</li>
-                    <li><strong>Safety:</strong> catch misuse early (prefer compile-time checks).</li>
-                </ul>
+                <!-- ----- 2b void* ----- -->
+                <h3 id="c-void">2b. <code>void*</code> + size + callbacks — the qsort pattern</h3>
 
-                <h2 id="similarities-differences">5) Similarities and Differences</h2>
+                <p>The C standard library uses this pattern throughout: pass a <code>void*</code> to the data, a <code>size_t</code> for element size, and a function pointer for type-specific operations.</p>
+
+                <h4>Standard qsort / bsearch</h4>
+                <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;stdlib.h&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string.h&gt;</span>
+
+<span class="kw">int</span> <span class="fn">cmp_int</span>(<span class="kw">const void</span>* a, <span class="kw">const void</span>* b) {
+    <span class="kw">int</span> x = *(<span class="kw">const int</span>*)a, y = *(<span class="kw">const int</span>*)b;
+    <span class="kw">return</span> (x > y) - (x < y);   <span class="cm">// branchless three-way compare</span>
+}
+
+<span class="kw">int</span> <span class="fn">cmp_str</span>(<span class="kw">const void</span>* a, <span class="kw">const void</span>* b) {
+    <span class="kw">return</span> strcmp(*(<span class="kw">const char</span>**)a, *(<span class="kw">const char</span>**)b);
+}
+
+<span class="kw">int</span> main() {
+    <span class="kw">int</span> nums[] = {<span class="nm">5</span>, <span class="nm">3</span>, <span class="nm">9</span>, <span class="nm">1</span>};
+    qsort(nums, <span class="nm">4</span>, <span class="kw">sizeof</span>(<span class="kw">int</span>), cmp_int);
+
+    <span class="kw">const char</span>* words[] = {<span class="st">"banana"</span>, <span class="st">"apple"</span>, <span class="st">"cherry"</span>};
+    qsort(words, <span class="nm">3</span>, <span class="kw">sizeof</span>(<span class="kw">char</span>*), cmp_str);
+}</div>
+
+                <h4>Building a generic stack with void*</h4>
+                <div class="code-block"><span class="cm">/* generic_stack.h */</span>
+<span class="kw">typedef struct</span> {
+    <span class="kw">unsigned char</span>* buf;    <span class="cm">// raw byte buffer</span>
+    size_t          top;    <span class="cm">// index of next free slot (in elements)</span>
+    size_t          cap;    <span class="cm">// capacity in elements</span>
+    size_t          esize;  <span class="cm">// size of one element in bytes</span>
+} GenStack;
+
+<span class="kw">void</span> <span class="fn">gs_init</span>(GenStack* s, size_t elem_size, size_t init_cap) {
+    s->esize = elem_size;
+    s->cap   = init_cap;
+    s->top   = <span class="nm">0</span>;
+    s->buf   = malloc(elem_size * init_cap);
+}
+
+<span class="kw">void</span> <span class="fn">gs_push</span>(GenStack* s, <span class="kw">const void</span>* elem) {
+    <span class="kw">if</span> (s->top == s->cap) {
+        s->cap *= <span class="nm">2</span>;
+        s->buf  = realloc(s->buf, s->esize * s->cap);
+    }
+    memcpy(s->buf + s->top * s->esize, elem, s->esize);
+    s->top++;
+}
+
+<span class="kw">int</span> <span class="fn">gs_pop</span>(GenStack* s, <span class="kw">void</span>* out) {
+    <span class="kw">if</span> (s->top == <span class="nm">0</span>) <span class="kw">return</span> <span class="nm">0</span>;
+    s->top--;
+    memcpy(out, s->buf + s->top * s->esize, s->esize);
+    <span class="kw">return</span> <span class="nm">1</span>;
+}
+
+<span class="kw">void</span> <span class="fn">gs_free</span>(GenStack* s) { free(s->buf); }
+
+<span class="cm">/* ----- usage ----- */</span>
+<span class="kw">int</span> main() {
+    GenStack s;
+    gs_init(&amp;s, <span class="kw">sizeof</span>(<span class="kw">double</span>), <span class="nm">8</span>);
+
+    <span class="kw">double</span> v = <span class="nm">3.14</span>;
+    gs_push(&amp;s, &amp;v);
+    v = <span class="nm">2.72</span>;
+    gs_push(&amp;s, &amp;v);
+
+    <span class="kw">double</span> out;
+    <span class="kw">while</span> (gs_pop(&amp;s, &amp;out)) printf(<span class="st">"%.2f\n"</span>, out);
+    gs_free(&amp;s);
+}</div>
+                <div class="warn-box">
+                    <strong>Alignment risk:</strong> <code>unsigned char*</code> buffers are correctly aligned for <code>char</code> but may not be for larger types if <code>malloc</code> is not used (e.g. a stack-allocated buffer). Always use <code>malloc</code>/<code>realloc</code> for <code>void*</code> generic containers since the standard guarantees those return maximally aligned memory.
+                </div>
+
+                <!-- ----- 2c X-Macros ----- -->
+                <h3 id="c-xmacro">2c. X-Macros — typed code generation from a single list</h3>
+
+                <p>X-Macros let you maintain a single canonical list (e.g. all error codes, all fields of a struct, all supported types) and expand it differently in different contexts.</p>
+                <div class="code-block"><span class="cm">/* Define the list once. Each entry is an X(type, name, default). */</span>
+<span class="pp">#define CONFIG_FIELDS \</span>
+<span class="pp">    X(int,    width,   800)  \</span>
+<span class="pp">    X(int,    height,  600)  \</span>
+<span class="pp">    X(float,  scale,   1.0f) \</span>
+<span class="pp">    X(int,    fps,     60)</span>
+
+<span class="cm">/* 1. Generate the struct */</span>
+<span class="kw">typedef struct</span> {
+<span class="pp">#define X(T, name, def) T name;</span>
+    CONFIG_FIELDS
+<span class="pp">#undef X</span>
+} Config;
+
+<span class="cm">/* 2. Generate a default-init function */</span>
+<span class="kw">void</span> <span class="fn">config_defaults</span>(Config* c) {
+<span class="pp">#define X(T, name, def) c->name = (def);</span>
+    CONFIG_FIELDS
+<span class="pp">#undef X</span>
+}
+
+<span class="cm">/* 3. Generate a print function */</span>
+<span class="kw">void</span> <span class="fn">config_print</span>(<span class="kw">const</span> Config* c) {
+<span class="pp">#define X(T, name, def) printf(#name " = " _Generic((c->name), \</span>
+<span class="pp">        int:   "%d\n",        \</span>
+<span class="pp">        float: "%.2f\n"),     \</span>
+<span class="pp">        c->name);</span>
+    CONFIG_FIELDS
+<span class="pp">#undef X</span>
+}
+
+<span class="kw">int</span> main() {
+    Config cfg;
+    config_defaults(&amp;cfg);
+    config_print(&amp;cfg);
+    cfg.fps = <span class="nm">120</span>;
+    config_print(&amp;cfg);
+}</div>
+                <div class="insight-box">
+                    X-Macros are the closest C comes to reflection. Adding a new field to the list automatically updates the struct, the initialiser, the printer, and every other expansion — a single edit, zero omissions. This is widely used in protocol parsers, state machines, and error code tables.
+                </div>
+
+                <!-- ----- 2d _Generic ----- -->
+                <h3 id="c-generic">2d. C11 <code>_Generic</code> — compile-time type dispatch</h3>
+
+                <p><code>_Generic(expr, type1: val1, type2: val2, ..., default: valn)</code> selects one of its branches based on the <em>static type</em> of <code>expr</code>. Only the selected branch is evaluated; the rest are discarded at compile time.</p>
+
+                <h4>Simulating overloaded math functions</h4>
+                <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;math.h&gt;</span>
+
+<span class="cm">/* abs() dispatches to the right variant based on type */</span>
+<span class="pp">#define abs_g(x) _Generic((x),      \</span>
+<span class="pp">    int:                abs,         \</span>
+<span class="pp">    long:               labs,        \</span>
+<span class="pp">    long long:          llabs,       \</span>
+<span class="pp">    float:              fabsf,       \</span>
+<span class="pp">    double:             fabs,        \</span>
+<span class="pp">    long double:        fabsl)(x)</span>
+
+<span class="kw">int</span> main() {
+    printf(<span class="st">"%d\n"</span>,  abs_g(-<span class="nm">7</span>));       <span class="cm">// calls abs(int)</span>
+    printf(<span class="st">"%f\n"</span>,  abs_g(-<span class="nm">2.5</span>));     <span class="cm">// calls fabs(double)</span>
+    printf(<span class="st">"%f\n"</span>,  abs_g(-<span class="nm">2.5f</span>));    <span class="cm">// calls fabsf(float)</span>
+}</div>
+
+                <h4>Type-safety enforcement</h4>
+                <div class="code-block"><span class="cm">/* Prevent passing a float to an integer-only bit operation */</span>
+<span class="pp">#define SAFE_POPCOUNT(x) _Generic((x),    \</span>
+<span class="pp">    unsigned int:       __builtin_popcount,   \</span>
+<span class="pp">    unsigned long:      __builtin_popcountl,  \</span>
+<span class="pp">    unsigned long long: __builtin_popcountll  \</span>
+<span class="pp">)(x)</span>
+
+<span class="cm">/* Calling SAFE_POPCOUNT(3.14) is a compile error — no matching branch */</span></div>
+
+                <h4>Combining <code>_Generic</code> with X-Macros for full type dispatch</h4>
+                <div class="code-block"><span class="cm">/* printf format string dispatcher */</span>
+<span class="pp">#define FMT(x) _Generic((x),     \</span>
+<span class="pp">    char:               "%c",    \</span>
+<span class="pp">    int:                "%d",    \</span>
+<span class="pp">    unsigned int:       "%u",    \</span>
+<span class="pp">    long:               "%ld",   \</span>
+<span class="pp">    float:              "%f",    \</span>
+<span class="pp">    double:             "%lf",   \</span>
+<span class="pp">    char*:              "%s",    \</span>
+<span class="pp">    const char*:        "%s",    \</span>
+<span class="pp">    default:            "%p")</span>
+
+<span class="pp">#define PRINT(x)  printf(FMT(x), (x))</span>
+
+<span class="kw">int</span> main() {
+    PRINT(<span class="nm">42</span>);          <span class="cm">// %d</span>
+    PRINT(<span class="nm">3.14</span>);        <span class="cm">// %lf</span>
+    PRINT(<span class="st">"hello"</span>);     <span class="cm">// %s</span>
+}</div>
+
+                <!-- ============================================================ -->
+                <h2 id="generics-cpp">3. Generics in C++</h2>
+                <p>C++ provides a first-class generic mechanism: <strong>templates</strong>. A template is a blueprint parameterised by one or more type or non-type parameters. The compiler instantiates the template for each unique combination of arguments it encounters, producing specialised machine code.</p>
+
+                <!-- ----- 3a Function templates ----- -->
+                <h3 id="cpp-func">3a. Function templates</h3>
+
+                <h4>Basic syntax and argument deduction</h4>
+                <div class="code-block"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+T <span class="fn">my_max</span>(<span class="kw">const</span> T&amp; a, <span class="kw">const</span> T&amp; b) {
+    <span class="kw">return</span> (a &lt; b) ? b : a;
+}
+
+<span class="kw">int</span> main() {
+    <span class="kw">auto</span> x = my_max(<span class="nm">4</span>, <span class="nm">9</span>);          <span class="cm">// T deduced as int</span>
+    <span class="kw">auto</span> y = my_max(<span class="nm">1.2</span>, <span class="nm">3.4</span>);     <span class="cm">// T deduced as double</span>
+    <span class="kw">auto</span> z = my_max&lt;<span class="kw">long</span>&gt;(<span class="nm">5</span>, <span class="nm">8</span>);   <span class="cm">// explicit instantiation</span>
+}</div>
+
+                <h4>Explicit specialisation — customise for a specific type</h4>
+                <div class="code-block"><span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+T <span class="fn">absolute</span>(T x) { <span class="kw">return</span> x &lt; T{} ? -x : x; }
+
+<span class="cm">// Full specialisation for const char* (lexicographic makes no sense; return length)</span>
+<span class="kw">template</span> &lt;&gt;
+<span class="kw">const char</span>* <span class="fn">absolute</span>&lt;<span class="kw">const char</span>*&gt;(<span class="kw">const char</span>* s) {
+    <span class="kw">return</span> s;   <span class="cm">// just passthrough; specialisation changes behaviour entirely</span>
+}
+
+<span class="kw">int</span> main() {
+    printf(<span class="st">"%d\n"</span>,  absolute(-<span class="nm">7</span>));    <span class="cm">// uses primary template</span>
+    printf(<span class="st">"%s\n"</span>,  absolute(<span class="st">"hi"</span>));   <span class="cm">// uses specialisation</span>
+}</div>
+
+                <h4>Multiple template parameters and default arguments</h4>
+                <div class="code-block"><span class="kw">template</span> &lt;<span class="kw">typename</span> Key, <span class="kw">typename</span> Value = <span class="kw">int</span>&gt;
+<span class="kw">struct</span> Pair {
+    Key   key;
+    Value val;
+};
+
+Pair&lt;std::string&gt;          p1;   <span class="cm">// Value defaults to int</span>
+Pair&lt;std::string, double&gt;  p2;   <span class="cm">// explicit</span></div>
+
+                <!-- ----- 3b Class templates ----- -->
+                <h3 id="cpp-class">3b. Class templates, partial and full specialisation</h3>
+
+                <h4>Generic Stack</h4>
+                <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdexcept&gt;</span>
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">class</span> Stack {
+    std::vector&lt;T&gt; data_;
+<span class="kw">public</span>:
+    <span class="kw">void</span>      <span class="fn">push</span>(<span class="kw">const</span> T&amp; v)  { data_.push_back(v); }
+    <span class="kw">void</span>      <span class="fn">push</span>(T&amp;&amp; v)       { data_.push_back(std::move(v)); }
+    <span class="kw">void</span>      <span class="fn">pop</span>()             { data_.pop_back(); }
+    T&amp;        <span class="fn">top</span>()             { <span class="kw">return</span> data_.back(); }
+    <span class="kw">const</span> T&amp;  <span class="fn">top</span>() <span class="kw">const</span>       { <span class="kw">return</span> data_.back(); }
+    <span class="kw">bool</span>      <span class="fn">empty</span>() <span class="kw">const</span>     { <span class="kw">return</span> data_.empty(); }
+    size_t    <span class="fn">size</span>() <span class="kw">const</span>      { <span class="kw">return</span> data_.size(); }
+};</div>
+
+                <h4>Full specialisation — entirely custom implementation for one type</h4>
+                <div class="code-block"><span class="cm">// Primary template</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">class</span> Serialiser {
+<span class="kw">public</span>:
+    std::string <span class="fn">encode</span>(<span class="kw">const</span> T&amp; v) { <span class="kw">return</span> std::to_string(v); }
+};
+
+<span class="cm">// Full specialisation for bool</span>
+<span class="kw">template</span> &lt;&gt;
+<span class="kw">class</span> Serialiser&lt;<span class="kw">bool</span>&gt; {
+<span class="kw">public</span>:
+    std::string <span class="fn">encode</span>(<span class="kw">bool</span> v) { <span class="kw">return</span> v ? <span class="st">"true"</span> : <span class="st">"false"</span>; }
+};</div>
+
+                <h4>Partial specialisation — customise for a family of types</h4>
+                <div class="code-block"><span class="cm">// Primary template: generic ToString</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">struct</span> ToString {
+    <span class="kw">static</span> std::string <span class="fn">get</span>(<span class="kw">const</span> T&amp; v) { <span class="kw">return</span> std::to_string(v); }
+};
+
+<span class="cm">// Partial specialisation: for ANY pointer type T*</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">struct</span> ToString&lt;T*&gt; {
+    <span class="kw">static</span> std::string <span class="fn">get</span>(T* p) {
+        <span class="kw">if</span> (!p) <span class="kw">return</span> <span class="st">"null"</span>;
+        <span class="kw">return</span> <span class="st">"ptr:"</span> + std::to_string(<span class="kw">reinterpret_cast</span>&lt;<span class="kw">uintptr_t</span>&gt;(p));
+    }
+};
+
+<span class="cm">// Partial specialisation: for std::vector&lt;T&gt; for any T</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">struct</span> ToString&lt;std::vector&lt;T&gt;&gt; {
+    <span class="kw">static</span> std::string <span class="fn">get</span>(<span class="kw">const</span> std::vector&lt;T&gt;&amp; v) {
+        std::string s = <span class="st">"["</span>;
+        <span class="kw">for</span> (size_t i = <span class="nm">0</span>; i &lt; v.size(); ++i)
+            s += (i ? <span class="st">","</span> : <span class="st">""</span>) + ToString&lt;T&gt;::get(v[i]);
+        <span class="kw">return</span> s + <span class="st">"]"</span>;
+    }
+};</div>
+
+                <!-- ----- 3c Non-type + template-template ----- -->
+                <h3 id="cpp-nontype">3c. Non-type and template-template parameters</h3>
+
+                <h4>Non-type parameters</h4>
+                <p>Template parameters can be compile-time integer values, not just types. This allows stack-allocated fixed-size containers with no heap allocation.</p>
+                <div class="code-block"><span class="kw">template</span> &lt;<span class="kw">typename</span> T, size_t N&gt;
+<span class="kw">class</span> FixedArray {
+    T data_[N];
+    size_t len_ = <span class="nm">0</span>;
+<span class="kw">public</span>:
+    <span class="kw">void</span> <span class="fn">push</span>(<span class="kw">const</span> T&amp; v) {
+        <span class="kw">if</span> (len_ &lt; N) data_[len_++] = v;
+    }
+    T&amp;       <span class="fn">operator[]</span>(size_t i)        { <span class="kw">return</span> data_[i]; }
+    <span class="kw">const</span> T&amp; <span class="fn">operator[]</span>(size_t i) <span class="kw">const</span>  { <span class="kw">return</span> data_[i]; }
+    size_t   <span class="fn">size</span>() <span class="kw">const</span>               { <span class="kw">return</span> len_; }
+    <span class="kw">constexpr</span> size_t <span class="fn">capacity</span>() <span class="kw">const</span>    { <span class="kw">return</span> N; }
+};
+
+FixedArray&lt;<span class="kw">int</span>, <span class="nm">16</span>&gt; buf;   <span class="cm">// 16 ints on the stack, no heap</span></div>
+
+                <h4>Template-template parameters</h4>
+                <p>A template can itself accept a template as a parameter, enabling container-agnostic algorithms.</p>
+                <div class="code-block"><span class="kw">template</span> &lt;<span class="kw">typename</span> T, <span class="kw">template</span> &lt;<span class="kw">typename</span>, <span class="kw">typename</span>&gt; <span class="kw">class</span> Container&gt;
+<span class="kw">void</span> <span class="fn">print_all</span>(<span class="kw">const</span> Container&lt;T, std::allocator&lt;T&gt;&gt;&amp; c) {
+    <span class="kw">for</span> (<span class="kw">const auto</span>&amp; e : c) std::cout &lt;&lt; e &lt;&lt; <span class="st">' '</span>;
+    std::cout &lt;&lt; <span class="st">'\n'</span>;
+}
+
+<span class="cm">// Works with std::vector&lt;int&gt;, std::deque&lt;int&gt;, std::list&lt;int&gt;, ...</span>
+print_all(std::vector&lt;<span class="kw">int</span>&gt;{<span class="nm">1</span>,<span class="nm">2</span>,<span class="nm">3</span>});
+print_all(std::list&lt;<span class="kw">int</span>&gt;{<span class="nm">4</span>,<span class="nm">5</span>,<span class="nm">6</span>});</div>
+
+                <!-- ----- 3d Variadic ----- -->
+                <h3 id="cpp-variadic">3d. Variadic templates and fold expressions</h3>
+
+                <h4>Parameter packs</h4>
+                <div class="code-block"><span class="cm">// Recursive variadic sum (C++11)</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+T <span class="fn">sum</span>(T x) { <span class="kw">return</span> x; }
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T, <span class="kw">typename</span>... Args&gt;
+T <span class="fn">sum</span>(T first, Args... rest) {
+    <span class="kw">return</span> first + sum(rest...);
+}
+
+<span class="kw">auto</span> s = sum(<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>);   <span class="cm">// 10</span></div>
+
+                <h4>Fold expressions (C++17) — no recursion needed</h4>
+                <div class="code-block"><span class="kw">template</span> &lt;<span class="kw">typename</span>... Args&gt;
+<span class="kw">auto</span> <span class="fn">sum</span>(Args... args) {
+    <span class="kw">return</span> (... + args);      <span class="cm">// unary left fold: ((a + b) + c) + ...</span>
+}
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span>... Args&gt;
+<span class="kw">void</span> <span class="fn">print_all</span>(Args... args) {
+    ((std::cout &lt;&lt; args &lt;&lt; <span class="st">' '</span>), ...);   <span class="cm">// comma fold</span>
+    std::cout &lt;&lt; <span class="st">'\n'</span>;
+}
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span>... Args&gt;
+<span class="kw">bool</span> <span class="fn">all_positive</span>(Args... args) {
+    <span class="kw">return</span> (... &amp;&amp; (args &gt; <span class="nm">0</span>));    <span class="cm">// logical AND fold</span>
+}
+
+sum(<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>);                     <span class="cm">// 6</span>
+print_all(<span class="nm">42</span>, <span class="nm">3.14</span>, <span class="st">"hello"</span>);    <span class="cm">// 42 3.14 hello</span>
+all_positive(<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>);            <span class="cm">// true</span></div>
+
+                <h4>Applying a function to each element of a tuple</h4>
+                <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;tuple&gt;</span>
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> Tuple, <span class="kw">typename</span> F, size_t... I&gt;
+<span class="kw">void</span> <span class="fn">for_each_impl</span>(Tuple&amp;&amp; t, F&amp;&amp; f, std::index_sequence&lt;I...&gt;) {
+    (f(std::get&lt;I&gt;(t)), ...);
+}
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> Tuple, <span class="kw">typename</span> F&gt;
+<span class="kw">void</span> <span class="fn">for_each_tuple</span>(Tuple&amp;&amp; t, F&amp;&amp; f) {
+    <span class="kw">constexpr</span> size_t N = std::tuple_size_v&lt;std::remove_reference_t&lt;Tuple&gt;&gt;;
+    for_each_impl(std::forward&lt;Tuple&gt;(t), std::forward&lt;F&gt;(f),
+                  std::make_index_sequence&lt;N&gt;{});
+}
+
+<span class="kw">int</span> main() {
+    <span class="kw">auto</span> tup = std::make_tuple(<span class="nm">1</span>, <span class="nm">2.5</span>, std::string(<span class="st">"hi"</span>));
+    for_each_tuple(tup, [](<span class="kw">const auto</span>&amp; x) { std::cout &lt;&lt; x &lt;&lt; <span class="st">'\n'</span>; });
+}</div>
+
+                <!-- ----- 3e SFINAE ----- -->
+                <h3 id="cpp-sfinae">3e. SFINAE, <code>enable_if</code>, and type traits</h3>
+
+                <div class="theory-box">
+                    <strong>SFINAE — Substitution Failure Is Not An Error:</strong> when the compiler tries to instantiate an overloaded template and the substitution of template arguments into the function signature would produce an ill-formed expression, that candidate is silently discarded rather than causing a compile error. This allows writing templates that only participate in overload resolution for types that satisfy certain conditions.
+                </div>
+
+                <h4><code>std::enable_if</code> — conditional overloads</h4>
+                <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;type_traits&gt;</span>
+
+<span class="cm">// Only active when T is an integral type</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">typename</span> std::enable_if&lt;std::is_integral&lt;T&gt;::value, T&gt;::type
+<span class="fn">double_it</span>(T x) { <span class="kw">return</span> x * <span class="nm">2</span>; }
+
+<span class="cm">// Only active for floating-point</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">typename</span> std::enable_if&lt;std::is_floating_point&lt;T&gt;::value, T&gt;::type
+<span class="fn">double_it</span>(T x) { <span class="kw">return</span> x * <span class="nm">2.0</span>; }
+
+<span class="kw">int</span> main() {
+    double_it(<span class="nm">5</span>);     <span class="cm">// int version</span>
+    double_it(<span class="nm">3.14</span>); <span class="cm">// double version</span>
+    <span class="cm">// double_it("x"); // compile error: no matching overload</span>
+}</div>
+
+                <h4>Custom type traits</h4>
+                <div class="code-block"><span class="cm">// Primary template: T is NOT iterable</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T, <span class="kw">typename</span> = <span class="kw">void</span>&gt;
+<span class="kw">struct</span> is_iterable : std::false_type {};
+
+<span class="cm">// Partial specialisation: if T has begin() and end(), it IS iterable</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">struct</span> is_iterable&lt;T, std::void_t&lt;
+    decltype(std::declval&lt;T&gt;().begin()),
+    decltype(std::declval&lt;T&gt;().end())
+&gt;&gt; : std::true_type {};
+
+<span class="cm">// Use it as a constraint</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> C&gt;
+std::enable_if_t&lt;is_iterable&lt;C&gt;::value&gt;
+<span class="fn">print_range</span>(<span class="kw">const</span> C&amp; c) {
+    <span class="kw">for</span> (<span class="kw">const auto</span>&amp; e : c) std::cout &lt;&lt; e &lt;&lt; <span class="st">' '</span>;
+}
+
+static_assert(is_iterable&lt;std::vector&lt;<span class="kw">int</span>&gt;&gt;::value, <span class="st">"vector is iterable"</span>);
+static_assert(!is_iterable&lt;<span class="kw">int</span>&gt;::value,             <span class="st">"int is not iterable"</span>);</div>
+
+                <h4>Useful standard type traits quick reference</h4>
+                <table class="styled">
+                    <thead><tr><th>Trait</th><th>What it checks</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>std::is_integral&lt;T&gt;</code></td><td><code>int</code>, <code>long</code>, <code>bool</code>, etc.</td></tr>
+                        <tr><td><code>std::is_floating_point&lt;T&gt;</code></td><td><code>float</code>, <code>double</code>, <code>long double</code></td></tr>
+                        <tr><td><code>std::is_arithmetic&lt;T&gt;</code></td><td>integral or floating point</td></tr>
+                        <tr><td><code>std::is_pointer&lt;T&gt;</code></td><td>pointer type</td></tr>
+                        <tr><td><code>std::is_same&lt;T,U&gt;</code></td><td><code>T</code> and <code>U</code> are exactly the same type</td></tr>
+                        <tr><td><code>std::is_base_of&lt;Base,Derived&gt;</code></td><td>inheritance relationship</td></tr>
+                        <tr><td><code>std::is_constructible&lt;T,Args...&gt;</code></td><td><code>T</code> can be constructed from <code>Args</code></td></tr>
+                        <tr><td><code>std::is_convertible&lt;From,To&gt;</code></td><td>implicit conversion exists</td></tr>
+                        <tr><td><code>std::conditional&lt;B,T,F&gt;::type</code></td><td>selects <code>T</code> if <code>B</code> is true, else <code>F</code></td></tr>
+                        <tr><td><code>std::remove_cv&lt;T&gt;::type</code></td><td>strips <code>const</code>/<code>volatile</code></td></tr>
+                        <tr><td><code>std::decay&lt;T&gt;::type</code></td><td>models by-value argument passing rules</td></tr>
+                    </tbody>
+                </table>
+
+                <!-- ----- 3f if constexpr ----- -->
+                <h3 id="cpp-ifconstexpr">3f. <code>if constexpr</code> (C++17)</h3>
+
+                <p><code>if constexpr</code> discards the non-taken branch at compile time. This replaces many SFINAE idioms with readable conditional code inside a single function body.</p>
+                <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;type_traits&gt;</span>
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">void</span> <span class="fn">describe</span>(<span class="kw">const</span> T&amp; v) {
+    <span class="kw">if constexpr</span> (std::is_integral_v&lt;T&gt;) {
+        std::cout &lt;&lt; <span class="st">"integer: "</span> &lt;&lt; v &lt;&lt; <span class="st">'\n'</span>;
+    } <span class="kw">else if constexpr</span> (std::is_floating_point_v&lt;T&gt;) {
+        std::cout &lt;&lt; <span class="st">"float: "</span> &lt;&lt; v &lt;&lt; <span class="st">'\n'</span>;
+    } <span class="kw">else if constexpr</span> (std::is_same_v&lt;T, std::string&gt;) {
+        std::cout &lt;&lt; <span class="st">"string of length "</span> &lt;&lt; v.size() &lt;&lt; <span class="st">'\n'</span>;
+    } <span class="kw">else</span> {
+        std::cout &lt;&lt; <span class="st">"unknown type\n"</span>;
+    }
+}
+
+<span class="cm">// Compile-time recursive variadic function without overloads</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T, <span class="kw">typename</span>... Rest&gt;
+<span class="kw">void</span> <span class="fn">print_each</span>(T first, Rest... rest) {
+    std::cout &lt;&lt; first;
+    <span class="kw">if constexpr</span> (<span class="kw">sizeof</span>...(rest) &gt; <span class="nm">0</span>) {
+        std::cout &lt;&lt; <span class="st">", "</span>;
+        print_each(rest...);
+    }
+}</div>
+
+                <!-- ----- 3g Concepts ----- -->
+                <h3 id="cpp-concepts">3g. C++20 Concepts — explicit type requirements</h3>
+
+                <div class="theory-box">
+                    Concepts replace ad-hoc SFINAE with named, reusable, readable constraints. They produce clear error messages, can be composed, and serve as documentation for what operations a type must provide.
+                </div>
+
+                <h4>Defining concepts</h4>
+                <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;concepts&gt;</span>
+
+<span class="cm">// Requires T supports operator< and operator==</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">concept</span> Comparable = requires(T a, T b) {
+    { a &lt; b }  -&gt; std::convertible_to&lt;<span class="kw">bool</span>&gt;;
+    { a == b } -&gt; std::convertible_to&lt;<span class="kw">bool</span>&gt;;
+};
+
+<span class="cm">// Requires T has a .size() returning a number</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">concept</span> Sized = requires(T c) {
+    { c.size() } -&gt; std::convertible_to&lt;size_t&gt;;
+};
+
+<span class="cm">// Compose concepts</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">concept</span> SortableRange = Sized&lt;T&gt; &amp;&amp; requires(T c) {
+    { c.begin() };
+    { c.end()   };
+    requires Comparable&lt;<span class="kw">typename</span> T::value_type&gt;;
+};</div>
+
+                <h4>Using concepts as constraints</h4>
+                <div class="code-block"><span class="cm">// Approach 1: requires clause after template parameters</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt; requires Comparable&lt;T&gt;
+T <span class="fn">max_val</span>(T a, T b) { <span class="kw">return</span> a &lt; b ? b : a; }
+
+<span class="cm">// Approach 2: concept name directly in template parameter list</span>
+<span class="kw">template</span> &lt;Comparable T&gt;
+T <span class="fn">min_val</span>(T a, T b) { <span class="kw">return</span> a &lt; b ? a : b; }
+
+<span class="cm">// Approach 3: abbreviated function template (auto with concept)</span>
+<span class="kw">auto</span> <span class="fn">clamp</span>(Comparable <span class="kw">auto</span> v, Comparable <span class="kw">auto</span> lo, Comparable <span class="kw">auto</span> hi) {
+    <span class="kw">return</span> v &lt; lo ? lo : (v &gt; hi ? hi : v);
+}
+
+<span class="cm">// Approach 4: requires expression inline</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+    requires (std::is_arithmetic_v&lt;T&gt; &amp;&amp; <span class="kw">sizeof</span>(T) &gt;= <span class="nm">4</span>)
+T <span class="fn">safe_div</span>(T a, T b) { <span class="kw">return</span> b ? a / b : T{<span class="nm">0</span>}; }</div>
+
+                <h4>Standard library concepts (C++20)</h4>
+                <table class="styled">
+                    <thead><tr><th>Concept</th><th>Meaning</th></tr></thead>
+                    <tbody>
+                        <tr><td><code>std::integral&lt;T&gt;</code></td><td>T is an integer type</td></tr>
+                        <tr><td><code>std::floating_point&lt;T&gt;</code></td><td>T is float, double, long double</td></tr>
+                        <tr><td><code>std::same_as&lt;T,U&gt;</code></td><td>T and U are the same type</td></tr>
+                        <tr><td><code>std::derived_from&lt;D,B&gt;</code></td><td>D is derived from B</td></tr>
+                        <tr><td><code>std::convertible_to&lt;From,To&gt;</code></td><td>implicit conversion From → To exists</td></tr>
+                        <tr><td><code>std::equality_comparable&lt;T&gt;</code></td><td>T has <code>==</code> and <code>!=</code></td></tr>
+                        <tr><td><code>std::totally_ordered&lt;T&gt;</code></td><td>T supports all six comparison operators</td></tr>
+                        <tr><td><code>std::copyable&lt;T&gt;</code></td><td>T is copy-constructible and assignable</td></tr>
+                        <tr><td><code>std::movable&lt;T&gt;</code></td><td>T is move-constructible and assignable</td></tr>
+                        <tr><td><code>std::regular&lt;T&gt;</code></td><td>default-constructible, copyable, equality-comparable</td></tr>
+                        <tr><td><code>std::invocable&lt;F, Args...&gt;</code></td><td>F is callable with Args</td></tr>
+                        <tr><td><code>std::ranges::range&lt;R&gt;</code></td><td>R has begin() and end()</td></tr>
+                    </tbody>
+                </table>
+
+                <!-- ----- 3h CRTP ----- -->
+                <h3 id="cpp-crtp">3h. CRTP — Curiously Recurring Template Pattern (static polymorphism)</h3>
+
+                <div class="theory-box">
+                    CRTP achieves <em>static polymorphism</em>: a base class template is parameterised by its own derived class, allowing the base to call derived-class methods through a template cast — no virtual table, no virtual dispatch, no heap allocation, full inlining.
+                </div>
+
+                <h4>Pattern structure</h4>
+                <div class="code-block"><span class="kw">template</span> &lt;<span class="kw">typename</span> Derived&gt;
+<span class="kw">class</span> Base {
+<span class="kw">public</span>:
+    <span class="kw">void</span> <span class="fn">interface</span>() {
+        <span class="cm">// Cast this to Derived* and call the actual implementation.</span>
+        <span class="cm">// No virtual dispatch — resolved at compile time.</span>
+        <span class="kw">static_cast</span>&lt;Derived*&gt;(<span class="kw">this</span>)-&gt;implementation();
+    }
+};
+
+<span class="kw">class</span> Concrete : <span class="kw">public</span> Base&lt;Concrete&gt; {
+<span class="kw">public</span>:
+    <span class="kw">void</span> <span class="fn">implementation</span>() { std::cout &lt;&lt; <span class="st">"Concrete::implementation\n"</span>; }
+};</div>
+
+                <h4>Real use: mixin — add operators automatically</h4>
+                <div class="code-block"><span class="cm">// Provide !=, >, <=, >= for free once a class defines == and <</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">struct</span> Comparable {
+    <span class="kw">bool</span> <span class="fn">operator!=</span>(<span class="kw">const</span> T&amp; o) <span class="kw">const</span> { <span class="kw">return</span> !(<span class="kw">static_cast</span>&lt;<span class="kw">const</span> T&amp;&gt;(*<span class="kw">this</span>) == o); }
+    <span class="kw">bool</span> <span class="fn">operator&gt;</span> (<span class="kw">const</span> T&amp; o) <span class="kw">const</span> { <span class="kw">return</span> o &lt; <span class="kw">static_cast</span>&lt;<span class="kw">const</span> T&amp;&gt;(*<span class="kw">this</span>); }
+    <span class="kw">bool</span> <span class="fn">operator&lt;=</span>(<span class="kw">const</span> T&amp; o) <span class="kw">const</span> { <span class="kw">return</span> !(<span class="kw">static_cast</span>&lt;<span class="kw">const</span> T&amp;&gt;(*<span class="kw">this</span>) &gt; o); }
+    <span class="kw">bool</span> <span class="fn">operator&gt;=</span>(<span class="kw">const</span> T&amp; o) <span class="kw">const</span> { <span class="kw">return</span> !(<span class="kw">static_cast</span>&lt;<span class="kw">const</span> T&amp;&gt;(*<span class="kw">this</span>) &lt; o); }
+};
+
+<span class="kw">struct</span> Point : Comparable&lt;Point&gt; {
+    <span class="kw">int</span> x, y;
+    <span class="kw">bool</span> <span class="fn">operator==</span>(<span class="kw">const</span> Point&amp; o) <span class="kw">const</span> { <span class="kw">return</span> x==o.x &amp;&amp; y==o.y; }
+    <span class="kw">bool</span> <span class="fn">operator&lt;</span> (<span class="kw">const</span> Point&amp; o) <span class="kw">const</span> { <span class="kw">return</span> x&lt;o.x || (x==o.x &amp;&amp; y&lt;o.y); }
+    <span class="cm">// Gets !=, >, <=, >= for free via CRTP</span>
+};</div>
+
+                <h4>CRTP for static interface enforcement</h4>
+                <div class="code-block"><span class="kw">template</span> &lt;<span class="kw">typename</span> Derived&gt;
+<span class="kw">struct</span> IAnimal {
+    <span class="kw">void</span> <span class="fn">speak</span>()  { <span class="kw">static_cast</span>&lt;Derived*&gt;(<span class="kw">this</span>)-&gt;speak_impl(); }
+    <span class="kw">void</span> <span class="fn">move</span>()   { <span class="kw">static_cast</span>&lt;Derived*&gt;(<span class="kw">this</span>)-&gt;move_impl(); }
+    <span class="cm">// compile error if Derived doesn't define speak_impl() or move_impl()</span>
+};
+
+<span class="kw">struct</span> Dog : IAnimal&lt;Dog&gt; {
+    <span class="kw">void</span> <span class="fn">speak_impl</span>() { puts(<span class="st">"Woof"</span>); }
+    <span class="kw">void</span> <span class="fn">move_impl</span>()  { puts(<span class="st">"runs"</span>); }
+};
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> A&gt;
+<span class="kw">void</span> <span class="fn">make_noise</span>(IAnimal&lt;A&gt;&amp; a) { a.speak(); a.move(); }  <span class="cm">// zero virtual overhead</span></div>
+
+                <!-- ----- 3i Policy-based design ----- -->
+                <h3 id="cpp-policy">3i. Policy-based design</h3>
+
+                <p>Instead of hard-coding behaviour (how to compare, how to allocate, how to log), inject it as a template parameter — a <em>policy</em>. The host class composes policies at compile time using multiple inheritance or composition.</p>
+
+                <div class="code-block"><span class="cm">/* SortedList parameterised over a comparison policy */</span>
+<span class="kw">struct</span> Ascending  { <span class="kw">template</span>&lt;<span class="kw">typename</span> T&gt; <span class="kw">bool</span> <span class="fn">less</span>(T a, T b) { <span class="kw">return</span> a &lt; b; } };
+<span class="kw">struct</span> Descending { <span class="kw">template</span>&lt;<span class="kw">typename</span> T&gt; <span class="kw">bool</span> <span class="fn">less</span>(T a, T b) { <span class="kw">return</span> a &gt; b; } };
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T, <span class="kw">typename</span> CmpPolicy = Ascending&gt;
+<span class="kw">class</span> SortedList : <span class="kw">private</span> CmpPolicy {
+    std::vector&lt;T&gt; data_;
+<span class="kw">public</span>:
+    <span class="kw">void</span> <span class="fn">insert</span>(<span class="kw">const</span> T&amp; v) {
+        <span class="kw">auto</span> it = std::lower_bound(data_.begin(), data_.end(), v,
+            [<span class="kw">this</span>](T a, T b) { <span class="kw">return</span> CmpPolicy::less(a, b); });
+        data_.insert(it, v);
+    }
+    <span class="kw">const</span> std::vector&lt;T&gt;&amp; <span class="fn">data</span>() <span class="kw">const</span> { <span class="kw">return</span> data_; }
+};
+
+SortedList&lt;<span class="kw">int</span>&gt;            asc;   <span class="cm">// ascending order (default)</span>
+SortedList&lt;<span class="kw">int</span>, Descending&gt; dsc;  <span class="cm">// descending order</span></div>
+
+                <div class="insight-box">
+                    Policy-based design is how the C++ standard library itself is architected: <code>std::allocator</code> is an allocator policy for containers, <code>std::less</code> is a comparator policy for maps and sets, <code>std::char_traits</code> is a character trait policy for strings.
+                </div>
+
+                <!-- ============================================================ -->
+                <h2 id="tmp">4. Template Metaprogramming (TMP)</h2>
+
+                <p>Templates are a Turing-complete compile-time computation mechanism. TMP moves work from runtime to compile time: computations happen during compilation, with no runtime overhead.</p>
+
+                <h3>Compile-time factorial</h3>
+                <div class="code-block"><span class="cm">// Recursive template: compute N! at compile time</span>
+<span class="kw">template</span> &lt;size_t N&gt;
+<span class="kw">struct</span> Factorial {
+    <span class="kw">static constexpr</span> size_t value = N * Factorial&lt;N - <span class="nm">1</span>&gt;::value;
+};
+<span class="kw">template</span> &lt;&gt;
+<span class="kw">struct</span> Factorial&lt;<span class="nm">0</span>&gt; { <span class="kw">static constexpr</span> size_t value = <span class="nm">1</span>; };
+
+<span class="kw">static_assert</span>(Factorial&lt;<span class="nm">5</span>&gt;::value == <span class="nm">120</span>);   <span class="cm">// checked at compile time</span>
+
+<span class="cm">// Modern style: constexpr function (C++14, preferred)</span>
+<span class="kw">constexpr</span> size_t <span class="fn">factorial</span>(size_t n) {
+    <span class="kw">return</span> n == <span class="nm">0</span> ? <span class="nm">1</span> : n * factorial(n - <span class="nm">1</span>);
+}
+<span class="kw">static_assert</span>(factorial(<span class="nm">6</span>) == <span class="nm">720</span>);</div>
+
+                <h3>Compile-time type list and operations</h3>
+                <div class="code-block"><span class="cm">// A heterogeneous type list</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span>... Types&gt; <span class="kw">struct</span> TypeList {};
+
+<span class="cm">// Count the number of types in a list</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> List&gt; <span class="kw">struct</span> Length;
+<span class="kw">template</span> &lt;<span class="kw">typename</span>... Ts&gt;
+<span class="kw">struct</span> Length&lt;TypeList&lt;Ts...&gt;&gt; {
+    <span class="kw">static constexpr</span> size_t value = <span class="kw">sizeof</span>...(Ts);
+};
+
+<span class="cm">// Find if a type appears in a list</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T, <span class="kw">typename</span> List&gt; <span class="kw">struct</span> Contains;
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">struct</span> Contains&lt;T, TypeList&lt;&gt;&gt; : std::false_type {};
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T, <span class="kw">typename</span> Head, <span class="kw">typename</span>... Tail&gt;
+<span class="kw">struct</span> Contains&lt;T, TypeList&lt;Head, Tail...&gt;&gt;
+    : std::conditional_t&lt;std::is_same_v&lt;T, Head&gt;,
+                         std::true_type,
+                         Contains&lt;T, TypeList&lt;Tail...&gt;&gt;&gt; {};
+
+<span class="kw">using</span> MyTypes = TypeList&lt;<span class="kw">int</span>, <span class="kw">double</span>, std::string&gt;;
+static_assert(Length&lt;MyTypes&gt;::value == <span class="nm">3</span>);
+static_assert(Contains&lt;<span class="kw">double</span>, MyTypes&gt;::value);
+static_assert(!Contains&lt;<span class="kw">float</span>, MyTypes&gt;::value);</div>
+
+                <h3><code>std::conditional</code> — compile-time ternary for types</h3>
+                <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;type_traits&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;cstdint&gt;</span>
+
+<span class="cm">// Choose the smallest integer type that fits N bits</span>
+<span class="kw">template</span> &lt;size_t Bits&gt;
+<span class="kw">using</span> SmallestInt =
+    std::conditional_t&lt;Bits &lt;= <span class="nm">8</span>,  uint8_t,
+    std::conditional_t&lt;Bits &lt;= <span class="nm">16</span>, uint16_t,
+    std::conditional_t&lt;Bits &lt;= <span class="nm">32</span>, uint32_t,
+                                     uint64_t&gt;&gt;&gt;;
+
+static_assert(std::is_same_v&lt;SmallestInt&lt;<span class="nm">5</span>&gt;,  uint8_t&gt;);
+static_assert(std::is_same_v&lt;SmallestInt&lt;<span class="nm">12</span>&gt;, uint16_t&gt;);
+static_assert(std::is_same_v&lt;SmallestInt&lt;<span class="nm">20</span>&gt;, uint32_t&gt;);</div>
+
+                <!-- ============================================================ -->
+                <h2 id="comparison">5. Comparison: C vs C++</h2>
+
                 <table class="styled">
                     <thead>
                         <tr><th>Aspect</th><th>C</th><th>C++</th></tr>
                     </thead>
                     <tbody>
-                        <tr><td>Main mechanism</td><td>Macros, <code>void*</code>, <code>_Generic</code></td><td>Templates, concepts</td></tr>
-                        <tr><td>Type safety</td><td>Mostly manual</td><td>Strong compile-time type checking</td></tr>
-                        <tr><td>Error timing</td><td>Often runtime if casts are wrong</td><td>Mostly compile-time</td></tr>
-                        <tr><td>Performance model</td><td>Can be fast but manual and error-prone</td><td>Usually zero-cost abstractions after optimization</td></tr>
-                        <tr><td>Library ecosystem</td><td>Convention-driven APIs</td><td>Template-heavy STL and generic algorithms</td></tr>
+                        <tr><td><strong>Primary mechanism</strong></td><td>Macros, <code>void*</code>, <code>_Generic</code>, X-Macros</td><td>Templates, concepts, constexpr</td></tr>
+                        <tr><td><strong>Type safety</strong></td><td>Largely manual; <code>void*</code> bypasses the type system</td><td>Strong compile-time checking, concepts enforce requirements explicitly</td></tr>
+                        <tr><td><strong>Error timing</strong></td><td>Wrong casts detected at runtime (if at all)</td><td>Type violations caught at instantiation / concept check</td></tr>
+                        <tr><td><strong>Error quality</strong></td><td>Cryptic macro expansion errors or silent UB</td><td>Readable errors with concepts; verbose without</td></tr>
+                        <tr><td><strong>Performance</strong></td><td>Fast — explicit and manual; no hidden overhead</td><td>Zero-cost abstractions; compiler eliminates all template machinery</td></tr>
+                        <tr><td><strong>Code duplication</strong></td><td>X-Macros expand at source level (visible in object file)</td><td>Template instantiation happens in compiler internals</td></tr>
+                        <tr><td><strong>Partial specialisation</strong></td><td>Not available</td><td>Full and partial specialisation for both functions and classes</td></tr>
+                        <tr><td><strong>Metaprogramming</strong></td><td>Compile-time only via macros (no computation)</td><td>Full Turing-complete TMP via templates + constexpr</td></tr>
+                        <tr><td><strong>Binary size</strong></td><td>One copy of <code>void*</code> function per algorithm</td><td>One instantiation per (algorithm, type) pair — can grow</td></tr>
+                        <tr><td><strong>Compile speed</strong></td><td>Fast</td><td>Slower due to template instantiation</td></tr>
+                        <tr><td><strong>ABI stability</strong></td><td>Stable (C ABI)</td><td>Fragile (name mangling, inline instantiation)</td></tr>
                     </tbody>
                 </table>
 
                 <h3>Key similarities</h3>
                 <ul>
-                    <li>Both languages support reusable, type-agnostic design.</li>
-                    <li>Both can produce highly efficient low-level code.</li>
-                    <li>Both benefit from clear API contracts.</li>
+                    <li>Both can achieve near-identical runtime performance for the same task.</li>
+                    <li>Both require the programmer to define contracts (what operations a type must support).</li>
+                    <li>Both are zero-overhead at runtime when used correctly.</li>
+                    <li>Both benefit from clearly documented generic interfaces.</li>
                 </ul>
 
                 <h3>Key differences</h3>
                 <ul>
-                    <li>C++ has built-in generic mechanisms; C simulates generics with idioms.</li>
-                    <li>C++ catches more mistakes at compile time.</li>
-                    <li>C generic interfaces are often simpler but require more discipline.</li>
+                    <li>C++ provides native language support; C simulates generics with idioms.</li>
+                    <li>C++ templates operate on the full type system; C <code>void*</code> erases it.</li>
+                    <li>C++ can enforce interface requirements (concepts); C cannot without runtime checks.</li>
+                    <li>C generic code is simpler to link and distribute (stable C ABI); C++ template code must often be header-only.</li>
                 </ul>
 
-                <h2 id="when-to-use">6) Practical Guidance</h2>
-                <div class="theory-box">
-                    <p><strong>Use C style generics</strong> when writing lightweight C libraries, systems APIs, or strict C-only projects.</p>
-                    <p><strong>Use C++ templates/concepts</strong> when building reusable containers/algorithms with strong type safety and maintainability.</p>
-                </div>
+                <!-- ============================================================ -->
+                <h2 id="guidance">6. Practical Guidance</h2>
+
+                <table class="styled">
+                    <thead><tr><th>Situation</th><th>Recommended approach</th></tr></thead>
+                    <tbody>
+                        <tr><td>Pure C project, simple per-type variants needed</td><td>Macro-generated typed structs/functions (<code>DEFINE_VEC</code> style)</td></tr>
+                        <tr><td>Pure C, runtime-polymorphic containers (e.g. plugin system)</td><td><code>void*</code> + element size + function pointer table</td></tr>
+                        <tr><td>C project, type dispatch in a macro</td><td><code>_Generic</code> for clean per-type dispatch without casts</td></tr>
+                        <tr><td>Large tables of repetitive definitions in C</td><td>X-Macros to maintain one source of truth</td></tr>
+                        <tr><td>C++ generic algorithm over STL containers</td><td>Constrained function template with concept (C++20) or SFINAE (C++17)</td></tr>
+                        <tr><td>C++ reusable container with optional allocator</td><td>Class template with allocator policy parameter</td></tr>
+                        <tr><td>C++ static interface (avoid vtable overhead)</td><td>CRTP</td></tr>
+                        <tr><td>C++ algorithm that varies per type at compile time</td><td><code>if constexpr</code> + type traits</td></tr>
+                        <tr><td>Enforcing algorithm requirements clearly (C++20+)</td><td>Named concepts + <code>requires</code> clauses</td></tr>
+                        <tr><td>Fixed-size stack-allocated container</td><td>Class template with non-type size parameter (<code>FixedArray&lt;T,N&gt;</code>)</td></tr>
+                    </tbody>
+                </table>
 
                 <div class="insight-box">
-                    <strong>Rule of thumb:</strong> If your project is in C++, prefer templates first. If your project is in pure C, use <code>void*</code>-based APIs carefully and document type contracts clearly.
+                    <strong>Rule of thumb:</strong> if the project is C, use <code>void*</code> for runtime flexibility and macros for type-safe static variants — document contracts meticulously. If the project is C++17, use <code>if constexpr</code> and <code>enable_if</code>. If C++20 is available, use concepts: they are the language's intended answer to the type-requirement problem and make libraries dramatically easier to use correctly.
                 </div>
+
+                <div class="warn-box">
+                    <strong>Template bloat:</strong> each template instantiation generates separate machine code. For a function template instantiated over 20 different types, you get 20 copies in the binary. If binary size matters (embedded systems), prefer <code>void*</code>-style runtime generics or, in C++, write a non-template implementation taking <code>void*</code> + size and wrap it with a thin type-safe template facade.
+                </div>
+
+                <div class="note-box">
+                    <strong>Header-only constraint:</strong> C++ function and class template definitions must be visible at the point of instantiation — typically the call site. This forces most template code to live in headers. Use <code>extern template</code> declarations to suppress redundant instantiations across translation units, or use explicit instantiation definitions in a single <code>.cpp</code> file if the set of used types is known in advance.
+                </div>
+
             </article>
         </section>
     </main>
