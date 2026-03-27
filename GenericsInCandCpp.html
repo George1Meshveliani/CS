@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generics in C and C++</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 90ch; }
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #e5e7eb;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.95em;
+        }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .code-block {
+            background-color: #0f172a;
+            color: #d1d5db;
+            padding: 1.25rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.7;
+            font-size: 0.92rem;
+        }
+        .theory-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 5px solid #3b82f6;
+            padding: 1.25rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .insight-box {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-left: 5px solid #10b981;
+            padding: 1.25rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .warn-box {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border-left: 5px solid #ef4444;
+            padding: 1.25rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        table.styled { width: 100%; border-collapse: collapse; margin: 1rem 0; }
+        table.styled thead tr { background-color: #1e293b; color: white; }
+        table.styled th, table.styled td {
+            padding: 0.75rem 1rem;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+            vertical-align: top;
+        }
+        table.styled tbody tr:nth-child(even) { background-color: #f8fafc; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <header class="bg-white shadow-md sticky top-0 z-10">
+        <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <h1 class="text-2xl font-bold text-gray-900">Generics in C and C++</h1>
+            <div class="text-sm text-gray-500">C/C++ Programming Topic</div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-6 py-12">
+        <section class="mb-12">
+            <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+                <h1>Generics in C and C++</h1>
+                <p>This topic explains how generic programming works in C and C++, why it matters, what principles guide good design, and how the two languages are similar and different.</p>
+
+                <h2>Topics of Discussion</h2>
+                <ol>
+                    <li><a href="#what-is-generic">What generic programming means</a></li>
+                    <li><a href="#generics-c">Generics in C</a></li>
+                    <li><a href="#generics-cpp">Generics in C++</a></li>
+                    <li><a href="#principles">Core principles</a></li>
+                    <li><a href="#similarities-differences">Similarities and differences</a></li>
+                    <li><a href="#when-to-use">Practical guidance</a></li>
+                </ol>
+
+                <h2 id="what-is-generic">1) What Generic Programming Means</h2>
+                <div class="theory-box">
+                    <p><strong>Generic programming</strong> means writing one algorithm or data structure that can work with multiple types, instead of rewriting the same logic for <code>int</code>, <code>double</code>, <code>string</code>, and so on.</p>
+                </div>
+                <p>Common goals:</p>
+                <ul>
+                    <li>Code reuse without copy-paste</li>
+                    <li>Strong correctness guarantees</li>
+                    <li>High performance and low overhead</li>
+                    <li>Clear, scalable library design</li>
+                </ul>
+
+                <h2 id="generics-c">2) Generics in C</h2>
+                <p>C has no templates, so generics are implemented through language patterns:</p>
+
+                <h3>2a) Macros</h3>
+                <div class="code-block">
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+int main() {
+    int a = MAX(3, 10);
+    double b = MAX(3.5, 2.1);
+}
+                </div>
+                <div class="warn-box">
+                    <strong>Important:</strong> macros are text substitution. They are not type-safe and can evaluate expressions more than once (e.g. <code>MAX(i++, j++)</code>).
+                </div>
+
+                <h3>2b) <code>void*</code> + callbacks (library style)</h3>
+                <p>This is the style used by <code>qsort</code>: data pointer + element size + comparator function.</p>
+                <div class="code-block">
+#include &lt;stdlib.h&gt;
+
+int cmpInt(const void* a, const void* b) {
+    int x = *(const int*)a;
+    int y = *(const int*)b;
+    return (x &gt; y) - (x &lt; y);
+}
+
+int main() {
+    int arr[] = {7, 2, 9, 1, 5};
+    qsort(arr, 5, sizeof(int), cmpInt);
+}
+                </div>
+                <p>Pros: very flexible and portable.  
+                Cons: manual casting and weaker compile-time checks.</p>
+
+                <h3>2c) C11 <code>_Generic</code></h3>
+                <p><code>_Generic</code> provides compile-time selection by expression type.</p>
+                <div class="code-block">
+#include &lt;stdio.h&gt;
+
+#define type_name(x) _Generic((x), \
+    int: "int", \
+    double: "double", \
+    char*: "char*", \
+    default: "other")
+
+int main() {
+    printf("%s\n", type_name(10));      // int
+    printf("%s\n", type_name(3.14));    // double
+}
+                </div>
+
+                <h2 id="generics-cpp">3) Generics in C++</h2>
+                <p>C++ uses templates to generate type-specific code during compilation.</p>
+
+                <h3>3a) Function templates</h3>
+                <div class="code-block">
+template &lt;typename T&gt;
+T my_max(const T&amp; a, const T&amp; b) {
+    return (a &lt; b) ? b : a;
+}
+
+int main() {
+    int x = my_max(4, 9);
+    double y = my_max(1.2, 3.4);
+}
+                </div>
+
+                <h3>3b) Class templates</h3>
+                <div class="code-block">
+#include &lt;vector&gt;
+using namespace std;
+
+template &lt;typename T&gt;
+class Stack {
+    vector&lt;T&gt; data;
+public:
+    void push(const T&amp; v) { data.push_back(v); }
+    void pop() { if (!data.empty()) data.pop_back(); }
+    const T&amp; top() const { return data.back(); }
+    bool empty() const { return data.empty(); }
+};
+                </div>
+
+                <h3>3c) Template constraints (C++20 concepts)</h3>
+                <div class="code-block">
+#include &lt;concepts&gt;
+
+template &lt;typename T&gt;
+concept Number = std::integral&lt;T&gt; || std::floating_point&lt;T&gt;;
+
+template &lt;Number T&gt;
+T add(T a, T b) {
+    return a + b;
+}
+                </div>
+                <div class="insight-box">
+                    Concepts improve readability and compiler diagnostics by expressing requirements directly in the function signature.
+                </div>
+
+                <h2 id="principles">4) Core Principles</h2>
+                <ul>
+                    <li><strong>Abstraction:</strong> separate algorithm behavior from concrete type.</li>
+                    <li><strong>Type requirements:</strong> define what operations the type must support.</li>
+                    <li><strong>Zero-overhead intent:</strong> abstractions should not force runtime penalties.</li>
+                    <li><strong>Composability:</strong> generic components should work together predictably.</li>
+                    <li><strong>Safety:</strong> catch misuse early (prefer compile-time checks).</li>
+                </ul>
+
+                <h2 id="similarities-differences">5) Similarities and Differences</h2>
+                <table class="styled">
+                    <thead>
+                        <tr><th>Aspect</th><th>C</th><th>C++</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Main mechanism</td><td>Macros, <code>void*</code>, <code>_Generic</code></td><td>Templates, concepts</td></tr>
+                        <tr><td>Type safety</td><td>Mostly manual</td><td>Strong compile-time type checking</td></tr>
+                        <tr><td>Error timing</td><td>Often runtime if casts are wrong</td><td>Mostly compile-time</td></tr>
+                        <tr><td>Performance model</td><td>Can be fast but manual and error-prone</td><td>Usually zero-cost abstractions after optimization</td></tr>
+                        <tr><td>Library ecosystem</td><td>Convention-driven APIs</td><td>Template-heavy STL and generic algorithms</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>Key similarities</h3>
+                <ul>
+                    <li>Both languages support reusable, type-agnostic design.</li>
+                    <li>Both can produce highly efficient low-level code.</li>
+                    <li>Both benefit from clear API contracts.</li>
+                </ul>
+
+                <h3>Key differences</h3>
+                <ul>
+                    <li>C++ has built-in generic mechanisms; C simulates generics with idioms.</li>
+                    <li>C++ catches more mistakes at compile time.</li>
+                    <li>C generic interfaces are often simpler but require more discipline.</li>
+                </ul>
+
+                <h2 id="when-to-use">6) Practical Guidance</h2>
+                <div class="theory-box">
+                    <p><strong>Use C style generics</strong> when writing lightweight C libraries, systems APIs, or strict C-only projects.</p>
+                    <p><strong>Use C++ templates/concepts</strong> when building reusable containers/algorithms with strong type safety and maintainability.</p>
+                </div>
+
+                <div class="insight-box">
+                    <strong>Rule of thumb:</strong> If your project is in C++, prefer templates first. If your project is in pure C, use <code>void*</code>-based APIs carefully and document type contracts clearly.
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <footer class="bg-gray-800 text-white mt-12 py-6">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; George Meshveliani — Computer Science Fundamentals</p>
+        </div>
+    </footer>
+</body>
+</html>

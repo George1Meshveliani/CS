@@ -36,6 +36,7 @@
 
 ### C++ Programming
 - [`C++ Advanced: Multi-dimensional Arrays, Structures, Stack & Queue`](https://george1meshveliani.github.io/CS/CppAdvanced)
+- [`Generics in C and C++`](https://george1meshveliani.github.io/CS/GenericsInCandCpp)
 - [`C++ Problems: Arrays, Pointers & Binary Search`](https://george1meshveliani.github.io/CS/CppProblems)
 
 ### Algorithms

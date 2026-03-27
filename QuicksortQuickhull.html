@@ -67,6 +67,7 @@
                     <li><a href="#proofs">Mathematical proofs: correctness and average case</a></li>
                     <li><a href="#haskell-vs-cpp">Quicksort in Haskell vs C/C++</a></li>
                     <li><a href="#quickhull">Quickhull for convex hull</a></li>
+                    <li><a href="#generics-c-cpp">Generics in C and C++</a></li>
                     <li><a href="#practice-problems">Problems by level (hidden solutions)</a></li>
                 </ol>
 
@@ -717,7 +718,113 @@ Hull (CCW): (0,0), ... upper hull points ..., (4,0)
                 </table>
 
                 <!-- ===================== SECTION 9 ===================== -->
-                <h2 id="practice-problems">9) Problems by Level</h2>
+                <h2 id="generics-c-cpp">9) Generics in C and C++</h2>
+                <p>Generics let you write reusable algorithms and data structures that work with many types while keeping type safety and performance.</p>
+
+                <h3>9a) What "generics" means in C vs C++</h3>
+                <table class="styled">
+                    <thead>
+                        <tr><th>Language</th><th>Main Generic Mechanism</th><th>Type Checking</th><th>Runtime Cost</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>C</td><td>Macros, <code>void*</code>, <code>_Generic</code> (C11)</td><td>Mostly weak/manual</td><td>Usually zero for macros, potential casts</td></tr>
+                        <tr><td>C++</td><td>Templates (functions/classes), concepts</td><td>Strong compile-time checking</td><td>Zero-cost abstractions in optimized builds</td></tr>
+                    </tbody>
+                </table>
+
+                <h3>9b) Generics in C</h3>
+                <p>C has no templates, so generic style is built from three common techniques:</p>
+                <ol>
+                    <li><strong>Preprocessor macros</strong> (text substitution)</li>
+                    <li><strong><code>void*</code> + element size + callbacks</strong> (e.g., <code>qsort</code>)</li>
+                    <li><strong><code>_Generic</code></strong> for compile-time type selection (C11)</li>
+                </ol>
+
+                <h4>Example: macro-based generic max</h4>
+                <div class="code-block">
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
+
+int main() {
+    int x = MAX(3, 7);        // int
+    double y = MAX(2.5, 1.9); // double
+}
+                </div>
+                <div class="warn-box">
+                    <strong>Macro caveat:</strong> Macros are not type-safe and may evaluate arguments multiple times. For example, <code>MAX(i++, j++)</code> can cause subtle bugs.
+                </div>
+
+                <h4>Example: <code>qsort</code> with comparator</h4>
+                <div class="code-block">
+#include &lt;stdlib.h&gt;
+
+int cmpInt(const void* a, const void* b) {
+    int x = *(const int*)a, y = *(const int*)b;
+    return (x &gt; y) - (x &lt; y);
+}
+
+int main() {
+    int arr[] = {5, 1, 4, 2, 3};
+    qsort(arr, 5, sizeof(int), cmpInt);
+}
+                </div>
+
+                <h3>9c) Generics in C++</h3>
+                <p>C++ templates generate type-specific code at compile time and preserve static typing.</p>
+
+                <h4>Example: generic function template</h4>
+                <div class="code-block">
+template &lt;typename T&gt;
+T myMax(const T&amp; a, const T&amp; b) {
+    return (a &lt; b) ? b : a;
+}
+
+int main() {
+    int a = myMax(2, 9);
+    double b = myMax(3.14, 2.71);
+}
+                </div>
+
+                <h4>Example: generic class template</h4>
+                <div class="code-block">
+template &lt;typename T&gt;
+class Stack {
+    vector&lt;T&gt; data;
+public:
+    void push(const T&amp; x) { data.push_back(x); }
+    void pop() { if (!data.empty()) data.pop_back(); }
+    const T&amp; top() const { return data.back(); }
+    bool empty() const { return data.empty(); }
+};
+                </div>
+
+                <h3>9d) Core principles</h3>
+                <ul>
+                    <li><strong>Abstraction:</strong> Write logic once, reuse for many types.</li>
+                    <li><strong>Type constraints:</strong> In C++ templates/concepts enforce required operations; in C this is manual.</li>
+                    <li><strong>Separation of algorithm and data:</strong> Same algorithm can run on different element types.</li>
+                    <li><strong>Performance:</strong> C++ templates are often inlined and optimized as if handwritten.</li>
+                </ul>
+
+                <h3>9e) Similarities and differences</h3>
+                <table class="styled">
+                    <thead>
+                        <tr><th>Aspect</th><th>Similarity</th><th>Difference</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Goal</td><td>Both aim at reusable generic code</td><td>C does it via patterns; C++ has native language support</td></tr>
+                        <tr><td>Safety</td><td>Both can be used safely with discipline</td><td>C++ checks types at compile time; C often relies on casts</td></tr>
+                        <tr><td>Error discovery</td><td>Both may produce hard-to-read errors</td><td>C errors often runtime bugs; C++ template errors are compile-time</td></tr>
+                        <tr><td>Performance</td><td>Both can be fast</td><td>C++ templates usually give safer zero-cost abstractions</td></tr>
+                        <tr><td>Ecosystem</td><td>Both support generic libraries</td><td>C++ STL is deeply template-driven; C relies on library conventions</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="insight-box">
+                    <strong>Rule of thumb:</strong> In C, prefer small, predictable generic patterns (<code>qsort</code>-style interfaces, careful macros). In C++, prefer templates and concepts for safer and clearer generic programming.
+                </div>
+
+                <!-- ===================== SECTION 10 ===================== -->
+                <h2 id="practice-problems">10) Problems by Level</h2>
 
                 <h3>Easy</h3>
 
