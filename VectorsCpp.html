@@ -85,6 +85,44 @@
             vertical-align: top;
         }
         table.styled tbody tr:nth-child(even) { background-color: #f8fafc; }
+        .toggle-btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.45rem 1.2rem;
+            border-radius: 0.375rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-top: 0.75rem;
+            transition: background 0.2s;
+            display: inline-block;
+        }
+        .toggle-btn:hover { background-color: #2563eb; }
+        .solution-content { display: none; margin-top: 1rem; }
+        .solution-content.show { display: block; }
+        .task-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.25rem 1.5rem;
+            margin: 1.25rem 0;
+            background: #f8fafc;
+            transition: border-color 0.2s;
+        }
+        .task-card:hover { border-color: #93c5fd; }
+        .task-number {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            width: 1.6rem;
+            height: 1.6rem;
+            line-height: 1.6rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -102,6 +140,47 @@
 
                 <h1>Vectors in C++ — <code>std::vector</code></h1>
                 <p><code>std::vector</code> is the most-used container in the C++ standard library. It is a dynamic array: it stores elements in a single contiguous block of heap memory, supports random access in O(1), and grows automatically when new elements are pushed in. Understanding how it works internally — and especially how growth, reallocation, and iterator invalidation operate — is essential for writing correct and efficient C++ code.</p>
+
+                <!-- ============================================================ -->
+                <h2>Before We Begin — The Simplest Possible Example</h2>
+                <p>If you have never used <code>std::vector</code> before, start right here. You only need one header.</p>
+                <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">int</span> main() {
+    <span class="cm">// 1. Create an empty vector of integers</span>
+    std::vector&lt;<span class="kw">int</span>&gt; numbers;
+
+    <span class="cm">// 2. Add elements one by one to the back</span>
+    numbers.push_back(<span class="nm">10</span>);
+    numbers.push_back(<span class="nm">20</span>);
+    numbers.push_back(<span class="nm">30</span>);
+
+    <span class="cm">// 3. Access elements by index — exactly like a plain array</span>
+    std::cout &lt;&lt; numbers[<span class="nm">0</span>] &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 10</span>
+    std::cout &lt;&lt; numbers[<span class="nm">1</span>] &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 20</span>
+    std::cout &lt;&lt; numbers[<span class="nm">2</span>] &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 30</span>
+
+    <span class="cm">// 4. Loop over all elements</span>
+    <span class="kw">for</span> (<span class="kw">int</span> n : numbers) {
+        std::cout &lt;&lt; n &lt;&lt; <span class="st">" "</span>;
+    }
+    std::cout &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// Output: 10 20 30</span>
+
+    <span class="cm">// 5. Ask the vector how many elements it holds</span>
+    std::cout &lt;&lt; numbers.size() &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 3</span>
+
+    <span class="cm">// 6. Remove the last element</span>
+    numbers.pop_back();
+    std::cout &lt;&lt; numbers.size() &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 2</span>
+
+    <span class="cm">// 7. You can also create a vector with initial values directly</span>
+    std::vector&lt;<span class="kw">int</span>&gt; scores = {<span class="nm">95</span>, <span class="nm">87</span>, <span class="nm">72</span>, <span class="nm">100</span>};
+    std::cout &lt;&lt; scores[<span class="nm">3</span>] &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 100</span>
+}</div>
+                <div class="insight-box">
+                    A <code>std::vector</code> behaves just like an array for reading and writing elements (<code>v[i]</code>), but it can <strong>grow automatically</strong> as you add elements. You never have to worry about pre-allocating the right size. The rest of this page explains how it does that and how to use it efficiently.
+                </div>
 
                 <!-- ============================================================ -->
                 <h2>Topics of Discussion</h2>
@@ -831,6 +910,129 @@ std::vector&lt;<span class="kw">uint8_t</span>&gt; flags2 = {<span class="nm">1<
 
                 <div class="warn-box">
                     <code>std::vector&lt;bool&gt;</code> is a well-known design mistake in the standard library. It specialises vector to store bits (1 bit per element instead of 1 byte), which violates the usual container semantics. Unless you specifically need the space optimisation, avoid it.
+                </div>
+
+                <!-- ============================================================ -->
+                <h2 id="tasks">Practice Tasks</h2>
+                <p>Solve each problem on your own before revealing the solution. All you need is <code>#include &lt;vector&gt;</code> and <code>#include &lt;iostream&gt;</code>.</p>
+
+                <!-- Task 1 -->
+                <div class="task-card">
+                    <p><span class="task-number">1</span><strong>Create and inspect a vector.</strong><br>
+                    Create a vector containing the values <code>{3, 7, 1, 4, 9}</code>. Print every element on one line separated by spaces, then print the total number of elements.</p>
+                    <button class="toggle-btn" onclick="this.nextElementSibling.classList.toggle('show'); this.textContent = this.nextElementSibling.classList.contains('show') ? 'Hide Solution' : 'Show Solution'">Show Solution</button>
+                    <div class="solution-content">
+                        <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">int</span> main() {
+    std::vector&lt;<span class="kw">int</span>&gt; v = {<span class="nm">3</span>, <span class="nm">7</span>, <span class="nm">1</span>, <span class="nm">4</span>, <span class="nm">9</span>};
+
+    <span class="kw">for</span> (<span class="kw">int</span> x : v) std::cout &lt;&lt; x &lt;&lt; <span class="st">" "</span>;
+    std::cout &lt;&lt; <span class="st">"\n"</span>;                    <span class="cm">// 3 7 1 4 9</span>
+    std::cout &lt;&lt; v.size() &lt;&lt; <span class="st">"\n"</span>;       <span class="cm">// 5</span>
+}</div>
+                    </div>
+                </div>
+
+                <!-- Task 2 -->
+                <div class="task-card">
+                    <p><span class="task-number">2</span><strong>Sum of all elements.</strong><br>
+                    Write a function <code>int sum(const std::vector&lt;int&gt;&amp; v)</code> that returns the sum of all elements. Test it with <code>{1, 2, 3, 4, 5}</code> — the answer should be <strong>15</strong>.</p>
+                    <button class="toggle-btn" onclick="this.nextElementSibling.classList.toggle('show'); this.textContent = this.nextElementSibling.classList.contains('show') ? 'Hide Solution' : 'Show Solution'">Show Solution</button>
+                    <div class="solution-content">
+                        <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">int</span> <span class="fn">sum</span>(<span class="kw">const</span> std::vector&lt;<span class="kw">int</span>&gt;&amp; v) {
+    <span class="kw">int</span> total = <span class="nm">0</span>;
+    <span class="kw">for</span> (<span class="kw">int</span> x : v) total += x;
+    <span class="kw">return</span> total;
+}
+
+<span class="kw">int</span> main() {
+    std::vector&lt;<span class="kw">int</span>&gt; v = {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>};
+    std::cout &lt;&lt; sum(v) &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 15</span>
+}</div>
+                    </div>
+                </div>
+
+                <!-- Task 3 -->
+                <div class="task-card">
+                    <p><span class="task-number">3</span><strong>Find the maximum value.</strong><br>
+                    Without using any standard library algorithm, write a function that finds and returns the largest value in a non-empty vector. Test with <code>{4, 2, 8, 1, 9, 3}</code> — answer: <strong>9</strong>.</p>
+                    <button class="toggle-btn" onclick="this.nextElementSibling.classList.toggle('show'); this.textContent = this.nextElementSibling.classList.contains('show') ? 'Hide Solution' : 'Show Solution'">Show Solution</button>
+                    <div class="solution-content">
+                        <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">int</span> <span class="fn">max_val</span>(<span class="kw">const</span> std::vector&lt;<span class="kw">int</span>&gt;&amp; v) {
+    <span class="kw">int</span> best = v[<span class="nm">0</span>];                      <span class="cm">// start with first element</span>
+    <span class="kw">for</span> (size_t i = <span class="nm">1</span>; i &lt; v.size(); ++i) {
+        <span class="kw">if</span> (v[i] &gt; best) best = v[i];
+    }
+    <span class="kw">return</span> best;
+}
+
+<span class="kw">int</span> main() {
+    std::vector&lt;<span class="kw">int</span>&gt; v = {<span class="nm">4</span>, <span class="nm">2</span>, <span class="nm">8</span>, <span class="nm">1</span>, <span class="nm">9</span>, <span class="nm">3</span>};
+    std::cout &lt;&lt; max_val(v) &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 9</span>
+}</div>
+                    </div>
+                </div>
+
+                <!-- Task 4 -->
+                <div class="task-card">
+                    <p><span class="task-number">4</span><strong>Remove all even numbers.</strong><br>
+                    Start with <code>{1, 2, 3, 4, 5, 6, 7, 8}</code>. Remove every even number using the erase-remove idiom. The result should be <code>{1, 3, 5, 7}</code>.</p>
+                    <button class="toggle-btn" onclick="this.nextElementSibling.classList.toggle('show'); this.textContent = this.nextElementSibling.classList.contains('show') ? 'Hide Solution' : 'Show Solution'">Show Solution</button>
+                    <div class="solution-content">
+                        <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">int</span> main() {
+    std::vector&lt;<span class="kw">int</span>&gt; v = {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>, <span class="nm">6</span>, <span class="nm">7</span>, <span class="nm">8</span>};
+
+    <span class="cm">// std::remove shifts non-even elements to the front and returns</span>
+    <span class="cm">// an iterator to the new logical end. erase then deletes the rest.</span>
+    v.erase(
+        std::remove_if(v.begin(), v.end(), [](<span class="kw">int</span> x){ <span class="kw">return</span> x % <span class="nm">2</span> == <span class="nm">0</span>; }),
+        v.end()
+    );
+
+    <span class="kw">for</span> (<span class="kw">int</span> x : v) std::cout &lt;&lt; x &lt;&lt; <span class="st">" "</span>;  <span class="cm">// 1 3 5 7</span>
+}</div>
+                    </div>
+                </div>
+
+                <!-- Task 5 -->
+                <div class="task-card">
+                    <p><span class="task-number">5</span><strong>Reverse a vector in-place.</strong><br>
+                    Reverse the elements of <code>{1, 2, 3, 4, 5}</code> without using <code>std::reverse</code>. Result: <code>{5, 4, 3, 2, 1}</code>.<br>
+                    <em>Hint: swap the first element with the last, then the second with the second-to-last, and so on.</em></p>
+                    <button class="toggle-btn" onclick="this.nextElementSibling.classList.toggle('show'); this.textContent = this.nextElementSibling.classList.contains('show') ? 'Hide Solution' : 'Show Solution'">Show Solution</button>
+                    <div class="solution-content">
+                        <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;utility&gt;</span>   <span class="cm">// std::swap</span>
+
+<span class="kw">void</span> <span class="fn">reverse_vec</span>(std::vector&lt;<span class="kw">int</span>&gt;&amp; v) {
+    size_t left  = <span class="nm">0</span>;
+    size_t right = v.size() - <span class="nm">1</span>;
+    <span class="kw">while</span> (left &lt; right) {
+        std::swap(v[left], v[right]);
+        ++left;
+        --right;
+    }
+}
+
+<span class="kw">int</span> main() {
+    std::vector&lt;<span class="kw">int</span>&gt; v = {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>};
+    reverse_vec(v);
+    <span class="kw">for</span> (<span class="kw">int</span> x : v) std::cout &lt;&lt; x &lt;&lt; <span class="st">" "</span>;  <span class="cm">// 5 4 3 2 1</span>
+}</div>
+                    </div>
                 </div>
 
             </article>

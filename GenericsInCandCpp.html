@@ -79,6 +79,44 @@
             vertical-align: top;
         }
         table.styled tbody tr:nth-child(even) { background-color: #f8fafc; }
+        .toggle-btn {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.45rem 1.2rem;
+            border-radius: 0.375rem;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-top: 0.75rem;
+            transition: background 0.2s;
+            display: inline-block;
+        }
+        .toggle-btn:hover { background-color: #2563eb; }
+        .solution-content { display: none; margin-top: 1rem; }
+        .solution-content.show { display: block; }
+        .task-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 0.75rem;
+            padding: 1.25rem 1.5rem;
+            margin: 1.25rem 0;
+            background: #f8fafc;
+            transition: border-color 0.2s;
+        }
+        .task-card:hover { border-color: #93c5fd; }
+        .task-number {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            border-radius: 50%;
+            width: 1.6rem;
+            height: 1.6rem;
+            line-height: 1.6rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            margin-right: 0.5rem;
+        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -95,6 +133,32 @@
 
                 <h1>Generics in C and C++</h1>
                 <p>Generic programming is the discipline of writing code that is parameterised over types, so that the same algorithm or data structure can work with <code>int</code>, <code>double</code>, a custom class, or anything else that satisfies a required interface — without duplicating source code and without sacrificing runtime performance. This document goes from first principles through the most advanced techniques available in each language.</p>
+
+                <!-- ============================================================ -->
+                <h2>Before We Begin — The Problem Generics Solve</h2>
+                <p>Imagine you want a function that returns the larger of two numbers. Without generics you have to write a separate function for every type you care about:</p>
+                <div class="code-block"><span class="cm">// Without generics — one copy per type, identical logic repeated</span>
+<span class="kw">int</span>    <span class="fn">max_int</span>   (<span class="kw">int</span>    a, <span class="kw">int</span>    b) { <span class="kw">return</span> a &gt; b ? a : b; }
+<span class="kw">double</span> <span class="fn">max_double</span>(<span class="kw">double</span> a, <span class="kw">double</span> b) { <span class="kw">return</span> a &gt; b ? a : b; }
+<span class="kw">float</span>  <span class="fn">max_float</span> (<span class="kw">float</span>  a, <span class="kw">float</span>  b) { <span class="kw">return</span> a &gt; b ? a : b; }
+<span class="cm">// ... and again for long, char, short, every user-defined type...</span></div>
+                <p>Every new type means copy-pasting the same body. A bug fix must be applied to every copy. Generics solve this by letting you write the logic <em>once</em> and have the compiler or preprocessor generate the type-specific versions automatically:</p>
+                <div class="code-block"><span class="cm">// C — macro: works for any type that supports &gt;</span>
+<span class="pp">#define MAX(a, b)  ((a) &gt; (b) ? (a) : (b))</span>
+
+<span class="kw">int</span>    x = MAX(<span class="nm">3</span>,   <span class="nm">10</span>);    <span class="cm">// works for int</span>
+<span class="kw">double</span> y = MAX(<span class="nm">1.5</span>, <span class="nm">2.7</span>);  <span class="cm">// works for double</span></div>
+                <div class="code-block"><span class="cm">// C++ — function template: type-safe, one definition, any comparable type</span>
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+T <span class="fn">max_val</span>(T a, T b) { <span class="kw">return</span> a &gt; b ? a : b; }
+
+<span class="kw">int</span>    x = max_val(<span class="nm">3</span>,   <span class="nm">10</span>);    <span class="cm">// compiler generates an int version</span>
+<span class="kw">double</span> y = max_val(<span class="nm">1.5</span>, <span class="nm">2.7</span>);  <span class="cm">// compiler generates a double version</span>
+std::string s = max_val(std::string(<span class="st">"apple"</span>), std::string(<span class="st">"banana"</span>));
+<span class="cm">// works for std::string too — no extra code written</span></div>
+                <div class="insight-box">
+                    That's the core idea: <strong>write once, use for any type</strong>. The rest of this page shows every tool both languages provide to achieve this, from the simplest macro to advanced C++20 concepts.
+                </div>
 
                 <!-- ============================================================ -->
                 <h2>Topics of Discussion</h2>
@@ -975,6 +1039,143 @@ static_assert(std::is_same_v&lt;SmallestInt&lt;<span class="nm">20</span>&gt;, u
 
                 <div class="note-box">
                     <strong>Header-only constraint:</strong> C++ function and class template definitions must be visible at the point of instantiation — typically the call site. This forces most template code to live in headers. Use <code>extern template</code> declarations to suppress redundant instantiations across translation units, or use explicit instantiation definitions in a single <code>.cpp</code> file if the set of used types is known in advance.
+                </div>
+
+                <!-- ============================================================ -->
+                <h2 id="tasks">Practice Tasks</h2>
+                <p>Try each problem on your own first. The C tasks need only a C11-capable compiler; the C++ tasks need C++14 or later.</p>
+
+                <!-- Task 1 -->
+                <div class="task-card">
+                    <p><span class="task-number">1</span><strong>[C] Write a <code>SQUARE</code> macro.</strong><br>
+                    Write a macro <code>SQUARE(x)</code> that returns <code>x * x</code>. Then test: what does <code>SQUARE(1 + 2)</code> produce if you forget parentheses? Fix it so it gives <strong>9</strong>.</p>
+                    <button class="toggle-btn" onclick="this.nextElementSibling.classList.toggle('show'); this.textContent = this.nextElementSibling.classList.contains('show') ? 'Hide Solution' : 'Show Solution'">Show Solution</button>
+                    <div class="solution-content">
+                        <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="cm">// BROKEN — missing parentheses around x</span>
+<span class="pp">#define SQUARE_BAD(x)  x * x</span>
+<span class="cm">// SQUARE_BAD(1+2) → 1+2*1+2 → 5  (wrong!)</span>
+
+<span class="cm">// CORRECT — wrap every argument and the whole expression</span>
+<span class="pp">#define SQUARE(x)  ((x) * (x))</span>
+<span class="cm">// SQUARE(1+2) → ((1+2) * (1+2)) → 9  ✓</span>
+
+<span class="kw">int</span> main() {
+    printf(<span class="st">"%d\n"</span>, SQUARE_BAD(<span class="nm">1</span>+<span class="nm">2</span>));  <span class="cm">// 5 — bug</span>
+    printf(<span class="st">"%d\n"</span>, SQUARE(<span class="nm">1</span>+<span class="nm">2</span>));      <span class="cm">// 9 — correct</span>
+    printf(<span class="st">"%d\n"</span>, SQUARE(<span class="nm">5</span>));         <span class="cm">// 25</span>
+}</div>
+                    </div>
+                </div>
+
+                <!-- Task 2 -->
+                <div class="task-card">
+                    <p><span class="task-number">2</span><strong>[C] <code>_Generic</code> type-name dispatcher.</strong><br>
+                    Write a macro <code>TYPE_NAME(x)</code> using <code>_Generic</code> that returns the string <code>"int"</code>, <code>"double"</code>, <code>"float"</code>, or <code>"other"</code> depending on the type of <code>x</code>. Print the result for values <code>42</code>, <code>3.14</code>, <code>2.5f</code>, and <code>'A'</code>.</p>
+                    <button class="toggle-btn" onclick="this.nextElementSibling.classList.toggle('show'); this.textContent = this.nextElementSibling.classList.contains('show') ? 'Hide Solution' : 'Show Solution'">Show Solution</button>
+                    <div class="solution-content">
+                        <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;stdio.h&gt;</span>
+
+<span class="pp">#define TYPE_NAME(x) _Generic((x),  \</span>
+<span class="pp">    int:    "int",                   \</span>
+<span class="pp">    double: "double",                \</span>
+<span class="pp">    float:  "float",                 \</span>
+<span class="pp">    default:"other")</span>
+
+<span class="kw">int</span> main() {
+    printf(<span class="st">"%s\n"</span>, TYPE_NAME(<span class="nm">42</span>));     <span class="cm">// int</span>
+    printf(<span class="st">"%s\n"</span>, TYPE_NAME(<span class="nm">3.14</span>));   <span class="cm">// double</span>
+    printf(<span class="st">"%s\n"</span>, TYPE_NAME(<span class="nm">2.5f</span>));   <span class="cm">// float</span>
+    printf(<span class="st">"%s\n"</span>, TYPE_NAME(<span class="st">'A'</span>));    <span class="cm">// other (char promotes to int in _Generic)</span>
+}</div>
+                    </div>
+                </div>
+
+                <!-- Task 3 -->
+                <div class="task-card">
+                    <p><span class="task-number">3</span><strong>[C++] Function template — <code>clamp</code>.</strong><br>
+                    Write a template function <code>clamp(val, lo, hi)</code> that returns <code>val</code> if it is between <code>lo</code> and <code>hi</code>, <code>lo</code> if it is too small, and <code>hi</code> if it is too large. It must work for <code>int</code>, <code>double</code>, and any type that supports <code>&lt;</code>.</p>
+                    <button class="toggle-btn" onclick="this.nextElementSibling.classList.toggle('show'); this.textContent = this.nextElementSibling.classList.contains('show') ? 'Hide Solution' : 'Show Solution'">Show Solution</button>
+                    <div class="solution-content">
+                        <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+T <span class="fn">clamp</span>(T val, T lo, T hi) {
+    <span class="kw">if</span> (val &lt; lo) <span class="kw">return</span> lo;
+    <span class="kw">if</span> (hi &lt; val) <span class="kw">return</span> hi;
+    <span class="kw">return</span> val;
+}
+
+<span class="kw">int</span> main() {
+    std::cout &lt;&lt; clamp(<span class="nm">5</span>,   <span class="nm">1</span>,  <span class="nm">10</span>)  &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 5   (in range)</span>
+    std::cout &lt;&lt; clamp(-<span class="nm">3</span>,  <span class="nm">1</span>,  <span class="nm">10</span>)  &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 1   (below lo)</span>
+    std::cout &lt;&lt; clamp(<span class="nm">99</span>,  <span class="nm">1</span>,  <span class="nm">10</span>)  &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 10  (above hi)</span>
+    std::cout &lt;&lt; clamp(<span class="nm">0.5</span>, <span class="nm">0.0</span>, <span class="nm">1.0</span>) &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 0.5 (double)</span>
+}</div>
+                    </div>
+                </div>
+
+                <!-- Task 4 -->
+                <div class="task-card">
+                    <p><span class="task-number">4</span><strong>[C++] Class template — <code>Box&lt;T&gt;</code>.</strong><br>
+                    Write a class template <code>Box&lt;T&gt;</code> that stores a single value of any type. It should have a constructor that takes the initial value, a <code>get()</code> method that returns the value, and a <code>set(val)</code> method that replaces it. Test with <code>int</code> and <code>std::string</code>.</p>
+                    <button class="toggle-btn" onclick="this.nextElementSibling.classList.toggle('show'); this.textContent = this.nextElementSibling.classList.contains('show') ? 'Hide Solution' : 'Show Solution'">Show Solution</button>
+                    <div class="solution-content">
+                        <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> T&gt;
+<span class="kw">class</span> Box {
+    T value_;
+<span class="kw">public</span>:
+    Box(T v) : value_(v) {}
+    T          <span class="fn">get</span>()       <span class="kw">const</span> { <span class="kw">return</span> value_; }
+    <span class="kw">void</span>       <span class="fn">set</span>(<span class="kw">const</span> T&amp; v)   { value_ = v; }
+};
+
+<span class="kw">int</span> main() {
+    Box&lt;<span class="kw">int</span>&gt; intBox(<span class="nm">42</span>);
+    std::cout &lt;&lt; intBox.get() &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 42</span>
+    intBox.set(<span class="nm">100</span>);
+    std::cout &lt;&lt; intBox.get() &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 100</span>
+
+    Box&lt;std::string&gt; strBox(<span class="st">"hello"</span>);
+    std::cout &lt;&lt; strBox.get() &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// hello</span>
+    strBox.set(<span class="st">"world"</span>);
+    std::cout &lt;&lt; strBox.get() &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// world</span>
+}</div>
+                    </div>
+                </div>
+
+                <!-- Task 5 -->
+                <div class="task-card">
+                    <p><span class="task-number">5</span><strong>[C++] Function template — <code>contains</code>.</strong><br>
+                    Write a function template <code>contains(container, value)</code> that returns <code>true</code> if <code>value</code> is found anywhere in <code>container</code>. It must work with <code>std::vector&lt;int&gt;</code>, <code>std::vector&lt;std::string&gt;</code>, and any container that supports range-for.</p>
+                    <button class="toggle-btn" onclick="this.nextElementSibling.classList.toggle('show'); this.textContent = this.nextElementSibling.classList.contains('show') ? 'Hide Solution' : 'Show Solution'">Show Solution</button>
+                    <div class="solution-content">
+                        <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+
+<span class="kw">template</span> &lt;<span class="kw">typename</span> Container, <span class="kw">typename</span> T&gt;
+<span class="kw">bool</span> <span class="fn">contains</span>(<span class="kw">const</span> Container&amp; c, <span class="kw">const</span> T&amp; value) {
+    <span class="kw">for</span> (<span class="kw">const auto</span>&amp; elem : c) {
+        <span class="kw">if</span> (elem == value) <span class="kw">return</span> <span class="kw">true</span>;
+    }
+    <span class="kw">return</span> <span class="kw">false</span>;
+}
+
+<span class="kw">int</span> main() {
+    std::vector&lt;<span class="kw">int</span>&gt; nums = {<span class="nm">1</span>, <span class="nm">2</span>, <span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>};
+    std::cout &lt;&lt; contains(nums, <span class="nm">3</span>)  &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 1 (true)</span>
+    std::cout &lt;&lt; contains(nums, <span class="nm">9</span>)  &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 0 (false)</span>
+
+    std::vector&lt;std::string&gt; words = {<span class="st">"cat"</span>, <span class="st">"dog"</span>, <span class="st">"bird"</span>};
+    std::cout &lt;&lt; contains(words, std::string(<span class="st">"dog"</span>))  &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 1</span>
+    std::cout &lt;&lt; contains(words, std::string(<span class="st">"fish"</span>)) &lt;&lt; <span class="st">"\n"</span>;   <span class="cm">// 0</span>
+}</div>
+                    </div>
                 </div>
 
             </article>
