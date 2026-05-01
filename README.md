@@ -40,6 +40,9 @@
 - [`Generics in C and C++`](https://george1meshveliani.github.io/CS/GenericsInCandCpp)
 - [`C++ Problems: Arrays, Pointers & Binary Search`](https://george1meshveliani.github.io/CS/CppProblems)
 
+### Object-Oriented Programming
+- [`Object-Oriented Programming — Theory, C++ & Multi-Language`](https://george1meshveliani.github.io/CS/OOP)
+
 ### Algorithms
 - [`Karatsuba Algorithm: Fast Integer Multiplication`](https://george1meshveliani.github.io/CS/KaratsubaAlgorithm)
 - [`Quicksort and Quickhull Algorithms`](https://george1meshveliani.github.io/CS/QuicksortQuickhull)

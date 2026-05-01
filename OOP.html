@@ -133,6 +133,20 @@
         .badge-yellow { background: #fef3c7; color: #92400e; }
         .badge-red    { background: #fee2e2; color: #991b1b; }
         .badge-blue   { background: #dbeafe; color: #1e40af; }
+        .sol-btn {
+            background: #1e40af;
+            color: white;
+            border: none;
+            padding: 0.4rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            white-space: nowrap;
+        }
+        .sol-btn:hover { background: #1d4ed8; }
+        .solution-panel { border-top: 2px solid #1e293b; }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800">
@@ -168,6 +182,7 @@
                 <li><a href="#operator-overloading" class="toc-link">Operator Overloading</a></li>
                 <li><a href="#multi-inheritance" class="toc-link">Multiple Inheritance &amp; Diamond</a></li>
                 <li><a href="#lang-compare" class="toc-link">Language Comparisons</a></li>
+                <li><a href="#tasks" class="toc-link">Practice Tasks</a></li>
             </ol>
         </div>
     </article>
@@ -1345,6 +1360,744 @@ s.<span class="fn">Area</span>();    <span class="cm">// calls Circle.Area()</sp
     </article>
 </section>
 
+<!-- ===== SECTION: PRACTICE TASKS ===== -->
+<section id="tasks" class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>13. Practice Tasks</h2>
+        <p>Work through each task before revealing the solution. Tasks are grouped by difficulty.</p>
+
+        <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-bottom:1.5rem;">
+            <span class="badge badge-green" style="font-size:0.9rem; padding:0.3rem 0.8rem;">Easy — 1–3</span>
+            <span class="badge badge-yellow" style="font-size:0.9rem; padding:0.3rem 0.8rem;">Medium — 4–7</span>
+            <span class="badge badge-red" style="font-size:0.9rem; padding:0.3rem 0.8rem;">Hard — 8–10</span>
+        </div>
+
+        <!-- ── TASK 1 ── -->
+        <div class="task-card" style="border:2px solid #d1fae5; border-radius:0.75rem; margin-bottom:1.5rem; overflow:hidden;">
+            <div style="background:#d1fae5; padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <span class="badge badge-green">Easy</span>
+                    <strong style="margin-left:0.6rem; font-size:1.05rem;">Task 1 — BankAccount class</strong>
+                </div>
+                <button class="sol-btn" onclick="toggleSolution('sol1', this)">Show Solution</button>
+            </div>
+            <div style="padding:1.25rem;">
+                <p style="margin:0 0 0.75rem;">Create a <code>BankAccount</code> class in C++ that:</p>
+                <ul>
+                    <li>Stores <code>owner</code> (string) and <code>balance</code> (double) as <strong>private</strong> members</li>
+                    <li>Has a constructor that sets both fields</li>
+                    <li>Has <code>deposit(amount)</code> — rejects negative amounts</li>
+                    <li>Has <code>withdraw(amount)</code> — rejects if insufficient funds</li>
+                    <li>Has <code>getBalance()</code> and <code>getOwner()</code> getters</li>
+                    <li>Has <code>printStatement()</code> that prints owner and balance</li>
+                </ul>
+                <p>Test it in <code>main()</code>: create an account, deposit 500, withdraw 200, try to withdraw 400 (should fail), print statement.</p>
+            </div>
+            <div id="sol1" class="solution-panel" style="display:none;">
+                <div style="background:#0f172a; padding:1.25rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.75rem;">Solution</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0;"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;stdexcept&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="kw">class</span> <span class="ty">BankAccount</span> {
+<span class="kw">private</span>:
+    string owner;
+    <span class="kw">double</span> balance;
+
+<span class="kw">public</span>:
+    <span class="fn">BankAccount</span>(string o, <span class="kw">double</span> b) : owner(o), balance(b) {}
+
+    <span class="kw">void</span> <span class="fn">deposit</span>(<span class="kw">double</span> amount) {
+        <span class="kw">if</span> (amount <span class="op">&lt;=</span> <span class="nm">0</span>) <span class="kw">throw</span> <span class="fn">invalid_argument</span>(<span class="st">"Deposit must be positive"</span>);
+        balance <span class="op">+=</span> amount;
+    }
+
+    <span class="kw">void</span> <span class="fn">withdraw</span>(<span class="kw">double</span> amount) {
+        <span class="kw">if</span> (amount <span class="op">&gt;</span> balance) {
+            cout <span class="op">&lt;&lt;</span> <span class="st">"Insufficient funds. Withdrawal rejected.\n"</span>;
+            <span class="kw">return</span>;
+        }
+        balance <span class="op">-=</span> amount;
+    }
+
+    <span class="kw">double</span> <span class="fn">getBalance</span>() <span class="kw">const</span> { <span class="kw">return</span> balance; }
+    string <span class="fn">getOwner</span>()   <span class="kw">const</span> { <span class="kw">return</span> owner; }
+
+    <span class="kw">void</span> <span class="fn">printStatement</span>() <span class="kw">const</span> {
+        cout <span class="op">&lt;&lt;</span> <span class="st">"Account: "</span> <span class="op">&lt;&lt;</span> owner
+             <span class="op">&lt;&lt;</span> <span class="st">" | Balance: $"</span> <span class="op">&lt;&lt;</span> balance <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;
+    }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="ty">BankAccount</span> acc(<span class="st">"Alice"</span>, <span class="nm">0.0</span>);
+    acc.<span class="fn">deposit</span>(<span class="nm">500</span>);
+    acc.<span class="fn">withdraw</span>(<span class="nm">200</span>);
+    acc.<span class="fn">withdraw</span>(<span class="nm">400</span>);     <span class="cm">// Insufficient funds</span>
+    acc.<span class="fn">printStatement</span>(); <span class="cm">// Account: Alice | Balance: $300</span>
+}</div>
+                </div>
+                <div style="background:#0f172a; border-top:1px solid #1e293b; padding:1rem 1.25rem;">
+                    <div class="insight-box" style="margin:0;"><strong>Key concepts:</strong> private data, constructor, input validation, const-correctness on getters.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TASK 2 ── -->
+        <div class="task-card" style="border:2px solid #d1fae5; border-radius:0.75rem; margin-bottom:1.5rem; overflow:hidden;">
+            <div style="background:#d1fae5; padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <span class="badge badge-green">Easy</span>
+                    <strong style="margin-left:0.6rem; font-size:1.05rem;">Task 2 — Rectangle with method chaining</strong>
+                </div>
+                <button class="sol-btn" onclick="toggleSolution('sol2', this)">Show Solution</button>
+            </div>
+            <div style="padding:1.25rem;">
+                <p style="margin:0 0 0.75rem;">Create a <code>Rectangle</code> class with:</p>
+                <ul>
+                    <li>Private <code>width</code> and <code>height</code> (doubles)</li>
+                    <li><code>setWidth()</code> and <code>setHeight()</code> that each return <code>Rectangle&amp;</code> (for chaining)</li>
+                    <li><code>area()</code>, <code>perimeter()</code>, <code>isSquare()</code></li>
+                    <li><code>print()</code> that shows all info</li>
+                </ul>
+                <p>In <code>main()</code>, use method chaining: <code>r.setWidth(4).setHeight(6).print();</code></p>
+            </div>
+            <div id="sol2" class="solution-panel" style="display:none;">
+                <div style="background:#0f172a; padding:1.25rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.75rem;">Solution</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0;"><span class="kw">class</span> <span class="ty">Rectangle</span> {
+<span class="kw">private</span>:
+    <span class="kw">double</span> width, height;
+
+<span class="kw">public</span>:
+    <span class="fn">Rectangle</span>() : width(<span class="nm">0</span>), height(<span class="nm">0</span>) {}
+    <span class="fn">Rectangle</span>(<span class="kw">double</span> w, <span class="kw">double</span> h) : width(w), height(h) {}
+
+    <span class="ty">Rectangle</span><span class="op">&amp;</span> <span class="fn">setWidth</span>(<span class="kw">double</span> w)  { width  <span class="op">=</span> w; <span class="kw">return</span> <span class="op">*</span><span class="kw">this</span>; }
+    <span class="ty">Rectangle</span><span class="op">&amp;</span> <span class="fn">setHeight</span>(<span class="kw">double</span> h) { height <span class="op">=</span> h; <span class="kw">return</span> <span class="op">*</span><span class="kw">this</span>; }
+
+    <span class="kw">double</span> <span class="fn">area</span>()      <span class="kw">const</span> { <span class="kw">return</span> width <span class="op">*</span> height; }
+    <span class="kw">double</span> <span class="fn">perimeter</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="nm">2</span> <span class="op">*</span> (width <span class="op">+</span> height); }
+    <span class="kw">bool</span>   <span class="fn">isSquare</span>()   <span class="kw">const</span> { <span class="kw">return</span> width <span class="op">==</span> height; }
+
+    <span class="kw">void</span> <span class="fn">print</span>() <span class="kw">const</span> {
+        cout <span class="op">&lt;&lt;</span> <span class="st">"Rectangle "</span> <span class="op">&lt;&lt;</span> width <span class="op">&lt;&lt;</span> <span class="st">"x"</span> <span class="op">&lt;&lt;</span> height
+             <span class="op">&lt;&lt;</span> <span class="st">" | area="</span>      <span class="op">&lt;&lt;</span> <span class="fn">area</span>()
+             <span class="op">&lt;&lt;</span> <span class="st">" | perimeter="</span> <span class="op">&lt;&lt;</span> <span class="fn">perimeter</span>()
+             <span class="op">&lt;&lt;</span> <span class="st">" | square="</span>    <span class="op">&lt;&lt;</span> <span class="fn">boolalpha</span> <span class="op">&lt;&lt;</span> <span class="fn">isSquare</span>() <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;
+    }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="ty">Rectangle</span> r;
+    r.<span class="fn">setWidth</span>(<span class="nm">4</span>).<span class="fn">setHeight</span>(<span class="nm">6</span>).<span class="fn">print</span>();  <span class="cm">// chaining</span>
+    r.<span class="fn">setWidth</span>(<span class="nm">5</span>).<span class="fn">setHeight</span>(<span class="nm">5</span>).<span class="fn">print</span>();  <span class="cm">// isSquare = true</span>
+}</div>
+                </div>
+                <div style="background:#0f172a; border-top:1px solid #1e293b; padding:1rem 1.25rem;">
+                    <div class="insight-box" style="margin:0;"><strong>Key concept:</strong> returning <code>*this</code> by reference enables method chaining — the same object is passed along each call.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TASK 3 ── -->
+        <div class="task-card" style="border:2px solid #d1fae5; border-radius:0.75rem; margin-bottom:1.5rem; overflow:hidden;">
+            <div style="background:#d1fae5; padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <span class="badge badge-green">Easy</span>
+                    <strong style="margin-left:0.6rem; font-size:1.05rem;">Task 3 — Spot the bug</strong>
+                </div>
+                <button class="sol-btn" onclick="toggleSolution('sol3', this)">Show Solution</button>
+            </div>
+            <div style="padding:1.25rem;">
+                <p style="margin:0 0 0.75rem;">The code below compiles but has a subtle runtime bug. Find and fix it:</p>
+                <div class="code-block"><span class="kw">class</span> <span class="ty">Animal</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual void</span> <span class="fn">speak</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"...\n"</span>; }
+    <span class="op">~</span><span class="fn">Animal</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"Animal destroyed\n"</span>; }
+};
+
+<span class="kw">class</span> <span class="ty">Dog</span> : <span class="kw">public</span> <span class="ty">Animal</span> {
+    string name;
+<span class="kw">public</span>:
+    <span class="fn">Dog</span>(string n) : name(n) {}
+    <span class="kw">void</span> <span class="fn">speak</span>() <span class="kw">override</span> { cout <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">": Woof!\n"</span>; }
+    <span class="op">~</span><span class="fn">Dog</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"Dog destroyed\n"</span>; }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="ty">Animal</span><span class="op">*</span> a <span class="op">=</span> <span class="kw">new</span> <span class="ty">Dog</span>(<span class="st">"Rex"</span>);
+    a<span class="op">-&gt;</span><span class="fn">speak</span>();
+    <span class="kw">delete</span> a;   <span class="cm">// what happens here?</span>
+}</div>
+                <p>What does <code>delete a</code> print? What should it print? Fix the class.</p>
+            </div>
+            <div id="sol3" class="solution-panel" style="display:none;">
+                <div style="background:#0f172a; padding:1.25rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.75rem;">Solution</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0;"><span class="cm">// BUG: destructor is NOT virtual.
+// delete a calls only ~Animal(), skipping ~Dog().
+// The string 'name' is never destroyed → memory leak / UB.
+//
+// Actual output:  "Animal destroyed"
+// Expected:       "Dog destroyed" then "Animal destroyed"
+
+// FIX: mark the base destructor virtual</span>
+<span class="kw">class</span> <span class="ty">Animal</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual void</span> <span class="fn">speak</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"...\n"</span>; }
+    <span class="kw">virtual</span> <span class="op">~</span><span class="fn">Animal</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"Animal destroyed\n"</span>; }  <span class="cm">// ✅ virtual</span>
+};</div>
+                </div>
+                <div style="background:#0f172a; border-top:1px solid #1e293b; padding:1rem 1.25rem;">
+                    <div class="warn-box" style="margin:0;"><strong>Rule:</strong> Any base class used polymorphically (i.e., you ever do <code>delete base_ptr</code>) <em>must</em> have a virtual destructor. Without it, the derived destructor is silently skipped — undefined behavior.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TASK 4 ── -->
+        <div class="task-card" style="border:2px solid #fef3c7; border-radius:0.75rem; margin-bottom:1.5rem; overflow:hidden;">
+            <div style="background:#fef3c7; padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <span class="badge badge-yellow">Medium</span>
+                    <strong style="margin-left:0.6rem; font-size:1.05rem;">Task 4 — Animal hierarchy with polymorphism</strong>
+                </div>
+                <button class="sol-btn" onclick="toggleSolution('sol4', this)">Show Solution</button>
+            </div>
+            <div style="padding:1.25rem;">
+                <p style="margin:0 0 0.75rem;">Build a <strong>polymorphic animal hierarchy</strong>:</p>
+                <ul>
+                    <li><code>Animal</code> base with <code>protected name</code>, constructor, <code>virtual speak()</code>, <code>virtual move()</code>, and <strong>virtual destructor</strong></li>
+                    <li><code>Dog</code> — speaks "Woof!", moves "runs"</li>
+                    <li><code>Bird</code> — speaks "Tweet!", moves "flies"</li>
+                    <li><code>Fish</code> — speaks "...", moves "swims"</li>
+                </ul>
+                <p>In <code>main()</code>, store all animals in a <code>vector&lt;Animal*&gt;</code>, iterate with a base pointer, call <code>speak()</code> and <code>move()</code> for each, then clean up.</p>
+            </div>
+            <div id="sol4" class="solution-panel" style="display:none;">
+                <div style="background:#0f172a; padding:1.25rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.75rem;">Solution</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0;"><span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="kw">class</span> <span class="ty">Animal</span> {
+<span class="kw">protected</span>:
+    string name;
+<span class="kw">public</span>:
+    <span class="fn">Animal</span>(string n) : name(n) {}
+    <span class="kw">virtual void</span> <span class="fn">speak</span>() <span class="kw">const</span> = <span class="nm">0</span>;   <span class="cm">// pure virtual</span>
+    <span class="kw">virtual void</span> <span class="fn">move</span>()  <span class="kw">const</span> = <span class="nm">0</span>;
+    <span class="kw">virtual</span> <span class="op">~</span><span class="fn">Animal</span>() {}
+};
+
+<span class="kw">class</span> <span class="ty">Dog</span> : <span class="kw">public</span> <span class="ty">Animal</span> {
+<span class="kw">public</span>:
+    <span class="fn">Dog</span>(string n) : <span class="fn">Animal</span>(n) {}
+    <span class="kw">void</span> <span class="fn">speak</span>() <span class="kw">const override</span> { cout <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">": Woof!\n"</span>; }
+    <span class="kw">void</span> <span class="fn">move</span>()  <span class="kw">const override</span> { cout <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">" runs\n"</span>; }
+};
+
+<span class="kw">class</span> <span class="ty">Bird</span> : <span class="kw">public</span> <span class="ty">Animal</span> {
+<span class="kw">public</span>:
+    <span class="fn">Bird</span>(string n) : <span class="fn">Animal</span>(n) {}
+    <span class="kw">void</span> <span class="fn">speak</span>() <span class="kw">const override</span> { cout <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">": Tweet!\n"</span>; }
+    <span class="kw">void</span> <span class="fn">move</span>()  <span class="kw">const override</span> { cout <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">" flies\n"</span>; }
+};
+
+<span class="kw">class</span> <span class="ty">Fish</span> : <span class="kw">public</span> <span class="ty">Animal</span> {
+<span class="kw">public</span>:
+    <span class="fn">Fish</span>(string n) : <span class="fn">Animal</span>(n) {}
+    <span class="kw">void</span> <span class="fn">speak</span>() <span class="kw">const override</span> { cout <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">": ...\n"</span>; }
+    <span class="kw">void</span> <span class="fn">move</span>()  <span class="kw">const override</span> { cout <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">" swims\n"</span>; }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    vector<span class="op">&lt;</span><span class="ty">Animal</span><span class="op">*&gt;</span> zoo = {
+        <span class="kw">new</span> <span class="ty">Dog</span>(<span class="st">"Rex"</span>),
+        <span class="kw">new</span> <span class="ty">Bird</span>(<span class="st">"Tweety"</span>),
+        <span class="kw">new</span> <span class="ty">Fish</span>(<span class="st">"Nemo"</span>)
+    };
+    <span class="kw">for</span> (<span class="kw">auto</span> a : zoo) { a<span class="op">-&gt;</span><span class="fn">speak</span>(); a<span class="op">-&gt;</span><span class="fn">move</span>(); }
+    <span class="kw">for</span> (<span class="kw">auto</span> a : zoo) <span class="kw">delete</span> a;
+}</div>
+                </div>
+                <div style="background:#0f172a; border-top:1px solid #1e293b; padding:1rem 1.25rem;">
+                    <div class="insight-box" style="margin:0;"><strong>Key concepts:</strong> pure virtual functions force all subclasses to implement, polymorphic dispatch via base pointer, virtual destructor ensures clean teardown.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TASK 5 ── -->
+        <div class="task-card" style="border:2px solid #fef3c7; border-radius:0.75rem; margin-bottom:1.5rem; overflow:hidden;">
+            <div style="background:#fef3c7; padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <span class="badge badge-yellow">Medium</span>
+                    <strong style="margin-left:0.6rem; font-size:1.05rem;">Task 5 — Stack class (encapsulation)</strong>
+                </div>
+                <button class="sol-btn" onclick="toggleSolution('sol5', this)">Show Solution</button>
+            </div>
+            <div style="padding:1.25rem;">
+                <p style="margin:0 0 0.75rem;">Implement a fixed-size <code>Stack</code> class for integers:</p>
+                <ul>
+                    <li>Private: <code>int data[100]</code>, <code>int top</code></li>
+                    <li><code>push(int)</code> — throws <code>overflow_error</code> if full</li>
+                    <li><code>pop()</code> — returns top and removes it; throws <code>underflow_error</code> if empty</li>
+                    <li><code>peek()</code> — returns top without removing; throws if empty</li>
+                    <li><code>isEmpty()</code>, <code>isFull()</code>, <code>size()</code></li>
+                </ul>
+                <p>Test: push 1, 2, 3 → peek → pop twice → print size.</p>
+            </div>
+            <div id="sol5" class="solution-panel" style="display:none;">
+                <div style="background:#0f172a; padding:1.25rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.75rem;">Solution</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0;"><span class="pp">#include</span> <span class="st">&lt;stdexcept&gt;</span>
+
+<span class="kw">class</span> <span class="ty">Stack</span> {
+<span class="kw">private</span>:
+    <span class="kw">int</span> data[<span class="nm">100</span>];
+    <span class="kw">int</span> top;
+
+<span class="kw">public</span>:
+    <span class="fn">Stack</span>() : top(<span class="op">-</span><span class="nm">1</span>) {}
+
+    <span class="kw">void</span> <span class="fn">push</span>(<span class="kw">int</span> val) {
+        <span class="kw">if</span> (<span class="fn">isFull</span>()) <span class="kw">throw</span> <span class="fn">overflow_error</span>(<span class="st">"Stack is full"</span>);
+        data[<span class="op">++</span>top] <span class="op">=</span> val;
+    }
+
+    <span class="kw">int</span> <span class="fn">pop</span>() {
+        <span class="kw">if</span> (<span class="fn">isEmpty</span>()) <span class="kw">throw</span> <span class="fn">underflow_error</span>(<span class="st">"Stack is empty"</span>);
+        <span class="kw">return</span> data[top<span class="op">--</span>];
+    }
+
+    <span class="kw">int</span> <span class="fn">peek</span>() <span class="kw">const</span> {
+        <span class="kw">if</span> (<span class="fn">isEmpty</span>()) <span class="kw">throw</span> <span class="fn">underflow_error</span>(<span class="st">"Stack is empty"</span>);
+        <span class="kw">return</span> data[top];
+    }
+
+    <span class="kw">bool</span> <span class="fn">isEmpty</span>() <span class="kw">const</span> { <span class="kw">return</span> top <span class="op">==</span> <span class="op">-</span><span class="nm">1</span>; }
+    <span class="kw">bool</span> <span class="fn">isFull</span>()  <span class="kw">const</span> { <span class="kw">return</span> top <span class="op">==</span> <span class="nm">99</span>; }
+    <span class="kw">int</span>  <span class="fn">size</span>()    <span class="kw">const</span> { <span class="kw">return</span> top <span class="op">+</span> <span class="nm">1</span>; }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="ty">Stack</span> s;
+    s.<span class="fn">push</span>(<span class="nm">1</span>); s.<span class="fn">push</span>(<span class="nm">2</span>); s.<span class="fn">push</span>(<span class="nm">3</span>);
+    cout <span class="op">&lt;&lt;</span> <span class="st">"Peek: "</span> <span class="op">&lt;&lt;</span> s.<span class="fn">peek</span>() <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;   <span class="cm">// 3</span>
+    cout <span class="op">&lt;&lt;</span> s.<span class="fn">pop</span>() <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;                 <span class="cm">// 3</span>
+    cout <span class="op">&lt;&lt;</span> s.<span class="fn">pop</span>() <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;                 <span class="cm">// 2</span>
+    cout <span class="op">&lt;&lt;</span> <span class="st">"Size: "</span> <span class="op">&lt;&lt;</span> s.<span class="fn">size</span>() <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;   <span class="cm">// 1</span>
+}</div>
+                </div>
+                <div style="background:#0f172a; border-top:1px solid #1e293b; padding:1rem 1.25rem;">
+                    <div class="insight-box" style="margin:0;"><strong>Key concepts:</strong> encapsulation hides the raw array and index; the public interface is clean and safe; <code>const</code> methods guarantee read-only queries.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TASK 6 ── -->
+        <div class="task-card" style="border:2px solid #fef3c7; border-radius:0.75rem; margin-bottom:1.5rem; overflow:hidden;">
+            <div style="background:#fef3c7; padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <span class="badge badge-yellow">Medium</span>
+                    <strong style="margin-left:0.6rem; font-size:1.05rem;">Task 6 — Employee hierarchy + override</strong>
+                </div>
+                <button class="sol-btn" onclick="toggleSolution('sol6', this)">Show Solution</button>
+            </div>
+            <div style="padding:1.25rem;">
+                <p style="margin:0 0 0.75rem;">Model an employee payroll system:</p>
+                <ul>
+                    <li><code>Employee</code> base: <code>protected name</code>, <code>protected baseSalary</code>, constructor, <code>virtual double salary()</code>, <code>virtual void describe()</code></li>
+                    <li><code>FullTime</code>: fixed monthly salary = <code>baseSalary</code></li>
+                    <li><code>PartTime</code>: has <code>hoursWorked</code> and <code>hourlyRate</code>; salary = hours × rate</li>
+                    <li><code>Manager</code> extends <code>FullTime</code>: adds a <code>bonus</code>; salary = baseSalary + bonus</li>
+                </ul>
+                <p><code>describe()</code> should print the name and computed salary. Test with a <code>vector&lt;Employee*&gt;</code>.</p>
+            </div>
+            <div id="sol6" class="solution-panel" style="display:none;">
+                <div style="background:#0f172a; padding:1.25rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.75rem;">Solution</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0;"><span class="kw">class</span> <span class="ty">Employee</span> {
+<span class="kw">protected</span>:
+    string name;
+    <span class="kw">double</span> baseSalary;
+<span class="kw">public</span>:
+    <span class="fn">Employee</span>(string n, <span class="kw">double</span> s) : name(n), baseSalary(s) {}
+    <span class="kw">virtual double</span> <span class="fn">salary</span>() <span class="kw">const</span> = <span class="nm">0</span>;
+    <span class="kw">virtual void</span> <span class="fn">describe</span>() <span class="kw">const</span> {
+        cout <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">" — $"</span> <span class="op">&lt;&lt;</span> <span class="fn">salary</span>() <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;
+    }
+    <span class="kw">virtual</span> <span class="op">~</span><span class="fn">Employee</span>() {}
+};
+
+<span class="kw">class</span> <span class="ty">FullTime</span> : <span class="kw">public</span> <span class="ty">Employee</span> {
+<span class="kw">public</span>:
+    <span class="fn">FullTime</span>(string n, <span class="kw">double</span> s) : <span class="fn">Employee</span>(n, s) {}
+    <span class="kw">double</span> <span class="fn">salary</span>() <span class="kw">const override</span> { <span class="kw">return</span> baseSalary; }
+};
+
+<span class="kw">class</span> <span class="ty">PartTime</span> : <span class="kw">public</span> <span class="ty">Employee</span> {
+    <span class="kw">double</span> hoursWorked, hourlyRate;
+<span class="kw">public</span>:
+    <span class="fn">PartTime</span>(string n, <span class="kw">double</span> h, <span class="kw">double</span> r)
+        : <span class="fn">Employee</span>(n, <span class="nm">0</span>), hoursWorked(h), hourlyRate(r) {}
+    <span class="kw">double</span> <span class="fn">salary</span>() <span class="kw">const override</span> { <span class="kw">return</span> hoursWorked <span class="op">*</span> hourlyRate; }
+};
+
+<span class="kw">class</span> <span class="ty">Manager</span> : <span class="kw">public</span> <span class="ty">FullTime</span> {
+    <span class="kw">double</span> bonus;
+<span class="kw">public</span>:
+    <span class="fn">Manager</span>(string n, <span class="kw">double</span> s, <span class="kw">double</span> b)
+        : <span class="fn">FullTime</span>(n, s), bonus(b) {}
+    <span class="kw">double</span> <span class="fn">salary</span>() <span class="kw">const override</span> { <span class="kw">return</span> baseSalary <span class="op">+</span> bonus; }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    vector<span class="op">&lt;</span><span class="ty">Employee</span><span class="op">*&gt;</span> staff = {
+        <span class="kw">new</span> <span class="ty">FullTime</span>(<span class="st">"Alice"</span>, <span class="nm">4000</span>),
+        <span class="kw">new</span> <span class="ty">PartTime</span>(<span class="st">"Bob"</span>, <span class="nm">80</span>, <span class="nm">25</span>),
+        <span class="kw">new</span> <span class="ty">Manager</span>(<span class="st">"Carol"</span>, <span class="nm">5000</span>, <span class="nm">1500</span>)
+    };
+    <span class="kw">for</span> (<span class="kw">auto</span> e : staff) e<span class="op">-&gt;</span><span class="fn">describe</span>();
+    <span class="kw">for</span> (<span class="kw">auto</span> e : staff) <span class="kw">delete</span> e;
+}</div>
+                </div>
+                <div style="background:#0f172a; border-top:1px solid #1e293b; padding:1rem 1.25rem;">
+                    <div class="insight-box" style="margin:0;"><strong>Key concepts:</strong> multi-level inheritance (Manager → FullTime → Employee), each subtype overrides <code>salary()</code> independently, runtime dispatch selects the right implementation.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TASK 7 ── -->
+        <div class="task-card" style="border:2px solid #fef3c7; border-radius:0.75rem; margin-bottom:1.5rem; overflow:hidden;">
+            <div style="background:#fef3c7; padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <span class="badge badge-yellow">Medium</span>
+                    <strong style="margin-left:0.6rem; font-size:1.05rem;">Task 7 — Fraction with operator overloading</strong>
+                </div>
+                <button class="sol-btn" onclick="toggleSolution('sol7', this)">Show Solution</button>
+            </div>
+            <div style="padding:1.25rem;">
+                <p style="margin:0 0 0.75rem;">Create a <code>Fraction</code> class that represents p/q:</p>
+                <ul>
+                    <li>Private <code>int num, den</code>; constructor throws if <code>den == 0</code></li>
+                    <li>Automatically reduces to lowest terms in the constructor (use GCD)</li>
+                    <li>Overload: <code>+</code>, <code>-</code>, <code>*</code>, <code>/</code>, <code>==</code>, <code>!=</code></li>
+                    <li>Overload <code>&lt;&lt;</code> to print as <code>p/q</code></li>
+                </ul>
+                <p>Test: <code>1/2 + 1/3</code> should give <code>5/6</code>; <code>2/4</code> should auto-reduce to <code>1/2</code>.</p>
+            </div>
+            <div id="sol7" class="solution-panel" style="display:none;">
+                <div style="background:#0f172a; padding:1.25rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.75rem;">Solution</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0;"><span class="pp">#include</span> <span class="st">&lt;numeric&gt;</span>   <span class="cm">// gcd (C++17)</span>
+
+<span class="kw">class</span> <span class="ty">Fraction</span> {
+<span class="kw">private</span>:
+    <span class="kw">int</span> num, den;
+    <span class="kw">void</span> <span class="fn">reduce</span>() {
+        <span class="kw">int</span> g <span class="op">=</span> <span class="fn">gcd</span>(<span class="fn">abs</span>(num), <span class="fn">abs</span>(den));
+        num <span class="op">/=</span> g;  den <span class="op">/=</span> g;
+        <span class="kw">if</span> (den <span class="op">&lt;</span> <span class="nm">0</span>) { num <span class="op">=</span> <span class="op">-</span>num; den <span class="op">=</span> <span class="op">-</span>den; }
+    }
+
+<span class="kw">public</span>:
+    <span class="fn">Fraction</span>(<span class="kw">int</span> n, <span class="kw">int</span> d) : num(n), den(d) {
+        <span class="kw">if</span> (d <span class="op">==</span> <span class="nm">0</span>) <span class="kw">throw</span> <span class="fn">invalid_argument</span>(<span class="st">"Zero denominator"</span>);
+        <span class="fn">reduce</span>();
+    }
+
+    <span class="ty">Fraction</span> <span class="kw">operator</span><span class="op">+</span>(<span class="kw">const</span> <span class="ty">Fraction</span><span class="op">&amp;</span> o) <span class="kw">const</span> {
+        <span class="kw">return</span> <span class="ty">Fraction</span>(num<span class="op">*</span>o.den <span class="op">+</span> o.num<span class="op">*</span>den, den<span class="op">*</span>o.den);
+    }
+    <span class="ty">Fraction</span> <span class="kw">operator</span><span class="op">-</span>(<span class="kw">const</span> <span class="ty">Fraction</span><span class="op">&amp;</span> o) <span class="kw">const</span> {
+        <span class="kw">return</span> <span class="ty">Fraction</span>(num<span class="op">*</span>o.den <span class="op">-</span> o.num<span class="op">*</span>den, den<span class="op">*</span>o.den);
+    }
+    <span class="ty">Fraction</span> <span class="kw">operator</span><span class="op">*</span>(<span class="kw">const</span> <span class="ty">Fraction</span><span class="op">&amp;</span> o) <span class="kw">const</span> {
+        <span class="kw">return</span> <span class="ty">Fraction</span>(num<span class="op">*</span>o.num, den<span class="op">*</span>o.den);
+    }
+    <span class="ty">Fraction</span> <span class="kw">operator</span><span class="op">/</span>(<span class="kw">const</span> <span class="ty">Fraction</span><span class="op">&amp;</span> o) <span class="kw">const</span> {
+        <span class="kw">return</span> <span class="ty">Fraction</span>(num<span class="op">*</span>o.den, den<span class="op">*</span>o.num);
+    }
+    <span class="kw">bool</span> <span class="kw">operator</span><span class="op">==</span>(<span class="kw">const</span> <span class="ty">Fraction</span><span class="op">&amp;</span> o) <span class="kw">const</span> {
+        <span class="kw">return</span> num<span class="op">==</span>o.num <span class="op">&amp;&amp;</span> den<span class="op">==</span>o.den;
+    }
+    <span class="kw">bool</span> <span class="kw">operator</span><span class="op">!=</span>(<span class="kw">const</span> <span class="ty">Fraction</span><span class="op">&amp;</span> o) <span class="kw">const</span> { <span class="kw">return</span> <span class="op">!</span>(<span class="op">*</span><span class="kw">this</span> <span class="op">==</span> o); }
+
+    <span class="kw">friend</span> ostream<span class="op">&amp;</span> <span class="kw">operator</span><span class="op">&lt;&lt;</span>(ostream<span class="op">&amp;</span> os, <span class="kw">const</span> <span class="ty">Fraction</span><span class="op">&amp;</span> f) {
+        <span class="kw">return</span> os <span class="op">&lt;&lt;</span> f.num <span class="op">&lt;&lt;</span> <span class="st">"/"</span> <span class="op">&lt;&lt;</span> f.den;
+    }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="ty">Fraction</span> a(<span class="nm">1</span>,<span class="nm">2</span>), b(<span class="nm">1</span>,<span class="nm">3</span>);
+    cout <span class="op">&lt;&lt;</span> a <span class="op">+</span> b <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;              <span class="cm">// 5/6</span>
+    cout <span class="op">&lt;&lt;</span> <span class="ty">Fraction</span>(<span class="nm">2</span>,<span class="nm">4</span>) <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;     <span class="cm">// 1/2 (auto-reduced)</span>
+    cout <span class="op">&lt;&lt;</span> (a <span class="op">==</span> <span class="ty">Fraction</span>(<span class="nm">2</span>,<span class="nm">4</span>)) <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>; <span class="cm">// 1 (true)</span>
+}</div>
+                </div>
+                <div style="background:#0f172a; border-top:1px solid #1e293b; padding:1rem 1.25rem;">
+                    <div class="insight-box" style="margin:0;"><strong>Key concepts:</strong> constructor invariant (auto-reduce), operator overloading for arithmetic types, <code>friend</code> stream operator.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TASK 8 ── -->
+        <div class="task-card" style="border:2px solid #fee2e2; border-radius:0.75rem; margin-bottom:1.5rem; overflow:hidden;">
+            <div style="background:#fee2e2; padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <span class="badge badge-red">Hard</span>
+                    <strong style="margin-left:0.6rem; font-size:1.05rem;">Task 8 — Abstract Shape with area sorting</strong>
+                </div>
+                <button class="sol-btn" onclick="toggleSolution('sol8', this)">Show Solution</button>
+            </div>
+            <div style="padding:1.25rem;">
+                <p style="margin:0 0 0.75rem;">Build an abstract <code>Shape</code> hierarchy and sort by area:</p>
+                <ul>
+                    <li>Abstract <code>Shape</code>: pure virtual <code>area()</code>, <code>perimeter()</code>, and <code>name()</code>; non-virtual <code>describe()</code> that prints all three</li>
+                    <li>Concrete: <code>Circle(r)</code>, <code>Rectangle(w,h)</code>, <code>Triangle(a,b,c)</code> (use Heron's formula)</li>
+                    <li>In <code>main()</code>, put 5 mixed shapes in a <code>vector&lt;unique_ptr&lt;Shape&gt;&gt;</code></li>
+                    <li>Sort the vector by area (smallest → largest) using <code>std::sort</code></li>
+                    <li>Print each shape with <code>describe()</code></li>
+                </ul>
+            </div>
+            <div id="sol8" class="solution-panel" style="display:none;">
+                <div style="background:#0f172a; padding:1.25rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.75rem;">Solution</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0;"><span class="pp">#include</span> <span class="st">&lt;cmath&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;memory&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;algorithm&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;vector&gt;</span>
+
+<span class="kw">class</span> <span class="ty">Shape</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual double</span> <span class="fn">area</span>()      <span class="kw">const</span> = <span class="nm">0</span>;
+    <span class="kw">virtual double</span> <span class="fn">perimeter</span>() <span class="kw">const</span> = <span class="nm">0</span>;
+    <span class="kw">virtual</span> string <span class="fn">name</span>()      <span class="kw">const</span> = <span class="nm">0</span>;
+    <span class="kw">void</span> <span class="fn">describe</span>() <span class="kw">const</span> {
+        cout <span class="op">&lt;&lt;</span> <span class="fn">name</span>()
+             <span class="op">&lt;&lt;</span> <span class="st">" | area="</span>      <span class="op">&lt;&lt;</span> <span class="fn">area</span>()
+             <span class="op">&lt;&lt;</span> <span class="st">" | perimeter="</span> <span class="op">&lt;&lt;</span> <span class="fn">perimeter</span>() <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;
+    }
+    <span class="kw">virtual</span> <span class="op">~</span><span class="fn">Shape</span>() {}
+};
+
+<span class="kw">class</span> <span class="ty">Circle</span> : <span class="kw">public</span> <span class="ty">Shape</span> {
+    <span class="kw">double</span> r;
+<span class="kw">public</span>:
+    <span class="fn">Circle</span>(<span class="kw">double</span> r) : r(r) {}
+    <span class="kw">double</span> <span class="fn">area</span>()      <span class="kw">const override</span> { <span class="kw">return</span> M_PI <span class="op">*</span> r <span class="op">*</span> r; }
+    <span class="kw">double</span> <span class="fn">perimeter</span>() <span class="kw">const override</span> { <span class="kw">return</span> <span class="nm">2</span> <span class="op">*</span> M_PI <span class="op">*</span> r; }
+    string <span class="fn">name</span>()      <span class="kw">const override</span> { <span class="kw">return</span> <span class="st">"Circle(r="</span> <span class="op">+</span> <span class="fn">to_string</span>(r) <span class="op">+</span> <span class="st">")"</span>; }
+};
+
+<span class="kw">class</span> <span class="ty">Rectangle</span> : <span class="kw">public</span> <span class="ty">Shape</span> {
+    <span class="kw">double</span> w, h;
+<span class="kw">public</span>:
+    <span class="fn">Rectangle</span>(<span class="kw">double</span> w, <span class="kw">double</span> h) : w(w), h(h) {}
+    <span class="kw">double</span> <span class="fn">area</span>()      <span class="kw">const override</span> { <span class="kw">return</span> w <span class="op">*</span> h; }
+    <span class="kw">double</span> <span class="fn">perimeter</span>() <span class="kw">const override</span> { <span class="kw">return</span> <span class="nm">2</span> <span class="op">*</span> (w <span class="op">+</span> h); }
+    string <span class="fn">name</span>()      <span class="kw">const override</span> { <span class="kw">return</span> <span class="st">"Rect("</span> <span class="op">+</span> <span class="fn">to_string</span>(w) <span class="op">+</span> <span class="st">"x"</span> <span class="op">+</span> <span class="fn">to_string</span>(h) <span class="op">+</span> <span class="st">")"</span>; }
+};
+
+<span class="kw">class</span> <span class="ty">Triangle</span> : <span class="kw">public</span> <span class="ty">Shape</span> {
+    <span class="kw">double</span> a, b, c;
+<span class="kw">public</span>:
+    <span class="fn">Triangle</span>(<span class="kw">double</span> a, <span class="kw">double</span> b, <span class="kw">double</span> c) : a(a), b(b), c(c) {}
+    <span class="kw">double</span> <span class="fn">perimeter</span>() <span class="kw">const override</span> { <span class="kw">return</span> a <span class="op">+</span> b <span class="op">+</span> c; }
+    <span class="kw">double</span> <span class="fn">area</span>() <span class="kw">const override</span> {   <span class="cm">// Heron's formula</span>
+        <span class="kw">double</span> s <span class="op">=</span> <span class="fn">perimeter</span>() <span class="op">/</span> <span class="nm">2</span>;
+        <span class="kw">return</span> <span class="fn">sqrt</span>(s<span class="op">*</span>(s<span class="op">-</span>a)<span class="op">*</span>(s<span class="op">-</span>b)<span class="op">*</span>(s<span class="op">-</span>c));
+    }
+    string <span class="fn">name</span>() <span class="kw">const override</span> { <span class="kw">return</span> <span class="st">"Triangle"</span>; }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    vector<span class="op">&lt;</span>unique_ptr<span class="op">&lt;</span><span class="ty">Shape</span><span class="op">&gt;&gt;</span> shapes;
+    shapes.<span class="fn">push_back</span>(<span class="fn">make_unique</span><span class="op">&lt;</span><span class="ty">Circle</span><span class="op">&gt;</span>(<span class="nm">3</span>));
+    shapes.<span class="fn">push_back</span>(<span class="fn">make_unique</span><span class="op">&lt;</span><span class="ty">Rectangle</span><span class="op">&gt;</span>(<span class="nm">2</span>, <span class="nm">5</span>));
+    shapes.<span class="fn">push_back</span>(<span class="fn">make_unique</span><span class="op">&lt;</span><span class="ty">Triangle</span><span class="op">&gt;</span>(<span class="nm">3</span>, <span class="nm">4</span>, <span class="nm">5</span>));
+    shapes.<span class="fn">push_back</span>(<span class="fn">make_unique</span><span class="op">&lt;</span><span class="ty">Circle</span><span class="op">&gt;</span>(<span class="nm">1</span>));
+    shapes.<span class="fn">push_back</span>(<span class="fn">make_unique</span><span class="op">&lt;</span><span class="ty">Rectangle</span><span class="op">&gt;</span>(<span class="nm">6</span>, <span class="nm">8</span>));
+
+    <span class="fn">sort</span>(shapes.<span class="fn">begin</span>(), shapes.<span class="fn">end</span>(),
+        [](<span class="kw">const auto&amp;</span> a, <span class="kw">const auto&amp;</span> b) {
+            <span class="kw">return</span> a<span class="op">-&gt;</span><span class="fn">area</span>() <span class="op">&lt;</span> b<span class="op">-&gt;</span><span class="fn">area</span>();
+        });
+
+    <span class="kw">for</span> (<span class="kw">const auto&amp;</span> s : shapes) s<span class="op">-&gt;</span><span class="fn">describe</span>();
+    <span class="cm">// unique_ptr auto-deletes — no manual cleanup needed</span>
+}</div>
+                </div>
+                <div style="background:#0f172a; border-top:1px solid #1e293b; padding:1rem 1.25rem;">
+                    <div class="insight-box" style="margin:0;"><strong>Key concepts:</strong> <code>unique_ptr</code> for safe polymorphic ownership, abstract base with non-virtual template method (<code>describe</code>), lambda comparator for polymorphic sort.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TASK 9 ── -->
+        <div class="task-card" style="border:2px solid #fee2e2; border-radius:0.75rem; margin-bottom:1.5rem; overflow:hidden;">
+            <div style="background:#fee2e2; padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <span class="badge badge-red">Hard</span>
+                    <strong style="margin-left:0.6rem; font-size:1.05rem;">Task 9 — Fix the diamond problem</strong>
+                </div>
+                <button class="sol-btn" onclick="toggleSolution('sol9', this)">Show Solution</button>
+            </div>
+            <div style="padding:1.25rem;">
+                <p style="margin:0 0 0.75rem;">The code below models a <code>FlyingFish</code> that is both a <code>Bird</code> and a <code>Fish</code>, both derived from <code>Animal</code>. It has the diamond problem. Fix it using virtual inheritance, then verify only one copy of <code>Animal</code>'s data exists.</p>
+                <div class="code-block"><span class="kw">class</span> <span class="ty">Animal</span> {
+<span class="kw">public</span>:
+    string name;
+    <span class="fn">Animal</span>(string n) : name(n) {}
+    <span class="kw">virtual void</span> <span class="fn">info</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"Animal: "</span> <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>; }
+};
+<span class="kw">class</span> <span class="ty">Bird</span>   : <span class="kw">public</span> <span class="ty">Animal</span> { <span class="kw">public</span>: <span class="fn">Bird</span>(string n) : <span class="fn">Animal</span>(n) {} };
+<span class="kw">class</span> <span class="ty">Fish</span>   : <span class="kw">public</span> <span class="ty">Animal</span> { <span class="kw">public</span>: <span class="fn">Fish</span>(string n) : <span class="fn">Animal</span>(n) {} };
+<span class="kw">class</span> <span class="ty">FlyingFish</span> : <span class="kw">public</span> <span class="ty">Bird</span>, <span class="kw">public</span> <span class="ty">Fish</span> {
+<span class="kw">public</span>:
+    <span class="fn">FlyingFish</span>(string n) : <span class="fn">Bird</span>(n), <span class="fn">Fish</span>(n) {}
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="ty">FlyingFish</span> ff(<span class="st">"Splash"</span>);
+    <span class="cm">// ff.name = "X";  // ❌ ambiguous</span>
+    <span class="cm">// ff.info();      // ❌ ambiguous</span>
+}</div>
+            </div>
+            <div id="sol9" class="solution-panel" style="display:none;">
+                <div style="background:#0f172a; padding:1.25rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.75rem;">Solution</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0;"><span class="cm">// Fix: use virtual inheritance in Bird and Fish</span>
+<span class="kw">class</span> <span class="ty">Animal</span> {
+<span class="kw">public</span>:
+    string name;
+    <span class="fn">Animal</span>(string n) : name(n) {}
+    <span class="kw">virtual void</span> <span class="fn">info</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"Animal: "</span> <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>; }
+    <span class="kw">virtual</span> <span class="op">~</span><span class="fn">Animal</span>() {}
+};
+
+<span class="kw">class</span> <span class="ty">Bird</span> : <span class="kw">virtual public</span> <span class="ty">Animal</span> {   <span class="cm">// ← virtual</span>
+<span class="kw">public</span>:
+    <span class="fn">Bird</span>(string n) : <span class="fn">Animal</span>(n) {}
+    <span class="kw">virtual void</span> <span class="fn">fly</span>() { cout <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">" flies\n"</span>; }
+};
+
+<span class="kw">class</span> <span class="ty">Fish</span> : <span class="kw">virtual public</span> <span class="ty">Animal</span> {   <span class="cm">// ← virtual</span>
+<span class="kw">public</span>:
+    <span class="fn">Fish</span>(string n) : <span class="fn">Animal</span>(n) {}
+    <span class="kw">virtual void</span> <span class="fn">swim</span>() { cout <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">" swims\n"</span>; }
+};
+
+<span class="cm">// Most-derived class must call the virtual base constructor directly</span>
+<span class="kw">class</span> <span class="ty">FlyingFish</span> : <span class="kw">public</span> <span class="ty">Bird</span>, <span class="kw">public</span> <span class="ty">Fish</span> {
+<span class="kw">public</span>:
+    <span class="fn">FlyingFish</span>(string n) : <span class="fn">Animal</span>(n), <span class="fn">Bird</span>(n), <span class="fn">Fish</span>(n) {}
+    <span class="cm">// Animal(n) must appear here — Bird/Fish's Animal calls are ignored</span>
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="ty">FlyingFish</span> ff(<span class="st">"Splash"</span>);
+    ff.name <span class="op">=</span> <span class="st">"Splash"</span>;      <span class="cm">// ✅ unambiguous — single Animal</span>
+    ff.<span class="fn">info</span>();               <span class="cm">// ✅ Animal: Splash</span>
+    ff.<span class="fn">fly</span>();                <span class="cm">// Splash flies</span>
+    ff.<span class="fn">swim</span>();               <span class="cm">// Splash swims</span>
+}</div>
+                </div>
+                <div style="background:#0f172a; border-top:1px solid #1e293b; padding:1rem 1.25rem;">
+                    <div class="warn-box" style="margin:0;"><strong>Key rule:</strong> With virtual inheritance, the <em>most-derived</em> class is responsible for constructing the virtual base — intermediate classes' calls to Animal() are silently ignored. Always initialize it explicitly in the leaf class.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ── TASK 10 ── -->
+        <div class="task-card" style="border:2px solid #fee2e2; border-radius:0.75rem; margin-bottom:1.5rem; overflow:hidden;">
+            <div style="background:#fee2e2; padding:1rem 1.25rem; display:flex; justify-content:space-between; align-items:center;">
+                <div>
+                    <span class="badge badge-red">Hard</span>
+                    <strong style="margin-left:0.6rem; font-size:1.05rem;">Task 10 — Simplified unique_ptr (RAII + Rule of Five)</strong>
+                </div>
+                <button class="sol-btn" onclick="toggleSolution('sol10', this)">Show Solution</button>
+            </div>
+            <div style="padding:1.25rem;">
+                <p style="margin:0 0 0.75rem;">Implement a simplified <code>UniquePtr&lt;T&gt;</code> class template that mimics <code>std::unique_ptr</code>:</p>
+                <ul>
+                    <li>Private <code>T* ptr</code></li>
+                    <li>Constructor from raw pointer; destructor calls <code>delete</code></li>
+                    <li><strong>Delete</strong> copy constructor and copy assignment (no shared ownership)</li>
+                    <li>Move constructor and move assignment (transfer ownership)</li>
+                    <li><code>get()</code>, <code>release()</code> (gives up ownership, returns raw ptr), <code>reset(T*)</code></li>
+                    <li>Overload <code>*</code> and <code>-&gt;</code></li>
+                </ul>
+                <p>Test: create a <code>UniquePtr&lt;int&gt;</code>, move it, verify the original is null, access through the moved pointer.</p>
+            </div>
+            <div id="sol10" class="solution-panel" style="display:none;">
+                <div style="background:#0f172a; padding:1.25rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.75rem;">Solution</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0;"><span class="kw">template</span><span class="op">&lt;</span><span class="kw">typename</span> T<span class="op">&gt;</span>
+<span class="kw">class</span> <span class="ty">UniquePtr</span> {
+<span class="kw">private</span>:
+    T<span class="op">*</span> ptr;
+
+<span class="kw">public</span>:
+    <span class="cm">// Construct from raw pointer (or nullptr)</span>
+    <span class="kw">explicit</span> <span class="fn">UniquePtr</span>(T<span class="op">*</span> p <span class="op">=</span> <span class="kw">nullptr</span>) : ptr(p) {}
+
+    <span class="cm">// Destructor — owns the resource</span>
+    <span class="op">~</span><span class="fn">UniquePtr</span>() { <span class="kw">delete</span> ptr; }
+
+    <span class="cm">// No copy — ownership is exclusive</span>
+    <span class="fn">UniquePtr</span>(<span class="kw">const</span> <span class="ty">UniquePtr</span><span class="op">&amp;</span>)            <span class="op">=</span> <span class="kw">delete</span>;
+    <span class="ty">UniquePtr</span><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">=</span>(<span class="kw">const</span> <span class="ty">UniquePtr</span><span class="op">&amp;</span>) <span class="op">=</span> <span class="kw">delete</span>;
+
+    <span class="cm">// Move constructor</span>
+    <span class="fn">UniquePtr</span>(<span class="ty">UniquePtr</span><span class="op">&amp;&amp;</span> other) <span class="kw">noexcept</span>
+        : ptr(other.ptr) { other.ptr <span class="op">=</span> <span class="kw">nullptr</span>; }
+
+    <span class="cm">// Move assignment</span>
+    <span class="ty">UniquePtr</span><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">=</span>(<span class="ty">UniquePtr</span><span class="op">&amp;&amp;</span> other) <span class="kw">noexcept</span> {
+        <span class="kw">if</span> (<span class="kw">this</span> <span class="op">!=</span> <span class="op">&amp;</span>other) {
+            <span class="kw">delete</span> ptr;
+            ptr       <span class="op">=</span> other.ptr;
+            other.ptr <span class="op">=</span> <span class="kw">nullptr</span>;
+        }
+        <span class="kw">return</span> <span class="op">*</span><span class="kw">this</span>;
+    }
+
+    T<span class="op">*</span>  <span class="fn">get</span>()   <span class="kw">const</span> { <span class="kw">return</span> ptr; }
+
+    T<span class="op">*</span>  <span class="fn">release</span>()     { T<span class="op">*</span> tmp <span class="op">=</span> ptr; ptr <span class="op">=</span> <span class="kw">nullptr</span>; <span class="kw">return</span> tmp; }
+
+    <span class="kw">void</span> <span class="fn">reset</span>(T<span class="op">*</span> p <span class="op">=</span> <span class="kw">nullptr</span>) { <span class="kw">delete</span> ptr; ptr <span class="op">=</span> p; }
+
+    T<span class="op">&amp;</span>  <span class="kw">operator</span><span class="op">*</span>()  <span class="kw">const</span> { <span class="kw">return</span> <span class="op">*</span>ptr; }
+    T<span class="op">*</span>  <span class="kw">operator</span><span class="op">-&gt;</span>() <span class="kw">const</span> { <span class="kw">return</span> ptr; }
+    <span class="kw">explicit operator bool</span>() <span class="kw">const</span> { <span class="kw">return</span> ptr <span class="op">!=</span> <span class="kw">nullptr</span>; }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="ty">UniquePtr</span><span class="op">&lt;int&gt;</span> a(<span class="kw">new int</span>(<span class="nm">42</span>));
+    cout <span class="op">&lt;&lt;</span> <span class="op">*</span>a <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;                <span class="cm">// 42</span>
+
+    <span class="ty">UniquePtr</span><span class="op">&lt;int&gt;</span> b <span class="op">=</span> <span class="fn">move</span>(a);        <span class="cm">// transfer ownership</span>
+    cout <span class="op">&lt;&lt;</span> (a.<span class="fn">get</span>() <span class="op">==</span> <span class="kw">nullptr</span>) <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>; <span class="cm">// 1 — a is empty</span>
+    cout <span class="op">&lt;&lt;</span> <span class="op">*</span>b <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;                <span class="cm">// 42</span>
+
+    b.<span class="fn">reset</span>(<span class="kw">new int</span>(<span class="nm">99</span>));              <span class="cm">// old 42 deleted, now owns 99</span>
+    cout <span class="op">&lt;&lt;</span> <span class="op">*</span>b <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;                <span class="cm">// 99</span>
+    <span class="cm">// b's destructor deletes 99 — no leak</span>
+}</div>
+                </div>
+                <div style="background:#0f172a; border-top:1px solid #1e293b; padding:1rem 1.25rem;">
+                    <div class="purple-box" style="margin:0;"><strong>Key concepts:</strong> Rule of Five (destructor + deleted copy + move constructor + move assignment), RAII (resource freed in destructor), <code>= delete</code> to enforce exclusive ownership, <code>noexcept</code> on move operations for STL compatibility.</div>
+                </div>
+            </div>
+        </div>
+
+    </article>
+</section>
+
 </main>
 
 <footer class="bg-white border-t border-gray-200 mt-12 py-8 text-center text-gray-500 text-sm">
@@ -1357,6 +2110,15 @@ function showTab(id) {
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     event.target.classList.add('active');
+}
+
+function toggleSolution(id, btn) {
+    const panel = document.getElementById(id);
+    const hidden = panel.style.display === 'none';
+    panel.style.display = hidden ? 'block' : 'none';
+    btn.textContent = hidden ? 'Hide Solution' : 'Show Solution';
+    btn.style.background = hidden ? '#ef4444' : '';
+    btn.style.color = hidden ? 'white' : '';
 }
 </script>
 </body>
