@@ -1,0 +1,1363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Object-Oriented Programming — Theory, C++ & Multi-Language</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 90ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2 { font-size: 1.9rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.25rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose h4 { font-size: 1.15rem; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+        .prose p, .prose li { font-size: 1.1rem; line-height: 1.8; }
+        .prose ul { padding-left: 1.5rem; list-style: disc; }
+        .prose ol { padding-left: 1.5rem; list-style: decimal; }
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #e5e7eb;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.93em;
+        }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .code-block {
+            background-color: #0f172a;
+            color: #d1d5db;
+            padding: 1.25rem 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.75;
+            font-size: 0.91rem;
+        }
+        .kw  { color: #93c5fd; }
+        .cm  { color: #6b7280; font-style: italic; }
+        .st  { color: #86efac; }
+        .nm  { color: #fde68a; }
+        .fn  { color: #c4b5fd; }
+        .pp  { color: #f9a8d4; }
+        .ty  { color: #67e8f9; }
+        .op  { color: #fb923c; }
+
+        .theory-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 5px solid #3b82f6;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .insight-box {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-left: 5px solid #10b981;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .warn-box {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border-left: 5px solid #ef4444;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .gold-box {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-left: 5px solid #f59e0b;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .purple-box {
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            border-left: 5px solid #7c3aed;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .lang-tab { display: none; }
+        .lang-tab.active { display: block; }
+        .tab-btn {
+            padding: 0.5rem 1.25rem;
+            border-radius: 0.375rem 0.375rem 0 0;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            border: 2px solid transparent;
+            background: #e5e7eb;
+            color: #374151;
+            transition: all 0.15s;
+        }
+        .tab-btn.active {
+            background: #0f172a;
+            color: #d1d5db;
+            border-color: #0f172a;
+        }
+        .tab-btn:hover:not(.active) { background: #d1d5db; }
+        table.styled { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 1rem; }
+        table.styled thead tr { background-color: #1e40af; color: white; }
+        table.styled th, table.styled td { padding: 0.75rem 1rem; border: 1px solid #e5e7eb; text-align: left; vertical-align: top; }
+        table.styled tbody tr:nth-child(even) { background-color: #f1f5f9; }
+        .pillar-card {
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .toc-link { color: #2563eb; text-decoration: none; }
+        .toc-link:hover { text-decoration: underline; }
+        .access-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        @media (max-width: 768px) {
+            .access-grid { grid-template-columns: 1fr; }
+        }
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .badge-green  { background: #d1fae5; color: #065f46; }
+        .badge-yellow { background: #fef3c7; color: #92400e; }
+        .badge-red    { background: #fee2e2; color: #991b1b; }
+        .badge-blue   { background: #dbeafe; color: #1e40af; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- ===== NAVBAR ===== -->
+<header class="bg-white shadow-md sticky top-0 z-10">
+    <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">Object-Oriented Programming</h1>
+        <div class="text-sm text-gray-500">Theory &amp; C++ Deep Dive</div>
+    </nav>
+</header>
+
+<main class="container mx-auto px-6 py-12">
+
+<!-- ===== TABLE OF CONTENTS ===== -->
+<section class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h1>Object-Oriented Programming</h1>
+        <p>A complete reference covering OOP theory, deep C++ mechanics, access modifiers, inheritance, polymorphism, and how the same concepts translate across C++, Java, Python, and C#.</p>
+
+        <div class="gold-box">
+            <strong>Contents</strong>
+            <ol style="margin-top:0.75rem; columns: 2; column-gap: 2rem;">
+                <li><a href="#what-is-oop" class="toc-link">What is OOP?</a></li>
+                <li><a href="#four-pillars" class="toc-link">The Four Pillars</a></li>
+                <li><a href="#classes-objects" class="toc-link">Classes &amp; Objects in C++</a></li>
+                <li><a href="#access-modifiers" class="toc-link">Access Modifiers</a></li>
+                <li><a href="#constructors" class="toc-link">Constructors &amp; Destructors</a></li>
+                <li><a href="#inheritance" class="toc-link">Inheritance</a></li>
+                <li><a href="#polymorphism" class="toc-link">Polymorphism &amp; Virtual</a></li>
+                <li><a href="#abstraction" class="toc-link">Abstract Classes &amp; Interfaces</a></li>
+                <li><a href="#encapsulation" class="toc-link">Encapsulation in Practice</a></li>
+                <li><a href="#operator-overloading" class="toc-link">Operator Overloading</a></li>
+                <li><a href="#multi-inheritance" class="toc-link">Multiple Inheritance &amp; Diamond</a></li>
+                <li><a href="#lang-compare" class="toc-link">Language Comparisons</a></li>
+            </ol>
+        </div>
+    </article>
+</section>
+
+<!-- ===== SECTION 1: WHAT IS OOP ===== -->
+<section id="what-is-oop" class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>1. What is Object-Oriented Programming?</h2>
+
+        <p>Object-Oriented Programming is a <strong>programming paradigm</strong> that organizes software around <em>objects</em> — bundles of data (fields / attributes) and behavior (methods / functions) that model real-world or abstract entities.</p>
+
+        <div class="theory-box">
+            <strong>Core Idea:</strong> Instead of writing a program as a sequence of instructions that manipulate raw data, OOP groups related data and the operations on that data together into a single unit called an <em>object</em>. Objects communicate by calling each other's methods.
+        </div>
+
+        <h3>Procedural vs Object-Oriented</h3>
+        <table class="styled">
+            <thead><tr><th>Procedural (C, Pascal)</th><th>Object-Oriented (C++, Java, Python)</th></tr></thead>
+            <tbody>
+                <tr><td>Program = sequence of procedures/functions</td><td>Program = collection of objects interacting</td></tr>
+                <tr><td>Data and logic are separate</td><td>Data and logic are bundled together</td></tr>
+                <tr><td>Hard to model real-world entities naturally</td><td>Naturally maps to real-world concepts</td></tr>
+                <tr><td>Code reuse via copy-paste or function libraries</td><td>Code reuse via inheritance and composition</td></tr>
+                <tr><td>No built-in access control</td><td>Access modifiers protect internal state</td></tr>
+                <tr><td>Harder to scale and maintain</td><td>Scales better; changes localized to classes</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Historical Context</h3>
+        <p>OOP emerged in the 1960s with <strong>Simula</strong> (the first OO language), was popularized by <strong>Smalltalk</strong> in the 70s, and became mainstream through C++ (1983), Java (1995), and Python (1991). Today it is the dominant paradigm for large-scale software.</p>
+
+        <div class="insight-box">
+            <strong>Mental Model:</strong> Think of a <em>Car</em>. It has <em>data</em> (color, speed, fuel level) and <em>behavior</em> (accelerate, brake, refuel). An object bundles these together. You interact with a car through its interface (pedals, steering wheel) without needing to know the internal engine mechanics — that's <em>encapsulation</em>.
+        </div>
+    </article>
+</section>
+
+<!-- ===== SECTION 2: FOUR PILLARS ===== -->
+<section id="four-pillars" class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>2. The Four Pillars of OOP</h2>
+
+        <div class="access-grid" style="grid-template-columns: repeat(2,1fr);">
+            <div class="pillar-card" style="background:linear-gradient(135deg,#dbeafe,#bfdbfe); border:2px solid #3b82f6;">
+                <div style="font-size:2.5rem;">🔒</div>
+                <h3 style="margin-top:0.5rem; color:#1e40af;">Encapsulation</h3>
+                <p style="font-size:1rem;">Bundling data and methods that operate on that data within one unit; hiding internal details via access control.</p>
+            </div>
+            <div class="pillar-card" style="background:linear-gradient(135deg,#d1fae5,#a7f3d0); border:2px solid #10b981;">
+                <div style="font-size:2.5rem;">🧬</div>
+                <h3 style="margin-top:0.5rem; color:#065f46;">Inheritance</h3>
+                <p style="font-size:1rem;">A class (child) can acquire properties and behaviors of another class (parent), enabling code reuse and hierarchical relationships.</p>
+            </div>
+            <div class="pillar-card" style="background:linear-gradient(135deg,#fef3c7,#fde68a); border:2px solid #f59e0b;">
+                <div style="font-size:2.5rem;">🎭</div>
+                <h3 style="margin-top:0.5rem; color:#92400e;">Polymorphism</h3>
+                <p style="font-size:1rem;">The same interface or method name can behave differently depending on the object type it is called on (overloading &amp; overriding).</p>
+            </div>
+            <div class="pillar-card" style="background:linear-gradient(135deg,#ede9fe,#ddd6fe); border:2px solid #7c3aed;">
+                <div style="font-size:2.5rem;">🎨</div>
+                <h3 style="margin-top:0.5rem; color:#4c1d95;">Abstraction</h3>
+                <p style="font-size:1rem;">Exposing only relevant details to the outside world; hiding complex implementation behind a clean interface.</p>
+            </div>
+        </div>
+
+        <div class="insight-box" style="margin-top:1.5rem;">
+            <strong>Remember:</strong> These four concepts work together. Encapsulation <em>protects</em> data; Abstraction <em>simplifies</em> interfaces; Inheritance <em>reuses</em> code; Polymorphism makes code <em>flexible</em>.
+        </div>
+    </article>
+</section>
+
+<!-- ===== SECTION 3: CLASSES & OBJECTS ===== -->
+<section id="classes-objects" class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>3. Classes &amp; Objects in C++</h2>
+
+        <p>A <strong>class</strong> is a blueprint (type definition). An <strong>object</strong> is an instance of that class allocated in memory. Think of a class as the cookie cutter; objects are the cookies.</p>
+
+        <div class="theory-box">
+            <strong>Syntax overview:</strong> <code>class ClassName { access_specifier: members; };</code><br>
+            Members include <em>data members</em> (fields) and <em>member functions</em> (methods).
+        </div>
+
+        <h3>Basic Class Example</h3>
+        <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="kw">class</span> <span class="ty">Car</span> {
+<span class="kw">private</span>:                        <span class="cm">// hidden from outside</span>
+    string brand;
+    <span class="kw">int</span>    speed;
+    <span class="kw">double</span> fuel;
+
+<span class="kw">public</span>:                         <span class="cm">// accessible interface</span>
+    <span class="cm">// Constructor</span>
+    <span class="fn">Car</span>(string b, <span class="kw">int</span> s, <span class="kw">double</span> f) : brand(b), speed(s), fuel(f) {}
+
+    <span class="cm">// Methods (behavior)</span>
+    <span class="kw">void</span> <span class="fn">accelerate</span>(<span class="kw">int</span> delta) {
+        speed <span class="op">+=</span> delta;
+        fuel  <span class="op">-=</span> delta <span class="op">*</span> <span class="nm">0.1</span>;
+    }
+
+    <span class="kw">void</span> <span class="fn">describe</span>() <span class="kw">const</span> {
+        cout <span class="op">&lt;&lt;</span> brand <span class="op">&lt;&lt;</span> <span class="st">" | speed: "</span> <span class="op">&lt;&lt;</span> speed
+             <span class="op">&lt;&lt;</span> <span class="st">" km/h | fuel: "</span> <span class="op">&lt;&lt;</span> fuel <span class="op">&lt;&lt;</span> <span class="st">"L\n"</span>;
+    }
+
+    <span class="cm">// Getters (controlled access to private data)</span>
+    string <span class="fn">getBrand</span>() <span class="kw">const</span> { <span class="kw">return</span> brand; }
+    <span class="kw">int</span>    <span class="fn">getSpeed</span>() <span class="kw">const</span> { <span class="kw">return</span> speed; }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="ty">Car</span> myCar(<span class="st">"Toyota"</span>, <span class="nm">0</span>, <span class="nm">50.0</span>);   <span class="cm">// create object on stack</span>
+    myCar.<span class="fn">accelerate</span>(<span class="nm">60</span>);
+    myCar.<span class="fn">describe</span>();               <span class="cm">// Toyota | speed: 60 km/h | fuel: 44L</span>
+
+    <span class="ty">Car</span><span class="op">*</span> pCar = <span class="kw">new</span> <span class="ty">Car</span>(<span class="st">"BMW"</span>, <span class="nm">0</span>, <span class="nm">60.0</span>); <span class="cm">// heap object</span>
+    pCar<span class="op">-&gt;</span><span class="fn">accelerate</span>(<span class="nm">100</span>);
+    pCar<span class="op">-&gt;</span><span class="fn">describe</span>();
+    <span class="kw">delete</span> pCar;
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</div>
+
+        <h3>Stack vs Heap Objects</h3>
+        <table class="styled">
+            <thead><tr><th></th><th>Stack (<code>Car c(...);</code>)</th><th>Heap (<code>Car* p = new Car(...);</code>)</th></tr></thead>
+            <tbody>
+                <tr><td>Memory</td><td>Automatic, limited size</td><td>Dynamic, large heap</td></tr>
+                <tr><td>Lifetime</td><td>Scope-bound, auto-destroyed</td><td>Manual — must <code>delete</code></td></tr>
+                <tr><td>Access</td><td><code>obj.member</code></td><td><code>ptr-&gt;member</code> or <code>(*ptr).member</code></td></tr>
+                <tr><td>Prefer when</td><td>Short-lived, small objects</td><td>Polymorphism, large objects, shared ownership</td></tr>
+            </tbody>
+        </table>
+
+        <div class="insight-box">
+            <strong>Modern C++:</strong> Prefer <code>std::unique_ptr&lt;Car&gt;</code> or <code>std::shared_ptr&lt;Car&gt;</code> over raw <code>new</code>/<code>delete</code> to avoid memory leaks.
+        </div>
+
+        <h3>The <code>this</code> Pointer</h3>
+        <p>Inside every non-static member function, <code>this</code> is a pointer to the calling object. It is used to disambiguate when parameter names shadow member names, or to return the object itself (method chaining).</p>
+
+        <div class="code-block"><span class="kw">class</span> <span class="ty">Counter</span> {
+    <span class="kw">int</span> count;
+<span class="kw">public</span>:
+    <span class="fn">Counter</span>(<span class="kw">int</span> count) : count(count) {}   <span class="cm">// initializer list avoids ambiguity</span>
+
+    <span class="ty">Counter</span><span class="op">&amp;</span> <span class="fn">increment</span>() {
+        <span class="op">++</span>(<span class="kw">this</span><span class="op">-&gt;</span>count);
+        <span class="kw">return</span> <span class="op">*</span><span class="kw">this</span>;           <span class="cm">// enables chaining: c.increment().increment()</span>
+    }
+
+    <span class="kw">void</span> <span class="fn">print</span>() <span class="kw">const</span> { cout <span class="op">&lt;&lt;</span> count <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>; }
+};</div>
+    </article>
+</section>
+
+<!-- ===== SECTION 4: ACCESS MODIFIERS ===== -->
+<section id="access-modifiers" class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>4. Access Modifiers — <code>private</code>, <code>protected</code>, <code>public</code></h2>
+
+        <p>Access modifiers control <em>who</em> can see and touch a class member. C++ has three levels:</p>
+
+        <div class="access-grid">
+            <div style="background:linear-gradient(135deg,#fee2e2,#fecaca); border:2px solid #ef4444; border-radius:0.75rem; padding:1.25rem;">
+                <h3 style="color:#991b1b; margin-top:0;">🔒 private</h3>
+                <ul style="font-size:0.97rem;">
+                    <li>Accessible <strong>only within the same class</strong></li>
+                    <li>Not visible to derived classes</li>
+                    <li>Not visible to outside code</li>
+                    <li><strong>Default</strong> in <code>class</code> keyword</li>
+                </ul>
+                <span class="badge badge-red">Strictest</span>
+            </div>
+            <div style="background:linear-gradient(135deg,#fef3c7,#fde68a); border:2px solid #f59e0b; border-radius:0.75rem; padding:1.25rem;">
+                <h3 style="color:#92400e; margin-top:0;">🛡️ protected</h3>
+                <ul style="font-size:0.97rem;">
+                    <li>Accessible within the <strong>same class</strong></li>
+                    <li>Accessible in <strong>derived (child) classes</strong></li>
+                    <li>Not visible to outside code</li>
+                    <li>Key for inheritance hierarchies</li>
+                </ul>
+                <span class="badge badge-yellow">Middle</span>
+            </div>
+            <div style="background:linear-gradient(135deg,#d1fae5,#a7f3d0); border:2px solid #10b981; border-radius:0.75rem; padding:1.25rem;">
+                <h3 style="color:#065f46; margin-top:0;">🌐 public</h3>
+                <ul style="font-size:0.97rem;">
+                    <li>Accessible from <strong>anywhere</strong></li>
+                    <li>Forms the class's public interface</li>
+                    <li><strong>Default</strong> in <code>struct</code> keyword</li>
+                    <li>Expose only what's necessary</li>
+                </ul>
+                <span class="badge badge-green">Most Open</span>
+            </div>
+        </div>
+
+        <h3>Access Modifier Summary Table</h3>
+        <table class="styled">
+            <thead><tr><th>Context</th><th>private</th><th>protected</th><th>public</th></tr></thead>
+            <tbody>
+                <tr><td>Same class (own methods)</td><td>✅</td><td>✅</td><td>✅</td></tr>
+                <tr><td>Derived class (child)</td><td>❌</td><td>✅</td><td>✅</td></tr>
+                <tr><td>Outside code / other classes</td><td>❌</td><td>❌</td><td>✅</td></tr>
+                <tr><td>Friend function / class</td><td>✅</td><td>✅</td><td>✅</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Code Demonstration</h3>
+        <div class="code-block"><span class="kw">class</span> <span class="ty">Animal</span> {
+<span class="kw">private</span>:
+    <span class="kw">int</span> heartRate;          <span class="cm">// only Animal's own methods can touch this</span>
+
+<span class="kw">protected</span>:
+    string name;            <span class="cm">// Animal + its children can read/write</span>
+    <span class="kw">int</span>    age;
+
+<span class="kw">public</span>:
+    <span class="fn">Animal</span>(string n, <span class="kw">int</span> a, <span class="kw">int</span> hr) : name(n), age(a), heartRate(hr) {}
+
+    <span class="kw">void</span> <span class="fn">breathe</span>() {
+        heartRate <span class="op">+=</span> <span class="nm">1</span>;         <span class="cm">// OK: inside Animal</span>
+        cout <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">" breathes. HR="</span> <span class="op">&lt;&lt;</span> heartRate <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;
+    }
+
+    string <span class="fn">getName</span>() <span class="kw">const</span> { <span class="kw">return</span> name; }
+};
+
+<span class="kw">class</span> <span class="ty">Dog</span> : <span class="kw">public</span> <span class="ty">Animal</span> {
+<span class="kw">public</span>:
+    <span class="fn">Dog</span>(string n, <span class="kw">int</span> a) : <span class="fn">Animal</span>(n, a, <span class="nm">80</span>) {}
+
+    <span class="kw">void</span> <span class="fn">bark</span>() {
+        <span class="cm">// name and age are protected — accessible here</span>
+        cout <span class="op">&lt;&lt;</span> name <span class="op">&lt;&lt;</span> <span class="st">" (age "</span> <span class="op">&lt;&lt;</span> age <span class="op">&lt;&lt;</span> <span class="st">") barks!\n"</span>;
+        <span class="cm">// heartRate is private — NOT accessible here (compile error if tried)</span>
+    }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="ty">Dog</span> d(<span class="st">"Rex"</span>, <span class="nm">3</span>);
+    d.<span class="fn">bark</span>();           <span class="cm">// OK</span>
+    d.<span class="fn">breathe</span>();        <span class="cm">// OK — public method inherited</span>
+    <span class="cm">// d.name = "x";   // Error: protected, not accessible outside</span>
+    <span class="cm">// d.heartRate = 0; // Error: private</span>
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</div>
+
+        <h3>struct vs class in C++</h3>
+        <div class="theory-box">
+            The <strong>only</strong> difference between <code>struct</code> and <code>class</code> in C++ is the <em>default access level</em>:
+            <ul>
+                <li><code>struct</code>: members are <code>public</code> by default</li>
+                <li><code>class</code>: members are <code>private</code> by default</li>
+            </ul>
+            Convention: use <code>struct</code> for plain data aggregates (POD types), <code>class</code> for objects with invariants and behavior.
+        </div>
+
+        <h3>Inheritance Access Specifiers</h3>
+        <p>When inheriting, the access specifier on the <code>:</code> controls how <em>the parent's members appear in the child</em>:</p>
+        <table class="styled">
+            <thead><tr><th>Parent member</th><th>public inheritance</th><th>protected inheritance</th><th>private inheritance</th></tr></thead>
+            <tbody>
+                <tr><td>public</td><td>public</td><td>protected</td><td>private</td></tr>
+                <tr><td>protected</td><td>protected</td><td>protected</td><td>private</td></tr>
+                <tr><td>private</td><td>hidden</td><td>hidden</td><td>hidden</td></tr>
+            </tbody>
+        </table>
+        <div class="insight-box"><strong>95% rule:</strong> Almost always use <code>public</code> inheritance. <code>private</code> inheritance means "implemented in terms of" and is rarely needed (prefer composition instead).</div>
+
+        <h3>Friend Functions &amp; Classes</h3>
+        <p>A <code>friend</code> declaration grants a specific external function or class full access to all private and protected members — it is a <em>deliberate exception</em> to encapsulation.</p>
+        <div class="code-block"><span class="kw">class</span> <span class="ty">BankAccount</span> {
+    <span class="kw">double</span> balance;               <span class="cm">// private</span>
+<span class="kw">public</span>:
+    <span class="fn">BankAccount</span>(<span class="kw">double</span> b) : balance(b) {}
+    <span class="kw">friend</span> <span class="kw">void</span> <span class="fn">audit</span>(<span class="kw">const</span> <span class="ty">BankAccount</span><span class="op">&amp;</span>); <span class="cm">// friend declaration</span>
+};
+
+<span class="kw">void</span> <span class="fn">audit</span>(<span class="kw">const</span> <span class="ty">BankAccount</span><span class="op">&amp;</span> acc) {
+    cout <span class="op">&lt;&lt;</span> <span class="st">"Balance: "</span> <span class="op">&lt;&lt;</span> acc.balance <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>; <span class="cm">// accesses private directly</span>
+}</div>
+    </article>
+</section>
+
+<!-- ===== SECTION 5: CONSTRUCTORS & DESTRUCTORS ===== -->
+<section id="constructors" class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>5. Constructors &amp; Destructors</h2>
+
+        <p>A <strong>constructor</strong> is a special method called automatically when an object is created. A <strong>destructor</strong> is called when the object goes out of scope or is deleted. Together they manage the lifetime of resources (the RAII pattern).</p>
+
+        <div class="code-block"><span class="kw">class</span> <span class="ty">Resource</span> {
+    <span class="kw">int</span><span class="op">*</span> data;
+    <span class="kw">int</span>  size;
+<span class="kw">public</span>:
+    <span class="cm">// Default constructor</span>
+    <span class="fn">Resource</span>() : data(<span class="kw">nullptr</span>), size(<span class="nm">0</span>) {
+        cout <span class="op">&lt;&lt;</span> <span class="st">"Default ctor\n"</span>;
+    }
+
+    <span class="cm">// Parameterized constructor</span>
+    <span class="fn">Resource</span>(<span class="kw">int</span> n) : size(n) {
+        data <span class="op">=</span> <span class="kw">new int</span>[n];
+        cout <span class="op">&lt;&lt;</span> <span class="st">"Alloc ctor (n="</span> <span class="op">&lt;&lt;</span> n <span class="op">&lt;&lt;</span> <span class="st">")\n"</span>;
+    }
+
+    <span class="cm">// Copy constructor (deep copy)</span>
+    <span class="fn">Resource</span>(<span class="kw">const</span> <span class="ty">Resource</span><span class="op">&amp;</span> other) : size(other.size) {
+        data <span class="op">=</span> <span class="kw">new int</span>[size];
+        <span class="fn">copy</span>(other.data, other.data <span class="op">+</span> size, data);
+        cout <span class="op">&lt;&lt;</span> <span class="st">"Copy ctor\n"</span>;
+    }
+
+    <span class="cm">// Move constructor (C++11)</span>
+    <span class="fn">Resource</span>(<span class="ty">Resource</span><span class="op">&amp;&amp;</span> other) <span class="kw">noexcept</span> : data(other.data), size(other.size) {
+        other.data <span class="op">=</span> <span class="kw">nullptr</span>;
+        other.size <span class="op">=</span> <span class="nm">0</span>;
+        cout <span class="op">&lt;&lt;</span> <span class="st">"Move ctor\n"</span>;
+    }
+
+    <span class="cm">// Destructor — always called when object dies</span>
+    <span class="op">~</span><span class="fn">Resource</span>() {
+        <span class="kw">delete</span>[] data;
+        cout <span class="op">&lt;&lt;</span> <span class="st">"Destructor (size="</span> <span class="op">&lt;&lt;</span> size <span class="op">&lt;&lt;</span> <span class="st">")\n"</span>;
+    }
+};</div>
+
+        <h3>The Rule of Three / Five / Zero</h3>
+        <table class="styled">
+            <thead><tr><th>Rule</th><th>When</th><th>What to define</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Rule of Zero</strong></td><td>Class manages no raw resources</td><td>Define nothing — rely on compiler defaults</td></tr>
+                <tr><td><strong>Rule of Three</strong></td><td>Class manages a raw resource (pre-C++11)</td><td>Destructor, Copy constructor, Copy assignment</td></tr>
+                <tr><td><strong>Rule of Five</strong></td><td>Move semantics needed (C++11+)</td><td>All three above + Move constructor + Move assignment</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Constructor Initializer List</h3>
+        <div class="theory-box">
+            Always prefer initializer lists over assignment in constructor body. They initialize members directly — assignment initializes then re-assigns, which is wasteful (especially for non-trivial types). For <code>const</code> members and references, initializer lists are the <em>only</em> option.
+        </div>
+        <div class="code-block"><span class="cm">// GOOD — initializer list</span>
+<span class="fn">Person</span>(string n, <span class="kw">int</span> a) : name(n), age(a) {}
+
+<span class="cm">// BAD — default-initializes then assigns</span>
+<span class="fn">Person</span>(string n, <span class="kw">int</span> a) {
+    name <span class="op">=</span> n;   <span class="cm">// default string() then operator=</span>
+    age  <span class="op">=</span> a;
+}</div>
+
+        <h3>Delegating Constructors (C++11)</h3>
+        <div class="code-block"><span class="kw">class</span> <span class="ty">Box</span> {
+    <span class="kw">int</span> w, h, d;
+<span class="kw">public</span>:
+    <span class="fn">Box</span>(<span class="kw">int</span> w, <span class="kw">int</span> h, <span class="kw">int</span> d) : w(w), h(h), d(d) {}
+    <span class="fn">Box</span>(<span class="kw">int</span> side) : <span class="fn">Box</span>(side, side, side) {}  <span class="cm">// delegates to above</span>
+    <span class="fn">Box</span>() : <span class="fn">Box</span>(<span class="nm">1</span>) {}                          <span class="cm">// delegates again</span>
+};</div>
+    </article>
+</section>
+
+<!-- ===== SECTION 6: INHERITANCE ===== -->
+<section id="inheritance" class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>6. Inheritance</h2>
+
+        <p>Inheritance lets a <strong>derived class</strong> (child) reuse and extend the members of a <strong>base class</strong> (parent). It models an <em>"is-a"</em> relationship.</p>
+
+        <div class="theory-box">
+            <strong>Syntax:</strong> <code>class Derived : access_specifier Base { ... };</code><br>
+            The derived class inherits all non-private members and can add new members or <em>override</em> (replace) virtual methods.
+        </div>
+
+        <h3>Single Inheritance — Shape Hierarchy</h3>
+        <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;cmath&gt;</span>
+
+<span class="kw">class</span> <span class="ty">Shape</span> {
+<span class="kw">protected</span>:
+    string color;
+<span class="kw">public</span>:
+    <span class="fn">Shape</span>(string c) : color(c) {}
+
+    <span class="kw">virtual double</span> <span class="fn">area</span>() <span class="kw">const</span> { <span class="kw">return</span> <span class="nm">0.0</span>; }  <span class="cm">// virtual — can be overridden</span>
+
+    <span class="kw">void</span> <span class="fn">printColor</span>() <span class="kw">const</span> {
+        cout <span class="op">&lt;&lt;</span> <span class="st">"Color: "</span> <span class="op">&lt;&lt;</span> color <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;
+    }
+
+    <span class="kw">virtual</span> <span class="op">~</span><span class="fn">Shape</span>() {}                          <span class="cm">// virtual destructor — CRUCIAL</span>
+};
+
+<span class="kw">class</span> <span class="ty">Circle</span> : <span class="kw">public</span> <span class="ty">Shape</span> {
+    <span class="kw">double</span> radius;
+<span class="kw">public</span>:
+    <span class="fn">Circle</span>(<span class="kw">double</span> r, string c) : <span class="fn">Shape</span>(c), radius(r) {}
+
+    <span class="kw">double</span> <span class="fn">area</span>() <span class="kw">const override</span> {              <span class="cm">// override keyword (C++11)</span>
+        <span class="kw">return</span> M_PI <span class="op">*</span> radius <span class="op">*</span> radius;
+    }
+};
+
+<span class="kw">class</span> <span class="ty">Rectangle</span> : <span class="kw">public</span> <span class="ty">Shape</span> {
+    <span class="kw">double</span> width, height;
+<span class="kw">public</span>:
+    <span class="fn">Rectangle</span>(<span class="kw">double</span> w, <span class="kw">double</span> h, string c)
+        : <span class="fn">Shape</span>(c), width(w), height(h) {}
+
+    <span class="kw">double</span> <span class="fn">area</span>() <span class="kw">const override</span> { <span class="kw">return</span> width <span class="op">*</span> height; }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="ty">Circle</span>    c(<span class="nm">5.0</span>, <span class="st">"red"</span>);
+    <span class="ty">Rectangle</span> r(<span class="nm">4.0</span>, <span class="nm">6.0</span>, <span class="st">"blue"</span>);
+
+    <span class="cm">// Polymorphic: same call, different behavior</span>
+    <span class="ty">Shape</span><span class="op">*</span> shapes[] <span class="op">=</span> { <span class="op">&amp;</span>c, <span class="op">&amp;</span>r };
+    <span class="kw">for</span> (<span class="kw">auto</span> s : shapes) {
+        s<span class="op">-&gt;</span><span class="fn">printColor</span>();
+        cout <span class="op">&lt;&lt;</span> <span class="st">"Area: "</span> <span class="op">&lt;&lt;</span> s<span class="op">-&gt;</span><span class="fn">area</span>() <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;
+    }
+}</div>
+
+        <h3>Constructor Chaining in Inheritance</h3>
+        <p>When a derived object is created, <strong>constructors run base-first</strong>. Destructors run in <strong>reverse order</strong> (derived-first). Use the initializer list to pass arguments to the base constructor.</p>
+        <div class="code-block"><span class="kw">class</span> <span class="ty">A</span> { <span class="kw">public</span>: <span class="fn">A</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"A()\n"</span>; } <span class="op">~</span><span class="fn">A</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"~A()\n"</span>; } };
+<span class="kw">class</span> <span class="ty">B</span> : <span class="kw">public</span> <span class="ty">A</span> { <span class="kw">public</span>: <span class="fn">B</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"B()\n"</span>; } <span class="op">~</span><span class="fn">B</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"~B()\n"</span>; } };
+<span class="kw">class</span> <span class="ty">C</span> : <span class="kw">public</span> <span class="ty">B</span> { <span class="kw">public</span>: <span class="fn">C</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"C()\n"</span>; } <span class="op">~</span><span class="fn">C</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"~C()\n"</span>; } };
+
+<span class="cm">// Creating C: prints  A()  B()  C()
+// Destroying C: prints  ~C()  ~B()  ~A()</span></div>
+
+        <h3>Calling Base Class Methods — <code>BaseClass::method()</code></h3>
+        <div class="code-block"><span class="kw">class</span> <span class="ty">Employee</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> <span class="kw">void</span> <span class="fn">describe</span>() <span class="kw">const</span> {
+        cout <span class="op">&lt;&lt;</span> <span class="st">"Employee\n"</span>;
+    }
+};
+
+<span class="kw">class</span> <span class="ty">Manager</span> : <span class="kw">public</span> <span class="ty">Employee</span> {
+<span class="kw">public</span>:
+    <span class="kw">void</span> <span class="fn">describe</span>() <span class="kw">const override</span> {
+        <span class="ty">Employee</span>::<span class="fn">describe</span>();        <span class="cm">// call parent version first</span>
+        cout <span class="op">&lt;&lt;</span> <span class="st">"  + manages a team\n"</span>;
+    }
+};</div>
+
+        <h3>Inheritance vs Composition</h3>
+        <div class="warn-box">
+            <strong>Prefer composition over inheritance</strong> when the relationship is "has-a" rather than "is-a". Inheritance creates tight coupling — a change to the base class ripples through all children. Composition (embedding objects as members) is more flexible.
+        </div>
+        <div class="code-block"><span class="cm">// "is-a" — use inheritance</span>
+<span class="kw">class</span> <span class="ty">SportsCar</span> : <span class="kw">public</span> <span class="ty">Car</span> { ... };
+
+<span class="cm">// "has-a" — use composition</span>
+<span class="kw">class</span> <span class="ty">Car</span> {
+    <span class="ty">Engine</span>  engine;    <span class="cm">// Car HAS an Engine</span>
+    <span class="ty">Wheels</span>  wheels;    <span class="cm">// Car HAS Wheels</span>
+};</div>
+    </article>
+</section>
+
+<!-- ===== SECTION 7: POLYMORPHISM ===== -->
+<section id="polymorphism" class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>7. Polymorphism &amp; Virtual Functions</h2>
+
+        <p>Polymorphism (<em>many forms</em>) means one interface, multiple implementations. C++ has two kinds:</p>
+
+        <table class="styled">
+            <thead><tr><th>Type</th><th>Mechanism</th><th>Resolved at</th><th>Example</th></tr></thead>
+            <tbody>
+                <tr><td><strong>Compile-time (static)</strong></td><td>Function overloading, templates, operator overloading</td><td>Compile time</td><td><code>print(int)</code> vs <code>print(double)</code></td></tr>
+                <tr><td><strong>Runtime (dynamic)</strong></td><td>Virtual functions + pointers/references to base</td><td>Runtime (vtable)</td><td><code>shape->area()</code> dispatches to the right subtype</td></tr>
+            </tbody>
+        </table>
+
+        <h3>How Virtual Functions Work — The vtable</h3>
+        <div class="theory-box">
+            Every class with at least one virtual function gets a hidden <strong>vtable</strong> (virtual dispatch table) — an array of function pointers. Each object stores a hidden <strong>vptr</strong> pointing to its class's vtable. When you call <code>base_ptr-&gt;virtualMethod()</code>, the runtime looks up the correct function via the vptr — this is <em>dynamic dispatch</em>.
+        </div>
+
+        <div style="background:#f8fafc; border:2px solid #e2e8f0; border-radius:1rem; padding:1.5rem; margin:1.5rem 0; overflow-x:auto;">
+            <svg width="700" height="220" viewBox="0 0 700 220" style="display:block;margin:0 auto;">
+                <defs>
+                    <marker id="arr" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                        <polygon points="0 0,8 3,0 6" fill="#64748b"/>
+                    </marker>
+                </defs>
+                <!-- Object -->
+                <rect x="20" y="60" width="140" height="80" rx="8" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+                <text x="90" y="82" text-anchor="middle" font-size="12" font-weight="700" fill="#1e40af">Circle object</text>
+                <rect x="30" y="90" width="120" height="25" rx="4" fill="#93c5fd"/>
+                <text x="90" y="107" text-anchor="middle" font-size="11" fill="#1e3a8a">vptr ────────►</text>
+                <rect x="30" y="118" width="120" height="18" rx="4" fill="#bfdbfe"/>
+                <text x="90" y="131" text-anchor="middle" font-size="11" fill="#1e3a8a">radius = 5.0</text>
+
+                <!-- vtable -->
+                <rect x="230" y="30" width="160" height="110" rx="8" fill="#d1fae5" stroke="#10b981" stroke-width="2"/>
+                <text x="310" y="52" text-anchor="middle" font-size="12" font-weight="700" fill="#065f46">Circle vtable</text>
+                <rect x="240" y="60" width="140" height="22" rx="4" fill="#6ee7b7"/>
+                <text x="310" y="75" text-anchor="middle" font-size="11" fill="#064e3b">[0] Circle::area ──►</text>
+                <rect x="240" y="86" width="140" height="22" rx="4" fill="#a7f3d0"/>
+                <text x="310" y="101" text-anchor="middle" font-size="11" fill="#064e3b">[1] ~Circle ──────►</text>
+                <rect x="240" y="112" width="140" height="22" rx="4" fill="#a7f3d0"/>
+                <text x="310" y="127" text-anchor="middle" font-size="11" fill="#064e3b">[2] Shape::printColor►</text>
+
+                <!-- vtable arrow from object -->
+                <line x1="160" y1="102" x2="228" y2="75" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+
+                <!-- Function implementations -->
+                <rect x="460" y="50" width="200" height="30" rx="6" fill="#fde68a" stroke="#f59e0b" stroke-width="1.5"/>
+                <text x="560" y="70" text-anchor="middle" font-size="11" fill="#78350f">Circle::area() { π·r² }</text>
+
+                <rect x="460" y="90" width="200" height="30" rx="6" fill="#fde68a" stroke="#f59e0b" stroke-width="1.5"/>
+                <text x="560" y="110" text-anchor="middle" font-size="11" fill="#78350f">~Circle() { ... }</text>
+
+                <!-- arrows from vtable -->
+                <line x1="390" y1="71" x2="458" y2="65" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+                <line x1="390" y1="97" x2="458" y2="105" stroke="#64748b" stroke-width="1.5" marker-end="url(#arr)"/>
+
+                <text x="350" y="185" text-anchor="middle" font-size="12" fill="#475569">Dynamic dispatch: base_ptr→area() resolves to Circle::area() at runtime</text>
+            </svg>
+        </div>
+
+        <h3>Virtual Destructor — Critical Rule</h3>
+        <div class="warn-box">
+            <strong>Always declare the destructor virtual in a base class</strong> if you intend to delete derived objects through base pointers. Without it, only the base destructor runs, leaking the derived class's resources (undefined behavior).
+        </div>
+        <div class="code-block"><span class="kw">class</span> <span class="ty">Base</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual</span> <span class="op">~</span><span class="fn">Base</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"~Base\n"</span>; }    <span class="cm">// ✅ virtual</span>
+};
+<span class="kw">class</span> <span class="ty">Derived</span> : <span class="kw">public</span> <span class="ty">Base</span> {
+<span class="kw">public</span>:
+    <span class="op">~</span><span class="fn">Derived</span>() { cout <span class="op">&lt;&lt;</span> <span class="st">"~Derived\n"</span>; }
+};
+
+<span class="ty">Base</span><span class="op">*</span> p <span class="op">=</span> <span class="kw">new</span> <span class="ty">Derived</span>();
+<span class="kw">delete</span> p;    <span class="cm">// prints ~Derived then ~Base  ✅</span></div>
+
+        <h3>Function Overloading vs Overriding</h3>
+        <table class="styled">
+            <thead><tr><th></th><th>Overloading</th><th>Overriding</th></tr></thead>
+            <tbody>
+                <tr><td>What</td><td>Multiple functions same name, different parameters</td><td>Derived redefines a virtual function from base</td></tr>
+                <tr><td>Where</td><td>Same class or same scope</td><td>Base and derived classes</td></tr>
+                <tr><td>Resolved at</td><td>Compile time</td><td>Runtime</td></tr>
+                <tr><td>Signature</td><td>Must differ in parameter types/count</td><td>Must match exactly</td></tr>
+                <tr><td>C++ keyword</td><td>None needed</td><td><code>override</code> (recommended, C++11)</td></tr>
+            </tbody>
+        </table>
+
+        <h3>The <code>override</code> and <code>final</code> Keywords (C++11)</h3>
+        <div class="code-block"><span class="kw">class</span> <span class="ty">Base</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual void</span> <span class="fn">foo</span>(<span class="kw">int</span>) {}
+    <span class="kw">virtual void</span> <span class="fn">bar</span>() {}
+};
+
+<span class="kw">class</span> <span class="ty">Derived</span> : <span class="kw">public</span> <span class="ty">Base</span> {
+<span class="kw">public</span>:
+    <span class="kw">void</span> <span class="fn">foo</span>(<span class="kw">int</span>) <span class="kw">override</span> {}    <span class="cm">// ✅ compiler checks signature matches</span>
+    <span class="kw">void</span> <span class="fn">bar</span>()    <span class="kw">final</span>    {}    <span class="cm">// ✅ no further overriding allowed</span>
+    <span class="cm">// void foo(double) override {} // ❌ compile error: no matching virtual</span>
+};</div>
+    </article>
+</section>
+
+<!-- ===== SECTION 8: ABSTRACTION ===== -->
+<section id="abstraction" class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>8. Abstract Classes &amp; Pure Virtual Functions</h2>
+
+        <p>A <strong>pure virtual function</strong> has no implementation in the base class — it declares a contract that all concrete derived classes must fulfill. A class with at least one pure virtual function is an <strong>abstract class</strong>; you cannot instantiate it directly.</p>
+
+        <div class="code-block"><span class="kw">class</span> <span class="ty">ILogger</span> {                    <span class="cm">// abstract "interface"</span>
+<span class="kw">public</span>:
+    <span class="kw">virtual void</span> <span class="fn">log</span>(<span class="kw">const</span> string<span class="op">&amp;</span> msg) <span class="op">=</span> <span class="nm">0</span>;   <span class="cm">// pure virtual</span>
+    <span class="kw">virtual void</span> <span class="fn">flush</span>()              <span class="op">=</span> <span class="nm">0</span>;
+    <span class="kw">virtual</span> <span class="op">~</span><span class="fn">ILogger</span>() {}
+};
+
+<span class="kw">class</span> <span class="ty">ConsoleLogger</span> : <span class="kw">public</span> <span class="ty">ILogger</span> {
+<span class="kw">public</span>:
+    <span class="kw">void</span> <span class="fn">log</span>(<span class="kw">const</span> string<span class="op">&amp;</span> msg) <span class="kw">override</span> { cout <span class="op">&lt;&lt;</span> <span class="st">"[LOG] "</span> <span class="op">&lt;&lt;</span> msg <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>; }
+    <span class="kw">void</span> <span class="fn">flush</span>() <span class="kw">override</span>                { cout <span class="op">&lt;&lt;</span> <span class="st">"[FLUSH]\n"</span>; }
+};
+
+<span class="kw">class</span> <span class="ty">FileLogger</span> : <span class="kw">public</span> <span class="ty">ILogger</span> {
+    ofstream file;
+<span class="kw">public</span>:
+    <span class="fn">FileLogger</span>(string path) : <span class="fn">file</span>(path) {}
+    <span class="kw">void</span> <span class="fn">log</span>(<span class="kw">const</span> string<span class="op">&amp;</span> msg) <span class="kw">override</span> { file <span class="op">&lt;&lt;</span> msg <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>; }
+    <span class="kw">void</span> <span class="fn">flush</span>() <span class="kw">override</span>                { file.<span class="fn">flush</span>(); }
+};
+
+<span class="cm">// Client code depends only on ILogger — not on concrete type</span>
+<span class="kw">void</span> <span class="fn">runApp</span>(<span class="ty">ILogger</span><span class="op">&amp;</span> logger) {
+    logger.<span class="fn">log</span>(<span class="st">"App started"</span>);
+    logger.<span class="fn">flush</span>();
+}</div>
+
+        <div class="insight-box">
+            <strong>Interface pattern:</strong> In C++ there's no <code>interface</code> keyword (unlike Java/C#). An abstract class with <em>only</em> pure virtual functions and a virtual destructor acts as an interface. Naming convention: prefix with <code>I</code> (e.g., <code>ILogger</code>).
+        </div>
+
+        <h3>Abstract vs Concrete Class</h3>
+        <table class="styled">
+            <thead><tr><th></th><th>Abstract Class</th><th>Concrete Class</th></tr></thead>
+            <tbody>
+                <tr><td>Can be instantiated?</td><td>❌ No</td><td>✅ Yes</td></tr>
+                <tr><td>Has pure virtual functions?</td><td>✅ At least one</td><td>❌ None (all implemented)</td></tr>
+                <tr><td>Purpose</td><td>Define a contract / interface</td><td>Provide a usable implementation</td></tr>
+                <tr><td>C++ keyword</td><td>No special keyword; has <code>= 0</code></td><td>Normal class</td></tr>
+            </tbody>
+        </table>
+    </article>
+</section>
+
+<!-- ===== SECTION 9: ENCAPSULATION ===== -->
+<section id="encapsulation" class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>9. Encapsulation in Practice</h2>
+
+        <p>Encapsulation means keeping an object's internal state private and exposing only a controlled, validated interface. The object is the <em>sole guardian</em> of its own invariants.</p>
+
+        <h3>Why Encapsulate?</h3>
+        <ul>
+            <li><strong>Invariant protection:</strong> Ensures object state is always valid (e.g., age can't be negative)</li>
+            <li><strong>Flexibility:</strong> Change internal representation without breaking callers</li>
+            <li><strong>Reduces coupling:</strong> External code depends on the interface, not implementation details</li>
+        </ul>
+
+        <h3>Getter / Setter Pattern with Validation</h3>
+        <div class="code-block"><span class="kw">class</span> <span class="ty">Temperature</span> {
+    <span class="kw">double</span> celsius;                     <span class="cm">// invariant: -273.15 ≤ celsius</span>
+
+<span class="kw">public</span>:
+    <span class="fn">Temperature</span>(<span class="kw">double</span> c) { <span class="fn">setCelsius</span>(c); }
+
+    <span class="kw">void</span> <span class="fn">setCelsius</span>(<span class="kw">double</span> c) {
+        <span class="kw">if</span> (c <span class="op">&lt;</span> <span class="op">-</span><span class="nm">273.15</span>) <span class="kw">throw</span> invalid_argument(<span class="st">"Below absolute zero"</span>);
+        celsius <span class="op">=</span> c;
+    }
+
+    <span class="kw">double</span> <span class="fn">getCelsius</span>()    <span class="kw">const</span> { <span class="kw">return</span> celsius; }
+    <span class="kw">double</span> <span class="fn">getFahrenheit</span>() <span class="kw">const</span> { <span class="kw">return</span> celsius <span class="op">*</span> <span class="nm">9.0</span> <span class="op">/</span> <span class="nm">5.0</span> <span class="op">+</span> <span class="nm">32</span>; }
+    <span class="kw">double</span> <span class="fn">getKelvin</span>()     <span class="kw">const</span> { <span class="kw">return</span> celsius <span class="op">+</span> <span class="nm">273.15</span>; }
+};</div>
+
+        <div class="insight-box">
+            <strong>Key insight:</strong> The internal representation could change from <code>celsius</code> to <code>kelvin</code> tomorrow. Since callers use <code>getCelsius()</code> / <code>getFahrenheit()</code> rather than direct field access, zero external code needs updating.
+        </div>
+    </article>
+</section>
+
+<!-- ===== SECTION 10: OPERATOR OVERLOADING ===== -->
+<section id="operator-overloading" class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>10. Operator Overloading</h2>
+
+        <p>C++ lets you redefine the behavior of operators (<code>+</code>, <code>==</code>, <code>&lt;&lt;</code>, etc.) for user-defined types, making objects feel like built-in types.</p>
+
+        <div class="code-block"><span class="kw">class</span> <span class="ty">Vector2D</span> {
+<span class="kw">public</span>:
+    <span class="kw">double</span> x, y;
+    <span class="fn">Vector2D</span>(<span class="kw">double</span> x, <span class="kw">double</span> y) : x(x), y(y) {}
+
+    <span class="cm">// Member operator: left operand is *this</span>
+    <span class="ty">Vector2D</span> <span class="kw">operator</span><span class="op">+</span>(<span class="kw">const</span> <span class="ty">Vector2D</span><span class="op">&amp;</span> o) <span class="kw">const</span> {
+        <span class="kw">return</span> { x <span class="op">+</span> o.x, y <span class="op">+</span> o.y };
+    }
+
+    <span class="ty">Vector2D</span><span class="op">&amp;</span> <span class="kw">operator</span><span class="op">+=</span>(<span class="kw">const</span> <span class="ty">Vector2D</span><span class="op">&amp;</span> o) {
+        x <span class="op">+=</span> o.x;  y <span class="op">+=</span> o.y;
+        <span class="kw">return</span> <span class="op">*</span><span class="kw">this</span>;
+    }
+
+    <span class="kw">bool</span> <span class="kw">operator</span><span class="op">==</span>(<span class="kw">const</span> <span class="ty">Vector2D</span><span class="op">&amp;</span> o) <span class="kw">const</span> {
+        <span class="kw">return</span> x <span class="op">==</span> o.x <span class="op">&amp;&amp;</span> y <span class="op">==</span> o.y;
+    }
+
+    <span class="cm">// Non-member: stream output (friend so it can access private)</span>
+    <span class="kw">friend</span> ostream<span class="op">&amp;</span> <span class="kw">operator</span><span class="op">&lt;&lt;</span>(ostream<span class="op">&amp;</span> os, <span class="kw">const</span> <span class="ty">Vector2D</span><span class="op">&amp;</span> v) {
+        <span class="kw">return</span> os <span class="op">&lt;&lt;</span> <span class="st">"("</span> <span class="op">&lt;&lt;</span> v.x <span class="op">&lt;&lt;</span> <span class="st">","</span> <span class="op">&lt;&lt;</span> v.y <span class="op">&lt;&lt;</span> <span class="st">")"</span>;
+    }
+};
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="ty">Vector2D</span> a(<span class="nm">1</span>, <span class="nm">2</span>), b(<span class="nm">3</span>, <span class="nm">4</span>);
+    <span class="ty">Vector2D</span> c <span class="op">=</span> a <span class="op">+</span> b;              <span class="cm">// calls operator+</span>
+    cout <span class="op">&lt;&lt;</span> c <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;               <span class="cm">// (4,6)  — calls operator&lt;&lt;</span>
+    cout <span class="op">&lt;&lt;</span> (a <span class="op">==</span> b) <span class="op">&lt;&lt;</span> <span class="st">"\n"</span>;        <span class="cm">// 0 (false)</span>
+}</div>
+
+        <div class="gold-box">
+            <strong>Rules for operator overloading:</strong>
+            <ul>
+                <li>Cannot change operator arity (number of operands)</li>
+                <li>Cannot create new operators</li>
+                <li>Cannot overload <code>::</code>, <code>.</code>, <code>.*</code>, <code>?:</code></li>
+                <li>Preserve expected semantics — <code>+</code> should feel like addition</li>
+                <li>For symmetric operators (<code>+</code>, <code>==</code>), prefer non-member functions</li>
+            </ul>
+        </div>
+    </article>
+</section>
+
+<!-- ===== SECTION 11: MULTIPLE INHERITANCE ===== -->
+<section id="multi-inheritance" class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>11. Multiple Inheritance &amp; the Diamond Problem</h2>
+
+        <p>C++ allows a class to inherit from <strong>multiple base classes</strong>. This is powerful but can introduce ambiguity — the infamous <em>Diamond Problem</em>.</p>
+
+        <h3>The Diamond Problem</h3>
+        <div class="code-block"><span class="cm">// Without virtual inheritance — PROBLEM</span>
+<span class="kw">class</span> <span class="ty">A</span> { <span class="kw">public</span>: <span class="kw">int</span> x; };
+<span class="kw">class</span> <span class="ty">B</span> : <span class="kw">public</span> <span class="ty">A</span> {};
+<span class="kw">class</span> <span class="ty">C</span> : <span class="kw">public</span> <span class="ty">A</span> {};
+<span class="kw">class</span> <span class="ty">D</span> : <span class="kw">public</span> <span class="ty">B</span>, <span class="kw">public</span> <span class="ty">C</span> {};
+
+<span class="ty">D</span> obj;
+<span class="cm">// obj.x = 5;   ❌ AMBIGUOUS — is it B::A::x or C::A::x?</span>
+obj.B::x <span class="op">=</span> <span class="nm">5</span>;    <span class="cm">// explicit disambiguation</span>
+obj.C::x <span class="op">=</span> <span class="nm">10</span>;   <span class="cm">// two separate copies of A!</span></div>
+
+        <div class="code-block"><span class="cm">// With virtual inheritance — SOLUTION</span>
+<span class="kw">class</span> <span class="ty">A</span> { <span class="kw">public</span>: <span class="kw">int</span> x; };
+<span class="kw">class</span> <span class="ty">B</span> : <span class="kw">virtual public</span> <span class="ty">A</span> {};    <span class="cm">// virtual</span>
+<span class="kw">class</span> <span class="ty">C</span> : <span class="kw">virtual public</span> <span class="ty">A</span> {};    <span class="cm">// virtual</span>
+<span class="kw">class</span> <span class="ty">D</span> : <span class="kw">public</span> <span class="ty">B</span>, <span class="kw">public</span> <span class="ty">C</span> {};  <span class="cm">// only ONE copy of A</span>
+
+<span class="ty">D</span> obj;
+obj.x <span class="op">=</span> <span class="nm">5</span>;   <span class="cm">// ✅ unambiguous — single shared A</span></div>
+
+        <div style="background:#f8fafc; border:2px solid #e2e8f0; border-radius:1rem; padding:1.5rem; margin:1.5rem 0; text-align:center;">
+            <svg width="320" height="200" viewBox="0 0 320 200">
+                <text x="160" y="30" text-anchor="middle" font-size="14" font-weight="700" fill="#1e293b">A</text>
+                <rect x="130" y="10" width="60" height="30" rx="6" fill="#dbeafe" stroke="#3b82f6"/>
+                <line x1="140" y1="40" x2="80" y2="90" stroke="#64748b" stroke-width="2"/>
+                <line x1="180" y1="40" x2="240" y2="90" stroke="#64748b" stroke-width="2"/>
+                <rect x="50" y="90" width="60" height="30" rx="6" fill="#d1fae5" stroke="#10b981"/>
+                <text x="80" y="110" text-anchor="middle" font-size="14" font-weight="700" fill="#065f46">B</text>
+                <rect x="210" y="90" width="60" height="30" rx="6" fill="#d1fae5" stroke="#10b981"/>
+                <text x="240" y="110" text-anchor="middle" font-size="14" font-weight="700" fill="#065f46">C</text>
+                <line x1="80" y1="120" x2="160" y2="160" stroke="#64748b" stroke-width="2"/>
+                <line x1="240" y1="120" x2="160" y2="160" stroke="#64748b" stroke-width="2"/>
+                <rect x="130" y="160" width="60" height="30" rx="6" fill="#fde68a" stroke="#f59e0b"/>
+                <text x="160" y="180" text-anchor="middle" font-size="14" font-weight="700" fill="#78350f">D</text>
+            </svg>
+            <p style="color:#64748b; font-size:0.9rem; margin:0;">Diamond inheritance — D inherits from both B and C which both inherit from A</p>
+        </div>
+
+        <div class="warn-box">
+            <strong>Practical advice:</strong> Multiple inheritance with data is complex and error-prone. Prefer multiple inheritance of pure interfaces (abstract classes with no data) — this is safe and widely used (similar to Java/C# interfaces).
+        </div>
+    </article>
+</section>
+
+<!-- ===== SECTION 12: LANGUAGE COMPARISON ===== -->
+<section id="lang-compare" class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>12. OOP Across Languages — C++, Java, Python, C#</h2>
+
+        <p>The same OOP concepts appear in every major language, but the syntax, default behaviors, and nuances differ. Below are side-by-side comparisons.</p>
+
+        <!-- TAB NAVIGATION -->
+        <div style="border-bottom:2px solid #e5e7eb; margin-bottom:0; display:flex; flex-wrap:wrap; gap:0.25rem;">
+            <button class="tab-btn active" onclick="showTab('tab-class')">Class Definition</button>
+            <button class="tab-btn" onclick="showTab('tab-inherit')">Inheritance</button>
+            <button class="tab-btn" onclick="showTab('tab-access')">Access Modifiers</button>
+            <button class="tab-btn" onclick="showTab('tab-poly')">Polymorphism</button>
+            <button class="tab-btn" onclick="showTab('tab-abstract')">Interfaces</button>
+        </div>
+
+        <!-- TAB: CLASS -->
+        <div id="tab-class" class="lang-tab active" style="background:#0f172a; border-radius:0 0.5rem 0.5rem 0.5rem; padding:0.25rem 0;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden;">
+                <div style="padding:1rem; border-right:1px solid #1e293b;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">C++</div>
+                    <div class="code-block" style="margin:0; border-radius:0; background:transparent; padding:0; font-size:0.88rem;"><span class="kw">class</span> <span class="ty">Person</span> {
+<span class="kw">private</span>:
+    string name;
+    <span class="kw">int</span> age;
+<span class="kw">public</span>:
+    <span class="fn">Person</span>(string n, <span class="kw">int</span> a)
+        : name(n), age(a) {}
+
+    string <span class="fn">getName</span>() <span class="kw">const</span>
+    { <span class="kw">return</span> name; }
+
+    <span class="kw">void</span> <span class="fn">greet</span>() {
+        cout <span class="op">&lt;&lt;</span> <span class="st">"Hi, I'm "</span> <span class="op">&lt;&lt;</span> name;
+    }
+};</div>
+                </div>
+                <div style="padding:1rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Java</div>
+                    <div class="code-block" style="margin:0; border-radius:0; background:transparent; padding:0; font-size:0.88rem;"><span class="kw">class</span> <span class="ty">Person</span> {
+    <span class="kw">private</span> String name;
+    <span class="kw">private int</span> age;
+
+    <span class="kw">public</span> <span class="fn">Person</span>(String n, <span class="kw">int</span> a) {
+        <span class="kw">this</span>.name <span class="op">=</span> n;
+        <span class="kw">this</span>.age  <span class="op">=</span> a;
+    }
+
+    <span class="kw">public</span> String <span class="fn">getName</span>()
+    { <span class="kw">return</span> name; }
+
+    <span class="kw">public void</span> <span class="fn">greet</span>() {
+        System.out.<span class="fn">println</span>(<span class="st">"Hi, I'm "</span> <span class="op">+</span> name);
+    }
+}</div>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden; border-top:1px solid #1e293b;">
+                <div style="padding:1rem; border-right:1px solid #1e293b;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Python</div>
+                    <div class="code-block" style="margin:0; border-radius:0; background:transparent; padding:0; font-size:0.88rem;"><span class="kw">class</span> <span class="ty">Person</span>:
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, name, age):
+        <span class="kw">self</span>._name <span class="op">=</span> name   <span class="cm"># _=private</span>
+        <span class="kw">self</span>._age  <span class="op">=</span> age
+
+    <span class="op">@</span>property
+    <span class="kw">def</span> <span class="fn">name</span>(<span class="kw">self</span>):
+        <span class="kw">return self</span>._name
+
+    <span class="kw">def</span> <span class="fn">greet</span>(<span class="kw">self</span>):
+        <span class="fn">print</span>(<span class="st">f"Hi, I'm {self._name}"</span>)</div>
+                </div>
+                <div style="padding:1rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">C#</div>
+                    <div class="code-block" style="margin:0; border-radius:0; background:transparent; padding:0; font-size:0.88rem;"><span class="kw">class</span> <span class="ty">Person</span> {
+    <span class="kw">private string</span> name;
+    <span class="kw">private int</span>    age;
+
+    <span class="kw">public</span> <span class="fn">Person</span>(<span class="kw">string</span> n, <span class="kw">int</span> a) {
+        name <span class="op">=</span> n;
+        age  <span class="op">=</span> a;
+    }
+
+    <span class="kw">public string</span> Name <span class="op">=&gt;</span> name;
+
+    <span class="kw">public void</span> <span class="fn">Greet</span>() <span class="op">=&gt;</span>
+        Console.<span class="fn">WriteLine</span>(<span class="st">$"Hi, I'm {name}"</span>);
+}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: INHERITANCE -->
+        <div id="tab-inherit" class="lang-tab" style="background:#0f172a; border-radius:0 0.5rem 0.5rem 0.5rem; padding:0.25rem 0;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden;">
+                <div style="padding:1rem; border-right:1px solid #1e293b;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">C++</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0; font-size:0.88rem;"><span class="cm">// colon + access specifier</span>
+<span class="kw">class</span> <span class="ty">Dog</span> : <span class="kw">public</span> <span class="ty">Animal</span> {
+<span class="kw">public</span>:
+    <span class="fn">Dog</span>(string n)
+        : <span class="fn">Animal</span>(n) {}       <span class="cm">// call base ctor</span>
+    <span class="kw">void</span> <span class="fn">speak</span>() <span class="kw">override</span> {
+        cout <span class="op">&lt;&lt;</span> <span class="st">"Woof!\n"</span>;
+    }
+};</div>
+                </div>
+                <div style="padding:1rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Java</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0; font-size:0.88rem;"><span class="cm">// extends keyword</span>
+<span class="kw">class</span> <span class="ty">Dog</span> <span class="kw">extends</span> <span class="ty">Animal</span> {
+    <span class="kw">public</span> <span class="fn">Dog</span>(String n) {
+        <span class="kw">super</span>(n);             <span class="cm">// call base ctor</span>
+    }
+    <span class="op">@</span>Override
+    <span class="kw">public void</span> <span class="fn">speak</span>() {
+        System.out.<span class="fn">println</span>(<span class="st">"Woof!"</span>);
+    }
+}</div>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden; border-top:1px solid #1e293b;">
+                <div style="padding:1rem; border-right:1px solid #1e293b;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Python</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0; font-size:0.88rem;"><span class="cm"># parentheses</span>
+<span class="kw">class</span> <span class="ty">Dog</span>(<span class="ty">Animal</span>):
+    <span class="kw">def</span> <span class="fn">__init__</span>(<span class="kw">self</span>, name):
+        <span class="fn">super</span>().<span class="fn">__init__</span>(name) <span class="cm"># base ctor</span>
+
+    <span class="kw">def</span> <span class="fn">speak</span>(<span class="kw">self</span>):
+        <span class="fn">print</span>(<span class="st">"Woof!"</span>)</div>
+                </div>
+                <div style="padding:1rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">C#</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0; font-size:0.88rem;"><span class="cm">// colon (same as C++)</span>
+<span class="kw">class</span> <span class="ty">Dog</span> : <span class="ty">Animal</span> {
+    <span class="kw">public</span> <span class="fn">Dog</span>(<span class="kw">string</span> n)
+        : <span class="kw">base</span>(n) {}         <span class="cm">// base keyword</span>
+
+    <span class="kw">public override void</span> <span class="fn">Speak</span>() {
+        Console.<span class="fn">WriteLine</span>(<span class="st">"Woof!"</span>);
+    }
+}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: ACCESS -->
+        <div id="tab-access" class="lang-tab" style="background:#0f172a; border-radius:0 0.5rem 0.5rem 0.5rem; padding:1rem;">
+            <table style="width:100%; color:#d1d5db; border-collapse:collapse; font-size:0.92rem;">
+                <thead>
+                    <tr style="background:#1e293b;">
+                        <th style="padding:0.6rem; text-align:left;">Level</th>
+                        <th style="padding:0.6rem;">C++</th>
+                        <th style="padding:0.6rem;">Java</th>
+                        <th style="padding:0.6rem;">Python</th>
+                        <th style="padding:0.6rem;">C#</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-top:1px solid #334155;">
+                        <td style="padding:0.6rem; color:#ef4444; font-weight:700;">Private</td>
+                        <td style="padding:0.6rem; text-align:center;"><code>private:</code></td>
+                        <td style="padding:0.6rem; text-align:center;"><code>private</code></td>
+                        <td style="padding:0.6rem; text-align:center;"><code>__name</code> (name mangled)</td>
+                        <td style="padding:0.6rem; text-align:center;"><code>private</code></td>
+                    </tr>
+                    <tr style="border-top:1px solid #334155;">
+                        <td style="padding:0.6rem; color:#fbbf24; font-weight:700;">Protected</td>
+                        <td style="padding:0.6rem; text-align:center;"><code>protected:</code></td>
+                        <td style="padding:0.6rem; text-align:center;"><code>protected</code></td>
+                        <td style="padding:0.6rem; text-align:center;"><code>_name</code> (convention only)</td>
+                        <td style="padding:0.6rem; text-align:center;"><code>protected</code></td>
+                    </tr>
+                    <tr style="border-top:1px solid #334155;">
+                        <td style="padding:0.6rem; color:#34d399; font-weight:700;">Public</td>
+                        <td style="padding:0.6rem; text-align:center;"><code>public:</code></td>
+                        <td style="padding:0.6rem; text-align:center;"><code>public</code></td>
+                        <td style="padding:0.6rem; text-align:center;">No prefix (everything public by default)</td>
+                        <td style="padding:0.6rem; text-align:center;"><code>public</code></td>
+                    </tr>
+                    <tr style="border-top:1px solid #334155;">
+                        <td style="padding:0.6rem; color:#93c5fd; font-weight:700;">Package/Internal</td>
+                        <td style="padding:0.6rem; text-align:center;">— (use namespaces)</td>
+                        <td style="padding:0.6rem; text-align:center;">(default/no modifier)</td>
+                        <td style="padding:0.6rem; text-align:center;">—</td>
+                        <td style="padding:0.6rem; text-align:center;"><code>internal</code></td>
+                    </tr>
+                    <tr style="border-top:1px solid #334155;">
+                        <td style="padding:0.6rem; color:#c4b5fd; font-weight:700;">Default (class)</td>
+                        <td style="padding:0.6rem; text-align:center;"><code>private</code></td>
+                        <td style="padding:0.6rem; text-align:center;">package-private</td>
+                        <td style="padding:0.6rem; text-align:center;">public</td>
+                        <td style="padding:0.6rem; text-align:center;"><code>private</code></td>
+                    </tr>
+                    <tr style="border-top:1px solid #334155;">
+                        <td style="padding:0.6rem; color:#c4b5fd; font-weight:700;">Enforced by?</td>
+                        <td style="padding:0.6rem; text-align:center;">Compiler</td>
+                        <td style="padding:0.6rem; text-align:center;">Compiler + JVM</td>
+                        <td style="padding:0.6rem; text-align:center;">Convention only (not enforced!)</td>
+                        <td style="padding:0.6rem; text-align:center;">Compiler + CLR</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- TAB: POLYMORPHISM -->
+        <div id="tab-poly" class="lang-tab" style="background:#0f172a; border-radius:0 0.5rem 0.5rem 0.5rem; padding:0.25rem 0;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden;">
+                <div style="padding:1rem; border-right:1px solid #1e293b;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">C++ — must use virtual + pointer/ref</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0; font-size:0.88rem;"><span class="cm">// Base pointer → dynamic dispatch</span>
+<span class="ty">Shape</span><span class="op">*</span> s <span class="op">=</span> <span class="kw">new</span> <span class="ty">Circle</span>(<span class="nm">3</span>);
+s<span class="op">-&gt;</span><span class="fn">area</span>();    <span class="cm">// calls Circle::area()</span>
+
+<span class="cm">// Without virtual — static dispatch</span>
+<span class="ty">Shape</span> s2 <span class="op">=</span> <span class="ty">Circle</span>(<span class="nm">3</span>);  <span class="cm">// SLICING!</span>
+s2.<span class="fn">area</span>();    <span class="cm">// calls Shape::area() 😱</span></div>
+                </div>
+                <div style="padding:1rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Java — all methods virtual by default</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0; font-size:0.88rem;"><span class="cm">// All non-final methods are virtual</span>
+Shape s <span class="op">=</span> <span class="kw">new</span> <span class="fn">Circle</span>(<span class="nm">3</span>);
+s.<span class="fn">area</span>();    <span class="cm">// calls Circle.area() ✅</span>
+
+<span class="cm">// Always object types, never value copies
+// No object slicing problem</span></div>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden; border-top:1px solid #1e293b;">
+                <div style="padding:1rem; border-right:1px solid #1e293b;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Python — duck typing, always virtual</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0; font-size:0.88rem;"><span class="cm"># All methods are virtual
+# Duck typing: no type needed</span>
+shapes <span class="op">=</span> [<span class="fn">Circle</span>(<span class="nm">3</span>), <span class="fn">Rectangle</span>(<span class="nm">4</span>,<span class="nm">5</span>)]
+<span class="kw">for</span> s <span class="kw">in</span> shapes:
+    <span class="fn">print</span>(s.<span class="fn">area</span>())  <span class="cm"># always correct type</span>
+
+<span class="cm"># Works even without inheritance
+# if the object has .area() !</span></div>
+                </div>
+                <div style="padding:1rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">C# — virtual must be explicit</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0; font-size:0.88rem;"><span class="cm">// Like C++: must mark virtual</span>
+Shape s <span class="op">=</span> <span class="kw">new</span> <span class="fn">Circle</span>(<span class="nm">3</span>);
+s.<span class="fn">Area</span>();    <span class="cm">// calls Circle.Area()</span>
+
+<span class="cm">// 'sealed' = C++ 'final'
+// No object slicing (ref types)</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB: INTERFACES -->
+        <div id="tab-abstract" class="lang-tab" style="background:#0f172a; border-radius:0 0.5rem 0.5rem 0.5rem; padding:0.25rem 0;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden;">
+                <div style="padding:1rem; border-right:1px solid #1e293b;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">C++ — abstract class (no interface keyword)</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0; font-size:0.88rem;"><span class="kw">class</span> <span class="ty">IDrawable</span> {   <span class="cm">// pure abstract</span>
+<span class="kw">public</span>:
+    <span class="kw">virtual void</span> <span class="fn">draw</span>() <span class="op">=</span> <span class="nm">0</span>;
+    <span class="kw">virtual</span> <span class="op">~</span><span class="fn">IDrawable</span>() {}
+};
+<span class="kw">class</span> <span class="ty">IResizable</span> {
+<span class="kw">public</span>:
+    <span class="kw">virtual void</span> <span class="fn">resize</span>(<span class="kw">double</span>) <span class="op">=</span> <span class="nm">0</span>;
+    <span class="kw">virtual</span> <span class="op">~</span><span class="fn">IResizable</span>() {}
+};
+<span class="cm">// Multiple interface inheritance ✅</span>
+<span class="kw">class</span> <span class="ty">Box</span> : <span class="kw">public</span> <span class="ty">IDrawable</span>,
+             <span class="kw">public</span> <span class="ty">IResizable</span> {
+    <span class="kw">void</span> <span class="fn">draw</span>() <span class="kw">override</span>   { <span class="cm">/*...*/</span> }
+    <span class="kw">void</span> <span class="fn">resize</span>(<span class="kw">double</span>) <span class="kw">override</span> { <span class="cm">/*...*/</span> }
+};</div>
+                </div>
+                <div style="padding:1rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Java — interface keyword</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0; font-size:0.88rem;"><span class="kw">interface</span> <span class="ty">Drawable</span> {
+    <span class="kw">void</span> <span class="fn">draw</span>();
+}
+<span class="kw">interface</span> <span class="ty">Resizable</span> {
+    <span class="kw">void</span> <span class="fn">resize</span>(<span class="kw">double</span> f);
+}
+<span class="cm">// implement multiple interfaces ✅</span>
+<span class="kw">class</span> <span class="ty">Box</span> <span class="kw">implements</span>
+    <span class="ty">Drawable</span>, <span class="ty">Resizable</span> {
+
+    <span class="kw">public void</span> <span class="fn">draw</span>()  { <span class="cm">/*...*/</span> }
+    <span class="kw">public void</span> <span class="fn">resize</span>(<span class="kw">double</span> f) { <span class="cm">/*...*/</span> }
+}</div>
+                </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0; overflow:hidden; border-top:1px solid #1e293b;">
+                <div style="padding:1rem; border-right:1px solid #1e293b;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">Python — ABC module or duck typing</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0; font-size:0.88rem;"><span class="kw">from</span> abc <span class="kw">import</span> ABC, abstractmethod
+
+<span class="kw">class</span> <span class="ty">Drawable</span>(<span class="ty">ABC</span>):
+    <span class="op">@</span>abstractmethod
+    <span class="kw">def</span> <span class="fn">draw</span>(<span class="kw">self</span>): ...
+
+<span class="kw">class</span> <span class="ty">Box</span>(<span class="ty">Drawable</span>):
+    <span class="kw">def</span> <span class="fn">draw</span>(<span class="kw">self</span>):
+        <span class="fn">print</span>(<span class="st">"Drawing Box"</span>)
+
+<span class="cm"># Duck typing: no ABC needed!
+# Just implement .draw() and it works</span></div>
+                </div>
+                <div style="padding:1rem;">
+                    <div style="color:#94a3b8; font-size:0.8rem; font-weight:700; margin-bottom:0.5rem;">C# — interface keyword</div>
+                    <div class="code-block" style="margin:0; background:transparent; padding:0; font-size:0.88rem;"><span class="kw">interface</span> <span class="ty">IDrawable</span> {
+    <span class="kw">void</span> <span class="fn">Draw</span>();
+}
+<span class="kw">interface</span> <span class="ty">IResizable</span> {
+    <span class="kw">void</span> <span class="fn">Resize</span>(<span class="kw">double</span> f);
+}
+<span class="kw">class</span> <span class="ty">Box</span> : <span class="ty">IDrawable</span>, <span class="ty">IResizable</span> {
+    <span class="kw">public void</span> <span class="fn">Draw</span>()  { <span class="cm">/*...*/</span> }
+    <span class="kw">public void</span> <span class="fn">Resize</span>(<span class="kw">double</span> f) { <span class="cm">/*...*/</span> }
+}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BIG COMPARISON TABLE -->
+        <h3 style="margin-top:2.5rem;">Feature Comparison Matrix</h3>
+        <div style="overflow-x:auto;">
+        <table class="styled">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>C++</th>
+                    <th>Java</th>
+                    <th>Python</th>
+                    <th>C#</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Multiple class inheritance</td><td><span class="badge badge-green">Yes</span></td><td><span class="badge badge-red">No</span></td><td><span class="badge badge-green">Yes (MRO)</span></td><td><span class="badge badge-red">No</span></td></tr>
+                <tr><td>Multiple interface inheritance</td><td><span class="badge badge-green">Yes</span></td><td><span class="badge badge-green">Yes</span></td><td><span class="badge badge-green">Yes</span></td><td><span class="badge badge-green">Yes</span></td></tr>
+                <tr><td>Default methods virtual?</td><td><span class="badge badge-red">No — must mark virtual</span></td><td><span class="badge badge-green">Yes (except final/static)</span></td><td><span class="badge badge-green">Always virtual</span></td><td><span class="badge badge-red">No — must mark virtual</span></td></tr>
+                <tr><td>Private enforcement</td><td><span class="badge badge-green">Compiler</span></td><td><span class="badge badge-green">Compiler + JVM</span></td><td><span class="badge badge-yellow">Convention only</span></td><td><span class="badge badge-green">Compiler + CLR</span></td></tr>
+                <tr><td>Operator overloading</td><td><span class="badge badge-green">Yes</span></td><td><span class="badge badge-red">No</span></td><td><span class="badge badge-green">Yes (__add__)</span></td><td><span class="badge badge-green">Yes</span></td></tr>
+                <tr><td>Destructors</td><td><span class="badge badge-green">Yes (deterministic)</span></td><td><span class="badge badge-yellow">finalize (GC, unreliable)</span></td><td><span class="badge badge-yellow">__del__ (GC)</span></td><td><span class="badge badge-yellow">~Finalizer + IDisposable</span></td></tr>
+                <tr><td>Object slicing risk</td><td><span class="badge badge-red">Yes (value semantics)</span></td><td><span class="badge badge-green">No (ref semantics)</span></td><td><span class="badge badge-green">No (ref semantics)</span></td><td><span class="badge badge-yellow">Classes: No / Structs: Yes</span></td></tr>
+                <tr><td>Abstract keyword</td><td>pure virtual <code>= 0</code></td><td><code>abstract</code></td><td>ABC module</td><td><code>abstract</code></td></tr>
+                <tr><td>Interface keyword</td><td>Pure abstract class</td><td><code>interface</code></td><td>ABC or Protocol</td><td><code>interface</code></td></tr>
+                <tr><td>Explicit override</td><td><code>override</code> (C++11)</td><td><code>@Override</code></td><td>No keyword needed</td><td><code>override</code></td></tr>
+                <tr><td>Prevent further override</td><td><code>final</code></td><td><code>final</code></td><td>No mechanism</td><td><code>sealed</code></td></tr>
+            </tbody>
+        </table>
+        </div>
+    </article>
+</section>
+
+<!-- ===== SECTION 13: QUICK REFERENCE ===== -->
+<section class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h2>Quick Reference — C++ OOP Cheatsheet</h2>
+
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(340px,1fr)); gap:1.5rem;">
+            <div class="theory-box">
+                <strong>Class skeleton</strong>
+                <div class="code-block" style="font-size:0.82rem; margin-top:0.5rem;"><span class="kw">class</span> <span class="ty">MyClass</span> : <span class="kw">public</span> <span class="ty">Base</span> {
+<span class="kw">private</span>:   <span class="cm">// default for class</span>
+    <span class="kw">int</span> x;
+<span class="kw">protected</span>:
+    <span class="kw">double</span> y;
+<span class="kw">public</span>:
+    <span class="fn">MyClass</span>(<span class="kw">int</span> x, <span class="kw">double</span> y);  <span class="cm">// ctor</span>
+    <span class="kw">virtual</span> <span class="op">~</span><span class="fn">MyClass</span>();          <span class="cm">// dtor</span>
+    <span class="kw">void</span> <span class="fn">method</span>() <span class="kw">const</span>;         <span class="cm">// const</span>
+    <span class="kw">virtual void</span> <span class="fn">virt</span>() <span class="kw">override</span>;<span class="cm">// override</span>
+    <span class="kw">static int</span> <span class="fn">staticFn</span>();       <span class="cm">// static</span>
+};</div>
+            </div>
+            <div class="insight-box">
+                <strong>Key rules to remember</strong>
+                <ul style="font-size:0.95rem; margin-top:0.5rem;">
+                    <li>Always <code>virtual ~Base()</code> if used polymorphically</li>
+                    <li>Use <code>override</code> — catches signature mismatches</li>
+                    <li>Prefer initializer lists in constructors</li>
+                    <li>Rule of Five: if you write any of dtor/copy/move, write all five</li>
+                    <li>Prefer composition over inheritance</li>
+                    <li>Avoid object slicing — use pointers/references for polymorphism</li>
+                </ul>
+            </div>
+            <div class="gold-box">
+                <strong>Access cheat-sheet</strong>
+                <ul style="font-size:0.95rem; margin-top:0.5rem;">
+                    <li><code>private</code> — same class only</li>
+                    <li><code>protected</code> — same class + children</li>
+                    <li><code>public</code> — everyone</li>
+                    <li><code>friend</code> — named exception</li>
+                    <li><code>struct</code> default = <code>public</code></li>
+                    <li><code>class</code> default = <code>private</code></li>
+                </ul>
+            </div>
+            <div class="purple-box">
+                <strong>Polymorphism checklist</strong>
+                <ul style="font-size:0.95rem; margin-top:0.5rem;">
+                    <li>Mark base method <code>virtual</code></li>
+                    <li>Use pointer or reference to base</li>
+                    <li>Mark derived method <code>override</code></li>
+                    <li>Virtual destructor in base</li>
+                    <li>Don't pass by value (object slicing!)</li>
+                </ul>
+            </div>
+        </div>
+    </article>
+</section>
+
+</main>
+
+<footer class="bg-white border-t border-gray-200 mt-12 py-8 text-center text-gray-500 text-sm">
+    Object-Oriented Programming Reference — C++, Java, Python, C#
+</footer>
+
+<script>
+function showTab(id) {
+    document.querySelectorAll('.lang-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    event.target.classList.add('active');
+}
+</script>
+</body>
+</html>
