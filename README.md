@@ -42,6 +42,7 @@
 
 ### Object-Oriented Programming
 - [`Object-Oriented Programming — Theory, C++ & Multi-Language`](https://george1meshveliani.github.io/CS/OOP)
+- [`OOP Quiz — 5 Questions (3 Theoretical, 2 Practical)`](https://george1meshveliani.github.io/CS/OOPQuiz)
 
 ### Algorithms
 - [`Karatsuba Algorithm: Fast Integer Multiplication`](https://george1meshveliani.github.io/CS/KaratsubaAlgorithm)

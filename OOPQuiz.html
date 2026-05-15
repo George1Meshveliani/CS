@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OOP Quiz — Object-Oriented Programming</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Inter', sans-serif; }
+        .prose { max-width: 90ch; }
+        .prose h1 { font-size: 2.5rem; font-weight: 700; margin-bottom: 1rem; }
+        .prose h2 { font-size: 1.9rem; font-weight: 700; margin-top: 3rem; margin-bottom: 1.25rem; border-bottom: 2px solid #e5e7eb; padding-bottom: 0.5rem; }
+        .prose h3 { font-size: 1.4rem; font-weight: 600; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose p, .prose li { font-size: 1.1rem; line-height: 1.8; }
+        .prose ul { padding-left: 1.5rem; list-style: disc; }
+        .prose ol { padding-left: 1.5rem; list-style: decimal; }
+        .prose code {
+            font-family: 'Courier New', Courier, monospace;
+            background-color: #e5e7eb;
+            padding: 0.2rem 0.4rem;
+            border-radius: 0.25rem;
+            font-size: 0.93em;
+        }
+        .prose pre code { background-color: transparent; padding: 0; color: inherit; }
+        .code-block {
+            background-color: #0f172a;
+            color: #d1d5db;
+            padding: 1.25rem 1.5rem;
+            border-radius: 0.5rem;
+            margin: 1rem 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.75;
+            font-size: 0.91rem;
+        }
+        .kw  { color: #93c5fd; }
+        .cm  { color: #6b7280; font-style: italic; }
+        .st  { color: #86efac; }
+        .nm  { color: #fde68a; }
+        .fn  { color: #c4b5fd; }
+        .pp  { color: #f9a8d4; }
+        .ty  { color: #67e8f9; }
+        .op  { color: #fb923c; }
+
+        .theory-box {
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border-left: 5px solid #3b82f6;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .gold-box {
+            background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+            border-left: 5px solid #f59e0b;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .purple-box {
+            background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+            border-left: 5px solid #7c3aed;
+            padding: 1.25rem 1.5rem;
+            margin: 1rem 0;
+            border-radius: 0.5rem;
+        }
+        .toc-link { color: #2563eb; text-decoration: none; }
+        .toc-link:hover { text-decoration: underline; }
+
+        .badge {
+            display: inline-block;
+            padding: 0.2rem 0.7rem;
+            border-radius: 999px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .badge-blue   { background: #dbeafe; color: #1e40af; }
+        .badge-purple { background: #ede9fe; color: #5b21b6; }
+
+        /* Question card */
+        .question-card {
+            background: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-left: 6px solid #3b82f6;
+        }
+        .question-card.practical {
+            border-left-color: #7c3aed;
+        }
+        .q-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .q-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e40af;
+            min-width: 2rem;
+        }
+        .question-card.practical .q-number {
+            color: #5b21b6;
+        }
+        .q-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        .q-body {
+            font-size: 1.05rem;
+            line-height: 1.8;
+            color: #374151;
+        }
+        .q-body ul {
+            list-style: disc;
+            padding-left: 1.5rem;
+            margin-top: 0.5rem;
+        }
+        .hint-toggle {
+            margin-top: 1.25rem;
+            background: none;
+            border: 2px solid #cbd5e1;
+            border-radius: 0.4rem;
+            padding: 0.35rem 0.9rem;
+            font-size: 0.88rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .hint-toggle:hover { border-color: #94a3b8; color: #374151; }
+        .hint-panel {
+            display: none;
+            margin-top: 0.75rem;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.4rem;
+            padding: 0.85rem 1rem;
+            font-size: 0.97rem;
+            color: #475569;
+            line-height: 1.7;
+        }
+        .hint-panel.open { display: block; }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800">
+
+<!-- ===== NAVBAR ===== -->
+<header class="bg-white shadow-md sticky top-0 z-10">
+    <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+        <h1 class="text-2xl font-bold text-gray-900">OOP Quiz</h1>
+        <a href="OOP.html" class="text-sm text-blue-600 hover:underline font-medium">← Back to OOP Notes</a>
+    </nav>
+</header>
+
+<main class="container mx-auto px-6 py-12 max-w-5xl">
+
+<!-- ===== INTRO ===== -->
+<section class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <h1>Object-Oriented Programming — Quiz</h1>
+        <p>Test your understanding of OOP concepts with the questions below. There are <strong>3 theoretical</strong> questions and <strong>2 practical</strong> coding challenges. No answers are shown — try to work them out on your own first.</p>
+
+        <div class="gold-box">
+            <strong>Questions at a glance</strong>
+            <ol style="margin-top: 0.75rem;">
+                <li><a href="#q1" class="toc-link">Q1 — The Four Pillars of OOP</a> <span class="badge badge-blue" style="margin-left:0.4rem;">Theory</span></li>
+                <li><a href="#q2" class="toc-link">Q2 — Virtual Functions &amp; Polymorphism</a> <span class="badge badge-blue" style="margin-left:0.4rem;">Theory</span></li>
+                <li><a href="#q3" class="toc-link">Q3 — Diamond Problem &amp; Virtual Inheritance</a> <span class="badge badge-blue" style="margin-left:0.4rem;">Theory</span></li>
+                <li><a href="#q4" class="toc-link">Q4 — Design a Class Hierarchy</a> <span class="badge badge-purple" style="margin-left:0.4rem;">Practical</span></li>
+                <li><a href="#q5" class="toc-link">Q5 — Fix the Broken Code</a> <span class="badge badge-purple" style="margin-left:0.4rem;">Practical</span></li>
+            </ol>
+        </div>
+    </article>
+</section>
+
+<!-- ===== THEORETICAL QUESTIONS ===== -->
+<section class="mb-4">
+    <div class="flex items-center gap-3 mb-6">
+        <span class="badge badge-blue" style="font-size:0.9rem; padding: 0.3rem 1rem;">Theoretical</span>
+        <span class="text-gray-500 font-medium">Questions 1 – 3</span>
+    </div>
+
+    <!-- Q1 -->
+    <div id="q1" class="question-card">
+        <div class="q-header">
+            <span class="q-number">Q1</span>
+            <span class="q-title">The Four Pillars of OOP</span>
+            <span class="badge badge-blue" style="margin-left:auto;">Theory</span>
+        </div>
+        <div class="q-body">
+            <p>OOP is built on four fundamental principles. For each one:</p>
+            <ul>
+                <li>State its name and give a one-sentence definition in your own words.</li>
+                <li>Explain how it helps a developer write better, more maintainable code.</li>
+                <li>Give a concrete real-world analogy (not the same as any example in the notes).</li>
+            </ul>
+            <p style="margin-top:1rem;">Additionally, explain why these four pillars are <em>complementary</em> — how does each one rely on or enable the others?</p>
+        </div>
+        <button class="hint-toggle" onclick="toggleHint(this)">Show hint</button>
+        <div class="hint-panel">
+            Think about what problems arise in large codebases when these principles are <em>absent</em>. What breaks first when there is no encapsulation? What becomes impossible without polymorphism?
+        </div>
+    </div>
+
+    <!-- Q2 -->
+    <div id="q2" class="question-card">
+        <div class="q-header">
+            <span class="q-number">Q2</span>
+            <span class="q-title">Virtual Functions &amp; Polymorphism</span>
+            <span class="badge badge-blue" style="margin-left:auto;">Theory</span>
+        </div>
+        <div class="q-body">
+            <p>Consider the following C++ declarations:</p>
+            <div class="code-block"><span class="kw">class</span> <span class="ty">Base</span> {
+<span class="kw">public</span>:
+    <span class="kw">void</span>         <span class="fn">regularMethod</span>();
+    <span class="kw">virtual void</span> <span class="fn">virtualMethod</span>();
+    <span class="kw">virtual void</span> <span class="fn">pureVirtual</span>() = <span class="nm">0</span>;
+};</div>
+            <p>Answer the following:</p>
+            <ul>
+                <li>What is a <strong>vtable</strong> and how does C++ use it at runtime to dispatch a virtual method call?</li>
+                <li>What is the difference between <strong>compile-time</strong> (static) polymorphism and <strong>runtime</strong> (dynamic) polymorphism? Give one example of each.</li>
+                <li>Why does a class that declares at least one pure virtual function become <strong>abstract</strong>? What does this prevent, and why is that useful?</li>
+                <li>What happens if a derived class does <em>not</em> override a pure virtual method?</li>
+            </ul>
+        </div>
+        <button class="hint-toggle" onclick="toggleHint(this)">Show hint</button>
+        <div class="hint-panel">
+            Remember: <code>virtual</code> instructs the compiler to resolve the call through a pointer table rather than at compile time. Think about what "object slicing" means and when it can silently break polymorphism.
+        </div>
+    </div>
+
+    <!-- Q3 -->
+    <div id="q3" class="question-card">
+        <div class="q-header">
+            <span class="q-number">Q3</span>
+            <span class="q-title">Diamond Problem &amp; Virtual Inheritance</span>
+            <span class="badge badge-blue" style="margin-left:auto;">Theory</span>
+        </div>
+        <div class="q-body">
+            <p>Multiple inheritance can lead to the infamous <strong>diamond problem</strong>.</p>
+            <div class="code-block"><span class="cm">// Diamond hierarchy</span>
+<span class="kw">class</span> <span class="ty">A</span> { <span class="kw">public</span>: <span class="kw">int</span> x = <span class="nm">1</span>; };
+<span class="kw">class</span> <span class="ty">B</span> : <span class="kw">public</span> <span class="ty">A</span> {};
+<span class="kw">class</span> <span class="ty">C</span> : <span class="kw">public</span> <span class="ty">A</span> {};
+<span class="kw">class</span> <span class="ty">D</span> : <span class="kw">public</span> <span class="ty">B</span>, <span class="kw">public</span> <span class="ty">C</span> {};</div>
+            <p>Answer the following:</p>
+            <ul>
+                <li>Describe exactly what ambiguity occurs when you write <code>D d; d.x;</code> without virtual inheritance.</li>
+                <li>How does adding <code>virtual</code> to the inheritance of <code>B</code> and <code>C</code> resolve this? What guarantee does the compiler now give?</li>
+                <li>Languages like Java and C# do not support multiple class inheritance. What mechanism do they provide instead, and what problem does that design avoid?</li>
+                <li>Is there a scenario where the diamond problem is actually <em>desirable</em> (i.e., you intentionally want two separate copies)? Justify your answer.</li>
+            </ul>
+        </div>
+        <button class="hint-toggle" onclick="toggleHint(this)">Show hint</button>
+        <div class="hint-panel">
+            Draw the inheritance graph as a diamond shape. Without <code>virtual</code>, <code>D</code> contains two separate <code>A</code> sub-objects — one via <code>B</code>, one via <code>C</code>. With <code>virtual</code>, only one shared <code>A</code> sub-object exists.
+        </div>
+    </div>
+</section>
+
+<!-- ===== PRACTICAL QUESTIONS ===== -->
+<section class="mb-4" style="margin-top: 2rem;">
+    <div class="flex items-center gap-3 mb-6">
+        <span class="badge badge-purple" style="font-size:0.9rem; padding: 0.3rem 1rem;">Practical</span>
+        <span class="text-gray-500 font-medium">Questions 4 – 5</span>
+    </div>
+
+    <!-- Q4 -->
+    <div id="q4" class="question-card practical">
+        <div class="q-header">
+            <span class="q-number" style="color:#5b21b6;">Q4</span>
+            <span class="q-title">Design a Class Hierarchy</span>
+            <span class="badge badge-purple" style="margin-left:auto;">Practical</span>
+        </div>
+        <div class="q-body">
+            <p>Design and implement a small C++ class hierarchy for a <strong>zoo management system</strong>. Your solution must demonstrate all four OOP pillars.</p>
+
+            <p><strong>Requirements:</strong></p>
+            <ul>
+                <li>Create an <strong>abstract base class</strong> <code>Animal</code> with:
+                    <ul style="list-style: circle; margin-top:0.25rem;">
+                        <li>Protected data: <code>name</code> (string), <code>age</code> (int).</li>
+                        <li>A pure virtual method <code>speak()</code> that prints the animal's sound.</li>
+                        <li>A virtual method <code>describe()</code> that prints name and age (derived classes may override it).</li>
+                        <li>A public getter for <code>name</code> (encapsulation).</li>
+                    </ul>
+                </li>
+                <li>Create at least <strong>two concrete derived classes</strong> (e.g., <code>Dog</code>, <code>Bird</code>) that override <code>speak()</code> and add at least one unique data member each.</li>
+                <li>Create a <code>Zoo</code> class that holds a <code>std::vector&lt;Animal*&gt;</code> and provides:
+                    <ul style="list-style: circle; margin-top:0.25rem;">
+                        <li><code>addAnimal(Animal* a)</code></li>
+                        <li><code>allSpeak()</code> — calls <code>speak()</code> on every animal (demonstrating runtime polymorphism).</li>
+                    </ul>
+                </li>
+                <li>In <code>main()</code>, construct a <code>Zoo</code>, add animals of different types, call <code>allSpeak()</code>, and print each animal's name via the getter.</li>
+            </ul>
+
+            <p style="margin-top:1rem;"><strong>Bonus:</strong> Add a destructor to <code>Animal</code> and explain why it must be <code>virtual</code>.</p>
+        </div>
+        <button class="hint-toggle" onclick="toggleHint(this)">Show hint</button>
+        <div class="hint-panel">
+            Start by writing the abstract class first — the compiler will tell you if you forgot to override a pure virtual. Use <code>= 0</code> syntax for pure virtuals. Remember to declare <code>virtual ~Animal() {}</code> so <code>delete animal_ptr</code> calls the right destructor.
+        </div>
+    </div>
+
+    <!-- Q5 -->
+    <div id="q5" class="question-card practical">
+        <div class="q-header">
+            <span class="q-number" style="color:#5b21b6;">Q5</span>
+            <span class="q-title">Fix the Broken Code</span>
+            <span class="badge badge-purple" style="margin-left:auto;">Practical</span>
+        </div>
+        <div class="q-body">
+            <p>The following C++ program contains <strong>four distinct OOP-related bugs</strong>. Find every bug, explain what is wrong, and write the corrected version of the code.</p>
+
+            <div class="code-block"><span class="pp">#include</span> <span class="st">&lt;iostream&gt;</span>
+<span class="pp">#include</span> <span class="st">&lt;string&gt;</span>
+<span class="kw">using namespace</span> std;
+
+<span class="kw">class</span> <span class="ty">Shape</span> {
+<span class="kw">public</span>:
+    <span class="kw">double</span> area;                        <span class="cm">// Bug A</span>
+    <span class="kw">virtual double</span> <span class="fn">getArea</span>() = <span class="nm">0</span>;
+    <span class="fn">~Shape</span>() { cout &lt;&lt; <span class="st">"Shape destroyed\n"</span>; }  <span class="cm">// Bug B</span>
+};
+
+<span class="kw">class</span> <span class="ty">Circle</span> : <span class="kw">public</span> <span class="ty">Shape</span> {
+<span class="kw">private</span>:
+    <span class="kw">double</span> radius;
+<span class="kw">public</span>:
+    <span class="ty">Circle</span>(<span class="kw">double</span> r) : radius(r) {}
+    <span class="kw">double</span> <span class="fn">getArea</span>() { <span class="kw">return</span> <span class="nm">3.14</span> * radius * radius; }
+};
+
+<span class="kw">class</span> <span class="ty">Rectangle</span> : <span class="kw">public</span> <span class="ty">Shape</span> {
+<span class="kw">private</span>:
+    <span class="kw">double</span> width, height;
+<span class="kw">public</span>:
+    <span class="ty">Rectangle</span>(<span class="kw">double</span> w, <span class="kw">double</span> h) : width(w), height(h) {}
+    <span class="kw">double</span> <span class="fn">getArea</span>() { <span class="kw">return</span> width * height; }
+};
+
+<span class="kw">void</span> <span class="fn">printArea</span>(<span class="ty">Shape</span> s) {            <span class="cm">// Bug C</span>
+    cout &lt;&lt; <span class="st">"Area: "</span> &lt;&lt; s.<span class="fn">getArea</span>() &lt;&lt; <span class="st">"\n"</span>;
+}
+
+<span class="kw">int</span> <span class="fn">main</span>() {
+    <span class="ty">Circle</span>    c(<span class="nm">5.0</span>);
+    <span class="ty">Rectangle</span> r(<span class="nm">4.0</span>, <span class="nm">6.0</span>);
+
+    <span class="ty">Shape</span>* shapes[] = { &amp;c, &amp;r };
+    <span class="kw">for</span> (<span class="kw">auto</span>* s : shapes)
+        <span class="fn">printArea</span>(*s);                 <span class="cm">// Bug D (consequence of Bug C)</span>
+
+    <span class="kw">return</span> <span class="nm">0</span>;
+}</div>
+
+            <p><strong>For each bug (A – D):</strong></p>
+            <ul>
+                <li>Identify the exact line / construct that is wrong.</li>
+                <li>Explain the OOP or C++ principle being violated.</li>
+                <li>Write the corrected code for that section.</li>
+            </ul>
+        </div>
+        <button class="hint-toggle" onclick="toggleHint(this)">Show hint</button>
+        <div class="hint-panel">
+            Bugs to think about: exposing raw data members breaks encapsulation; forgetting <code>virtual</code> on a destructor causes resource leaks when deleting through a base pointer; passing a base-class object <em>by value</em> loses the derived type — this is called "object slicing"; and abstract classes cannot be instantiated directly.
+        </div>
+    </div>
+</section>
+
+<!-- ===== FOOTER NOTE ===== -->
+<section class="mb-10">
+    <article class="prose lg:prose-xl max-w-7xl bg-white p-8 rounded-lg shadow-lg">
+        <div class="theory-box">
+            <strong>How to use this quiz:</strong> Work through each question independently before looking at hints. For practical questions, type out your solution in a <code>.cpp</code> file and compile it — the compiler is your best feedback tool. Review the <a href="OOP.html" class="toc-link">OOP notes</a> if you need a refresher on any concept.
+        </div>
+    </article>
+</section>
+
+</main>
+
+<footer class="bg-white border-t border-gray-200 py-6 mt-8">
+    <div class="container mx-auto px-6 text-center text-sm text-gray-500">
+        OOP Quiz &mdash; <a href="OOP.html" class="text-blue-600 hover:underline">Back to OOP Notes</a>
+    </div>
+</footer>
+
+<script>
+    function toggleHint(btn) {
+        const panel = btn.nextElementSibling;
+        const open = panel.classList.toggle('open');
+        btn.textContent = open ? 'Hide hint' : 'Show hint';
+    }
+</script>
+</body>
+</html>
