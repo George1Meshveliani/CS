@@ -40,6 +40,9 @@
 - [`Generics in C and C++`](https://george1meshveliani.github.io/CS/GenericsInCandCpp)
 - [`C++ Problems: Arrays, Pointers & Binary Search`](https://george1meshveliani.github.io/CS/CppProblems)
 
+### Go Programming
+- [`Go Concurrency — Goroutines, Channels & Patterns`](https://george1meshveliani.github.io/CS/GoConcurrency)
+
 ### Object-Oriented Programming
 - [`Object-Oriented Programming — Theory, C++ & Multi-Language`](https://george1meshveliani.github.io/CS/OOP)
 - [`OOP Quiz — 5 Questions (3 Theoretical, 2 Practical)`](https://george1meshveliani.github.io/CS/OOPQuiz)
