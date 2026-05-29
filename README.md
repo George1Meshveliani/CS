@@ -24,6 +24,7 @@
 ### Graph & Tree Traversal
 - [`Depth-First Search (DFS)`](https://george1meshveliani.github.io/CS/DFS)
 - [`Breadth-First Search (BFS)`](https://george1meshveliani.github.io/CS/BFS)
+- [`Binary Search Trees — Theory, Operations & Practice`](https://george1meshveliani.github.io/CS/BinarySearchTrees)
 
 ### Advanced Techniques
 - [`Dynamic Programming`](https://george1meshveliani.github.io/CS/DynamicProgramming)
