@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCP2026 · Lecture 1</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#EDEFF0; --surface:#FFFFFF; --border:#D3D7DA;
+    --text:#1A1E27; --text-dim:#5B6270;
+    --accent:#D9720C; --accent-text:#9C5209; --accent-2:#1F6B63;
+    --on-accent:#1B1000;
+    --font-display:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
+    --font-mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#10131C; --surface:#171B27; --border:#2B3040;
+      --text:#E7E9EE; --text-dim:#9AA1B0;
+      --accent:#F2A340; --accent-text:#F2A340; --accent-2:#6FD6CB;
+      --on-accent:#1B1000;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#10131C; --surface:#171B27; --border:#2B3040;
+    --text:#E7E9EE; --text-dim:#9AA1B0;
+    --accent:#F2A340; --accent-text:#F2A340; --accent-2:#6FD6CB;
+    --on-accent:#1B1000;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--font-display);
+    background-image:
+      radial-gradient(circle, var(--border) 1px, transparent 1px);
+    background-size:26px 26px;
+  }
+  .deck{ position:relative; height:100vh; height:100dvh; min-height:520px; display:flex; flex-direction:column; }
+
+  .progress-rail{ height:3px; background:var(--border); flex:0 0 auto; }
+  .progress-fill{ height:100%; width:0%; background:var(--accent); transition:width .3s ease; }
+
+  .deck-chrome{
+    flex:0 0 auto; display:flex; align-items:center; justify-content:space-between;
+    padding:.85rem clamp(1rem,3vw,2.2rem); border-bottom:1px solid var(--border);
+  }
+  .brand{ font-family:var(--font-mono); font-weight:600; font-size:.85rem; letter-spacing:.02em; }
+  .brand em{ font-style:normal; color:var(--accent-text); }
+  .brand .sep{ color:var(--text-dim); margin:0 .35em; }
+  .slide-meta{ font-family:var(--font-mono); font-size:.8rem; color:var(--text-dim); display:flex; gap:.6em; align-items:center; font-variant-numeric:tabular-nums; }
+  #partLabel{ color:var(--accent-text); font-weight:600; }
+
+  .stage{ position:relative; flex:1 1 auto; overflow:hidden; }
+  .slide{
+    position:absolute; inset:0; display:flex; justify-content:center; align-items:stretch;
+    opacity:0; pointer-events:none; transform:translateY(10px);
+    transition:opacity .28s ease, transform .28s ease;
+  }
+  .slide.is-active{ opacity:1; pointer-events:auto; transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){ .slide{ transition:none; transform:none; } }
+
+  .slide-inner{
+    width:100%; max-width:980px; margin:0 auto; padding:clamp(1.2rem,3vw,2.6rem) clamp(1.2rem,4vw,2rem);
+    overflow-y:auto; display:flex; flex-direction:column; justify-content:center; gap:.9rem;
+  }
+  .slide-inner::-webkit-scrollbar{ width:8px; }
+  .slide-inner::-webkit-scrollbar-thumb{ background:var(--border); border-radius:4px; }
+
+  .eyebrow{
+    font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.14em;
+    font-size:.72rem; font-weight:600; color:var(--accent-text); margin:0;
+  }
+  .eyebrow::before{ content:"// "; color:var(--text-dim); }
+
+  .slide-title{ font-size:clamp(1.5rem,1.05rem+1.7vw,2.15rem); font-weight:700; line-height:1.12; margin:0; text-wrap:balance; }
+  .slide-title.is-hero{ font-size:clamp(2rem,1.1rem+3.4vw,3.5rem); letter-spacing:-.01em; }
+  .slide-sub{ font-size:1.02rem; color:var(--text-dim); max-width:62ch; margin:0; line-height:1.55; }
+
+  .prose{ max-width:66ch; font-size:1rem; line-height:1.6; color:var(--text); }
+  .prose strong{ color:var(--text); }
+
+  ul.list{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:.55rem; max-width:66ch; }
+  ul.list li{ padding-left:1.3em; position:relative; line-height:1.5; }
+  ul.list li::before{ content:"›"; position:absolute; left:0; color:var(--accent); font-weight:700; font-family:var(--font-mono); }
+  ul.list b{ color:var(--text); }
+
+  /* title slide */
+  .hero-tags{ display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.4rem; }
+  .hero-tag{ font-family:var(--font-mono); font-size:.78rem; padding:.35em .75em; border:1px solid var(--border); border-radius:3px; color:var(--text-dim); }
+  .cursor{ display:inline-block; width:.55em; height:1em; background:var(--accent); vertical-align:-.15em; animation:blink 1.1s steps(1) infinite; }
+  @media (prefers-reduced-motion: reduce){ .cursor{ animation:none; } }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .hint-line{ font-family:var(--font-mono); font-size:.78rem; color:var(--text-dim); margin-top:.6rem; }
+
+  /* divider */
+  .divider-wrap{ display:flex; flex-direction:column; gap:.3rem; }
+  .part-number{ font-family:var(--font-mono); font-size:clamp(3.5rem,2rem+7vw,7rem); font-weight:700; color:var(--accent); line-height:1; letter-spacing:-.02em; }
+  .divider-wrap .slide-title{ font-size:clamp(1.6rem,1.1rem+2vw,2.4rem); }
+
+  /* timeline */
+  .timeline{ list-style:none; margin:0; padding:0; border-left:2px solid var(--border); display:flex; flex-direction:column; gap:1rem; max-width:70ch; }
+  .timeline li{ padding-left:1.2rem; position:relative; }
+  .timeline li::before{ content:""; position:absolute; left:-6px; top:.35em; width:10px; height:10px; border-radius:50%; background:var(--accent); border:2px solid var(--bg); }
+  .timeline .year{ font-family:var(--font-mono); color:var(--accent-text); font-weight:700; font-size:.85rem; font-variant-numeric:tabular-nums; }
+  .timeline .event{ font-weight:600; margin:.1em 0; }
+  .timeline .desc{ color:var(--text-dim); font-size:.92rem; line-height:1.45; }
+
+  /* split */
+  .cols{ display:grid; grid-template-columns:1fr 1fr; gap:1.4rem; }
+  @media (max-width:640px){ .cols{ grid-template-columns:1fr; } }
+  .col{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.1rem 1.2rem; }
+  .col h3{ margin:0 0 .6rem; font-size:.95rem; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--accent-2); }
+  .col ul.list li::before{ color:var(--accent-2); }
+
+  /* math table */
+  .place-table{ border-collapse:collapse; font-family:var(--font-mono); font-size:.92rem; font-variant-numeric:tabular-nums; }
+  .place-table td,.place-table th{ border:1px solid var(--border); padding:.4em .7em; text-align:center; }
+  .place-table th{ color:var(--text-dim); font-weight:600; }
+  .place-table .hi{ color:var(--accent-text); font-weight:700; }
+  .worked{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.9rem 1.1rem; font-family:var(--font-mono); font-size:.92rem; line-height:1.6; max-width:66ch; }
+
+  /* problems */
+  .problem{ background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:4px; padding:.9rem 1.1rem; }
+  .problem + .problem{ margin-top:.7rem; }
+  .problem-q{ font-family:var(--font-mono); font-size:.95rem; }
+  .problem-q .prompt{ color:var(--accent-text); margin-right:.4em; }
+  .problem-actions{ display:flex; gap:.5rem; margin-top:.6rem; }
+  .reveal-btn{
+    font-family:var(--font-mono); font-size:.78rem; background:transparent; color:var(--accent-text);
+    border:1px solid var(--accent); border-radius:3px; padding:.35em .8em; cursor:pointer;
+  }
+  .reveal-btn:hover{ background:var(--accent); color:var(--on-accent); }
+  .reveal-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .reveal{ margin-top:.6rem; padding:.6rem .8rem; background:var(--bg); border:1px dashed var(--border); border-radius:3px; font-family:var(--font-mono); font-size:.87rem; line-height:1.55; }
+  .reveal[hidden]{ display:none; }
+  .reveal-tag{ color:var(--accent-2); font-weight:700; margin-right:.5em; }
+
+  /* tools grid */
+  .tool-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:1rem; }
+  .tool-card{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.3rem; }
+  .tool-tag{ font-family:var(--font-mono); font-size:.72rem; color:var(--text-dim); }
+  .tool-card h3{ margin:0; font-size:1.05rem; }
+  .tool-card p{ margin:0; color:var(--text-dim); font-size:.9rem; line-height:1.45; }
+
+  .callout{ border-left:3px solid var(--accent-2); padding:.5rem .9rem; color:var(--text-dim); font-size:.92rem; font-style:normal; max-width:62ch; }
+
+  /* nav */
+  .nav-zone{ position:absolute; top:0; bottom:0; width:56px; background:transparent; border:0; cursor:pointer; z-index:2; }
+  .nav-zone:focus-visible{ outline:2px solid var(--accent); outline-offset:-4px; }
+  .nav-prev{ left:0; } .nav-next{ right:0; }
+  @media (max-width:700px){ .nav-zone{ width:34px; } }
+
+  .deck-controls{
+    flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:1rem;
+    padding:.7rem clamp(1rem,3vw,2.2rem); border-top:1px solid var(--border); background:var(--bg);
+  }
+  .ctrl-btn{
+    font-family:var(--font-mono); font-size:.85rem; background:var(--surface); color:var(--text);
+    border:1px solid var(--border); border-radius:4px; padding:.5em 1em; cursor:pointer;
+  }
+  .ctrl-btn:hover{ border-color:var(--accent); color:var(--accent-text); }
+  .ctrl-btn:disabled{ opacity:.35; cursor:default; }
+  .ctrl-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .dots{ display:flex; gap:.9rem; overflow-x:auto; max-width:60vw; padding:.2rem; }
+  .dot{ width:8px; height:8px; border-radius:50%; background:var(--border); border:0; padding:0; cursor:pointer; flex:0 0 auto; }
+  .dot.is-current{ background:var(--accent); transform:scale(1.35); }
+  .dot:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck" role="group" aria-roledescription="slideshow" aria-label="PCP2026 Lecture 1">
+  <div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
+  <header class="deck-chrome">
+    <div class="brand">PCP2026<span class="sep">·</span><em>Lecture 01</em></div>
+    <div class="slide-meta"><span id="partLabel">Intro</span><span class="sep">/</span><span id="counter">01 / 18</span></div>
+  </header>
+
+  <main class="stage" id="stage">
+    <button class="nav-zone nav-prev" id="prevZone" aria-label="Previous slide"></button>
+    <button class="nav-zone nav-next" id="nextZone" aria-label="Next slide"></button>
+  </main>
+
+  <footer class="deck-controls">
+    <button class="ctrl-btn" id="btnPrev">‹ Prev</button>
+    <div class="dots" id="dots"></div>
+    <button class="ctrl-btn" id="btnNext">Next ›</button>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const slides = [
+    { part:0, variant:'title', title:'How Computers Think, Count &amp; Get Built', html:`
+      <p class="eyebrow">root@PCP2026:~$ ./lecture_01 --init<span class="cursor"></span></p>
+      <p class="slide-sub">A first look at where computers came from, the math they run on underneath, and the tools you'll use to talk to them all semester.</p>
+      <div class="hero-tags">
+        <span class="hero-tag">Part 1 · Origins &amp; Ideas</span>
+        <span class="hero-tag">Part 2 · Numbers &amp; Bits</span>
+        <span class="hero-tag">Part 3 · Your Toolkit</span>
+      </div>
+      <p class="hint-line">Use ← → , tap the left/right edges, or the dots below to move.</p>
+    `},
+    { part:1, variant:'divider', kicker:'01', title:'Introduction to Computer Science', html:`
+      <p class="prose">What this field actually is, and the two-century run-up that got us from beads on a wire to a phone that finishes your sentences.</p>
+    `},
+    { part:1, eyebrow:'Part 1 · Foundations', title:'What Is Computer Science, Really?', html:`
+      <p class="prose">Not "typing code" &mdash; that's just the syntax layer. Computer science is the study of <b>computation</b>: how to represent a problem as data, and solve it with precise, repeatable steps.</p>
+      <ul class="list">
+        <li><b>Computation</b> &mdash; turning a real problem into steps a machine can follow exactly</li>
+        <li><b>Abstraction</b> &mdash; hiding messy detail behind a clean interface, so you tap an icon instead of rewiring circuits</li>
+        <li><b>Data</b> &mdash; information encoded in a form a machine can store, move and compare</li>
+        <li><b>Systems</b> &mdash; hardware and software working together as one machine</li>
+      </ul>
+    `},
+    { part:1, eyebrow:'Part 1 · A Short History, I', title:'From Counting to Computing', html:`
+      <ul class="timeline">
+        <li><span class="year">~2700 BCE</span><div class="event">The Abacus</div><div class="desc">First hand-held calculator &mdash; beads standing in for memory.</div></li>
+        <li><span class="year">1642</span><div class="event">Pascaline &mdash; Blaise Pascal</div><div class="desc">First mechanical adding machine; gears carried digits automatically.</div></li>
+        <li><span class="year">1837</span><div class="event">Analytical Engine &mdash; Charles Babbage</div><div class="desc">First design for a general, programmable computer &mdash; never fully built in his lifetime.</div></li>
+        <li><span class="year">1843</span><div class="event">Ada Lovelace's Algorithm</div><div class="desc">Publishes the first program written for a machine, before the machine existed.</div></li>
+        <li><span class="year">1854</span><div class="event">Boolean Algebra &mdash; George Boole</div><div class="desc">Reduces logic to true/false &mdash; the math every processor still runs on.</div></li>
+        <li><span class="year">1936</span><div class="event">The Turing Machine &mdash; Alan Turing</div><div class="desc">A theoretical model that defines, precisely, what "computable" means.</div></li>
+      </ul>
+    `},
+    { part:1, eyebrow:'Part 1 · A Short History, II', title:'From Circuits to the Cloud', html:`
+      <ul class="timeline">
+        <li><span class="year">1945</span><div class="event">ENIAC</div><div class="desc">First general-purpose electronic computer &mdash; 18,000 vacuum tubes, filled a room.</div></li>
+        <li><span class="year">1947</span><div class="event">The Transistor &mdash; Bell Labs</div><div class="desc">A tiny, cheap, reliable switch that replaces fragile tubes.</div></li>
+        <li><span class="year">1958</span><div class="event">The Integrated Circuit</div><div class="desc">Thousands of transistors etched onto one chip.</div></li>
+        <li><span class="year">1971</span><div class="event">Intel 4004</div><div class="desc">The first microprocessor &mdash; a computer's whole brain on a single chip.</div></li>
+        <li><span class="year">1969 → 1991</span><div class="event">ARPANET → World Wide Web</div><div class="desc">Computers start talking to each other, then anyone can publish a page.</div></li>
+        <li><span class="year">2007 → now</span><div class="event">Smartphones &amp; the AI boom</div><div class="desc">The computer becomes something you carry, then something that talks back.</div></li>
+      </ul>
+    `},
+    { part:1, eyebrow:'Part 1 · A Two-Way Street', title:'Computer Science &amp; Every Other Field', html:`
+      <div class="cols">
+        <div class="col"><h3>→ What CS gives</h3>
+          <ul class="list">
+            <li><b>Medicine:</b> MRI/CT image reconstruction, genome sequencing</li>
+            <li><b>Physics:</b> simulating galaxies, climate, particle collisions</li>
+            <li><b>Biology:</b> bioinformatics, protein-folding models</li>
+            <li><b>Economics:</b> algorithmic trading, market modeling</li>
+            <li><b>Art &amp; music:</b> generative tools, digital audio/video</li>
+          </ul>
+        </div>
+        <div class="col"><h3>← What CS borrows</h3>
+          <ul class="list">
+            <li><b>Mathematics:</b> logic, algorithms, proofs, cryptography</li>
+            <li><b>Electrical engineering:</b> the physical chips and circuits</li>
+            <li><b>Physics:</b> semiconductors &mdash; and quantum computing's rulebook</li>
+            <li><b>Psychology &amp; design:</b> how humans actually use an interface</li>
+            <li><b>Philosophy:</b> ethics and the rules we hand to AI</li>
+          </ul>
+        </div>
+      </div>
+    `},
+    { part:1, eyebrow:'Part 1 · Software', title:'Software: The Instructions', html:`
+      <p class="prose">Hardware is the machine; <b>software</b> is what tells it what to do &mdash; instructions and data, stored ultimately as binary.</p>
+      <ul class="list">
+        <li><b>Applications</b> &mdash; the apps you actually open (a browser, a game, this slideshow)</li>
+        <li><b>Operating System</b> &mdash; Windows, macOS, Linux, Android: manages hardware and runs every app</li>
+        <li><b>Firmware &amp; drivers</b> &mdash; the translators between the OS and physical hardware</li>
+        <li><b>Hardware</b> &mdash; the CPU, memory and circuits actually doing the work</li>
+      </ul>
+    `},
+    { part:1, eyebrow:'Part 1 · Memory', title:'Memory: Where a Computer "Remembers"', html:`
+      <p class="prose">The smallest unit is a <b>bit</b> (0 or 1); 8 bits make a <b>byte</b>. Memory is layered by speed and size:</p>
+      <ul class="list">
+        <li><b>Registers</b> &mdash; inside the CPU, instant, tiny (like the paper on your desk)</li>
+        <li><b>Cache</b> &mdash; nanoseconds, small (the desk drawer)</li>
+        <li><b>RAM</b> &mdash; fast, but <i>volatile</i> &mdash; wiped when power goes off (your backpack)</li>
+        <li><b>Storage</b> (SSD/HDD) &mdash; slower, but permanent (your locker at home)</li>
+      </ul>
+    `},
+    { part:2, variant:'divider', kicker:'02', title:'Representing Numbers', html:`
+      <p class="prose">Every number, letter, image and sound a computer touches eventually becomes 0s and 1s. Here's the math behind that, and where it quietly breaks.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · The Bit', title:'Why Only 0 and 1?', html:`
+      <p class="prose">A transistor is a switch with two reliable states: off and on. Building a switch that reliably tells apart <i>ten</i> voltage levels (for decimal) is expensive and error-prone; two is cheap, fast, and nearly impossible to misread.</p>
+      <p class="callout">A single 0 or 1 is a <b>bit</b>. Group enough bits together and you can represent any number, letter, pixel or sound.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · Whole Numbers', title:'Binary Place Value', html:`
+      <p class="prose">Decimal weighs each digit by a power of 10; binary weighs each digit by a power of 2. Same idea, smaller base.</p>
+      <table class="place-table">
+        <tr><th>place value</th><td>8</td><td>4</td><td>2</td><td>1</td></tr>
+        <tr><th>bit</th><td class="hi">1</td><td class="hi">0</td><td class="hi">1</td><td class="hi">1</td></tr>
+      </table>
+      <div class="worked">1011₂ = (1×8) + (0×4) + (1×2) + (1×1) = <b>11</b></div>
+      <p class="prose" style="font-size:.9rem;color:var(--text-dim)">Powers of two to keep handy: 1, 2, 4, 8, 16, 32, 64, 128 …</p>
+    `},
+    { part:2, eyebrow:'Part 2 · Shorthand', title:'Hex &amp; Octal: Binary in Disguise', html:`
+      <p class="prose">Raw binary is unreadable for humans, so programmers group bits: 4 bits = 1 <b>hex</b> digit (0&ndash;9, then A&ndash;F for 10&ndash;15). You'll meet hex in memory addresses and color codes like <code>#FF8800</code>.</p>
+      <div class="worked">1111 0000₂  →  F0 (hex)</div>
+      <p class="prose" style="font-size:.9rem;color:var(--text-dim)">Octal (base 8, groups of 3 bits) is the same trick, mostly seen today in old Unix file permissions.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · Decimals', title:'Representing Decimal Numbers', html:`
+      <p class="prose">Whole numbers are easy in binary. Fractions are where it gets interesting.</p>
+      <ul class="list">
+        <li><b>Fixed-point:</b> reserve a set number of bits for the fractional part &mdash; simple, but limited range</li>
+        <li><b>Floating-point (IEEE&nbsp;754):</b> store a sign, an exponent and a mantissa &mdash; like scientific notation, in binary: ±1.mantissa × 2^exponent</li>
+      </ul>
+      <p class="callout">This is why <code>0.1 + 0.2</code> prints <code>0.30000000000000004</code> in most languages: 0.1 has no exact ending in binary &mdash; just like 1/3 has no exact ending in decimal.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · Try It Yourself', title:'Problems: Whole Numbers', html:`
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q1. Convert <b>45</b> (decimal) to binary.</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p1-hint">Hint</button>
+          <button class="reveal-btn" data-target="p1-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p1-hint" hidden><span class="reveal-tag">HINT</span>Find the biggest power of 2 that fits, subtract it, and repeat &mdash; or divide by 2 repeatedly and read the remainders bottom-to-top.</div>
+        <div class="reveal" id="p1-sol" hidden><span class="reveal-tag">SOLUTION</span>45 = 32+8+4+1 = 2⁵+2³+2²+2⁰ → <b>101101₂</b></div>
+      </div>
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q2. Convert <b>101101₂</b> back to decimal.</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p2-hint">Hint</button>
+          <button class="reveal-btn" data-target="p2-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p2-hint" hidden><span class="reveal-tag">HINT</span>Line the bits up under 32&nbsp;16&nbsp;8&nbsp;4&nbsp;2&nbsp;1 and add only the columns with a 1.</div>
+        <div class="reveal" id="p2-sol" hidden><span class="reveal-tag">SOLUTION</span>32+8+4+1 = <b>45</b> &mdash; matches Q1, as it should.</div>
+      </div>
+    `},
+    { part:2, eyebrow:'Part 2 · Try It Yourself', title:'Problems: Hex &amp; Floating Point', html:`
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q3. Convert <b>2F</b> (hex) to decimal.</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p3-hint">Hint</button>
+          <button class="reveal-btn" data-target="p3-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p3-hint" hidden><span class="reveal-tag">HINT</span>Each hex digit is worth digit × 16^position. Remember F = 15.</div>
+        <div class="reveal" id="p3-sol" hidden><span class="reveal-tag">SOLUTION</span>(2×16) + (15×1) = 32+15 = <b>47</b></div>
+      </div>
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q4. Why isn't <b>0.1 + 0.2</b> exactly <b>0.3</b> on a computer?</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p4-hint">Hint</button>
+          <button class="reveal-btn" data-target="p4-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p4-hint" hidden><span class="reveal-tag">HINT</span>Think about how 1/3 looks in decimal: 0.333&hellip; forever. Now picture 0.1 written in binary.</div>
+        <div class="reveal" id="p4-sol" hidden><span class="reveal-tag">SOLUTION</span>0.1 and 0.2 can't be written exactly in binary, so they're stored as the closest approximation &mdash; adding two tiny rounding errors together makes the leftover visible.</div>
+      </div>
+    `},
+    { part:3, variant:'divider', kicker:'03', title:'Your Toolkit for This Course', html:`
+      <p class="prose">The programs and habits every later lecture will assume you already have running.</p>
+    `},
+    { part:3, eyebrow:'Part 3 · Setup', title:'The Tools We Will Use', html:`
+      <div class="tool-grid">
+        <div class="tool-card"><span class="tool-tag">&gt;_ editor</span><h3>IDE</h3><p>Where you write, run and debug code in one window &mdash; syntax highlighting, autocomplete, a built-in terminal.</p></div>
+        <div class="tool-card"><span class="tool-tag">&gt;_ translator</span><h3>Compiler / Interpreter</h3><p>Turns the code you write into instructions the machine runs &mdash; all at once (compiled) or line-by-line (interpreted).</p></div>
+        <div class="tool-card"><span class="tool-tag">&gt;_ history</span><h3>Git</h3><p>Tracks every change to your code over time, so you can experiment, undo, and see exactly what changed and when.</p></div>
+        <div class="tool-card"><span class="tool-tag">&gt;_ hosting</span><h3>GitHub</h3><p>Hosts your Git projects online &mdash; where you'll submit assignments and collaborate with classmates.</p></div>
+        <div class="tool-card"><span class="tool-tag">&gt;_ channel</span><h3>OBCP</h3><p>Our course's communication platform &mdash; announcements, Q&amp;A, and where you'll reach me and the TAs outside class.</p></div>
+      </div>
+    `},
+    { part:0, variant:'outro', title:'Lecture 1 &mdash; Recap', html:`
+      <ul class="list">
+        <li><b>Part 1:</b> CS is the study of computation &mdash; and it took 200+ years to get from the abacus to AI</li>
+        <li><b>Part 2:</b> everything a computer touches is 0s and 1s underneath, with real math (and real rounding error) behind it</li>
+        <li><b>Part 3:</b> your IDE, Git, GitHub, a compiler, and OBCP are the everyday kit for the rest of this course</li>
+      </ul>
+      <p class="hint-line">root@PCP2026:~$ shutdown -r lecture_02<span class="cursor"></span></p>
+    `},
+  ];
+
+  const stage = document.getElementById('stage');
+  const dotsWrap = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const partLabel = document.getElementById('partLabel');
+  const progressFill = document.getElementById('progressFill');
+  const total = slides.length;
+  let current = 0;
+
+  slides.forEach((s, i) => {
+    const el = document.createElement('section');
+    el.className = 'slide';
+    el.dataset.index = i;
+    let inner = '<div class="slide-inner">';
+    if (s.variant === 'divider') {
+      inner += `<div class="divider-wrap"><p class="eyebrow">Part ${s.kicker}</p><div class="part-number">${s.kicker}</div><h2 class="slide-title">${s.title}</h2></div>`;
+    } else {
+      if (s.eyebrow) inner += `<p class="eyebrow">${s.eyebrow}</p>`;
+      if (s.title) inner += `<h2 class="slide-title${s.variant === 'title' ? ' is-hero' : ''}">${s.title}</h2>`;
+    }
+    inner += s.html + '</div>';
+    el.innerHTML = inner;
+    stage.appendChild(el);
+  });
+
+  const dotEls = [];
+  slides.forEach((s, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'dot';
+    dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+    dot.addEventListener('click', () => go(i));
+    dotsWrap.appendChild(dot);
+    dotEls.push(dot);
+  });
+
+  function partName(p) {
+    return p === 0 ? 'Lecture 1' : 'Part ' + p;
+  }
+
+  function render() {
+    document.querySelectorAll('.slide').forEach((el, i) => {
+      el.classList.toggle('is-active', i === current);
+    });
+    dotEls.forEach((d, i) => d.classList.toggle('is-current', i === current));
+    counter.textContent = String(current + 1).padStart(2, '0') + ' / ' + total;
+    partLabel.textContent = partName(slides[current].part);
+    progressFill.style.width = ((current) / (total - 1)) * 100 + '%';
+    document.getElementById('btnPrev').disabled = current === 0;
+    document.getElementById('btnNext').disabled = current === total - 1;
+    dotEls[current].scrollIntoView({ block: 'nearest', inline: 'center' });
+  }
+
+  function go(i) {
+    current = Math.max(0, Math.min(total - 1, i));
+    render();
+  }
+
+  document.getElementById('btnPrev').addEventListener('click', () => go(current - 1));
+  document.getElementById('btnNext').addEventListener('click', () => go(current + 1));
+  document.getElementById('prevZone').addEventListener('click', () => go(current - 1));
+  document.getElementById('nextZone').addEventListener('click', () => go(current + 1));
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { go(current + 1); e.preventDefault(); }
+    if (e.key === 'ArrowLeft') { go(current - 1); e.preventDefault(); }
+  });
+
+  stage.addEventListener('click', (e) => {
+    const btn = e.target.closest('.reveal-btn');
+    if (!btn) return;
+    const panel = document.getElementById(btn.dataset.target);
+    if (!panel) return;
+    if (!btn.dataset.label) btn.dataset.label = btn.textContent;
+    panel.hidden = !panel.hidden;
+    btn.textContent = panel.hidden ? btn.dataset.label : 'Hide ' + btn.dataset.label;
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
