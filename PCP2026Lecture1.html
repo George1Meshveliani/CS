@@ -6,6 +6,14 @@
 <title>PCP2026 · Lecture 1</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+    svg: { fontCache: 'global' },
+    startup: { typeset: false }
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js" id="MathJax-script" async></script>
 <style>
   :root{
     --bg:#EDEFF0; --surface:#FFFFFF; --border:#D3D7DA;
@@ -120,7 +128,8 @@
   .place-table td,.place-table th{ border:1px solid var(--border); padding:.4em .7em; text-align:center; }
   .place-table th{ color:var(--text-dim); font-weight:600; }
   .place-table .hi{ color:var(--accent-text); font-weight:700; }
-  .worked{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.9rem 1.1rem; font-family:var(--font-mono); font-size:.92rem; line-height:1.6; max-width:66ch; }
+  .worked{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.9rem 1.1rem; font-family:var(--font-mono); font-size:.92rem; line-height:1.6; max-width:66ch; overflow-x:auto; }
+  .worked mjx-container{ font-size:105%; }
 
   /* problems */
   .problem{ background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:4px; padding:.9rem 1.1rem; }
@@ -169,6 +178,36 @@
   .dot{ width:8px; height:8px; border-radius:50%; background:var(--border); border:0; padding:0; cursor:pointer; flex:0 0 auto; }
   .dot.is-current{ background:var(--accent); transform:scale(1.35); }
   .dot:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  /* internet trio */
+  .trio{ display:flex; flex-direction:column; gap:.6rem; max-width:70ch; }
+  .trio-item{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.75rem 1rem; }
+  .trio-item .t-name{ display:block; font-family:var(--font-mono); font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--accent-text); margin-bottom:.25rem; }
+  .trio-item p{ margin:0; color:var(--text-dim); font-size:.92rem; line-height:1.45; }
+
+  /* case studies */
+  .case-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1rem; }
+  .case-card{ background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:4px; padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.35rem; }
+  .case-card .case-year{ font-family:var(--font-mono); font-size:.72rem; color:var(--text-dim); }
+  .case-card h3{ margin:0; font-size:1rem; }
+  .case-card p{ margin:0; font-size:.88rem; color:var(--text-dim); line-height:1.45; }
+  .case-card .result{ font-family:var(--font-mono); font-size:.78rem; color:var(--accent-2); margin:0; }
+
+  /* formulas */
+  .formula{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.85rem 1.1rem; overflow-x:auto; }
+  .formula .f-label{ display:block; font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-dim); margin-bottom:.35rem; font-family:var(--font-mono); }
+  .formula .f-expr{ color:var(--text); overflow-x:auto; }
+  .formula .f-expr mjx-container{ font-size:112%; }
+
+  /* terminal */
+  .terminal{ background:#0B0D12; border:1px solid #262B36; border-radius:6px; overflow:hidden; font-family:var(--font-mono); font-size:.85rem; }
+  .terminal-bar{ display:flex; gap:.4rem; padding:.5rem .7rem; background:#151923; }
+  .terminal-dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .terminal-dot.red{ background:#E4626F; } .terminal-dot.yellow{ background:#E8B95F; } .terminal-dot.green{ background:#66C08A; }
+  .terminal-body{ padding:.8rem 1rem; display:flex; flex-direction:column; gap:.15rem; }
+  .terminal-body .cmd{ color:#D7DBE0; }
+  .terminal-body .cmd::before{ content:"$ "; color:#6FD6CB; }
+  .terminal-body .out{ color:#7C8494; }
 </style>
 </head>
 <body>
@@ -177,7 +216,7 @@
   <div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
   <header class="deck-chrome">
     <div class="brand">PCP2026<span class="sep">·</span><em>Lecture 01</em></div>
-    <div class="slide-meta"><span id="partLabel">Intro</span><span class="sep">/</span><span id="counter">01 / 18</span></div>
+    <div class="slide-meta"><span id="partLabel">Intro</span><span class="sep">/</span><span id="counter">01 / 26</span></div>
   </header>
 
   <main class="stage" id="stage">
@@ -237,6 +276,15 @@
         <li><span class="year">2007 → now</span><div class="event">Smartphones &amp; the AI boom</div><div class="desc">The computer becomes something you carry, then something that talks back.</div></li>
       </ul>
     `},
+    { part:1, eyebrow:'Part 1 · Networks', title:'The Internet, the Web &amp; Internet2', html:`
+      <p class="prose">Three different things people lump together as "the internet":</p>
+      <div class="trio">
+        <div class="trio-item"><span class="t-name">The Internet</span><p>The network of networks itself — became one connected system on <b>January 1, 1983</b>, when ARPANET switched every host over to TCP/IP.</p></div>
+        <div class="trio-item"><span class="t-name">The World Wide Web</span><p>An application that runs <i>on top of</i> the Internet — hyperlinked pages, invented at <b>CERN</b> by Tim Berners-Lee (proposed 1989, first page 1991), released royalty-free in 1993.</p></div>
+        <div class="trio-item"><span class="t-name">Internet2</span><p>A real, separate ultra-high-speed research network built in 1996 by U.S. universities and national labs for science and education traffic — still running today, apart from the public internet.</p></div>
+      </div>
+      <p class="callout">The Internet is the road. The Web is one (very popular) thing that drives on it.</p>
+    `},
     { part:1, eyebrow:'Part 1 · A Two-Way Street', title:'Computer Science &amp; Every Other Field', html:`
       <div class="cols">
         <div class="col"><h3>→ What CS gives</h3>
@@ -257,6 +305,13 @@
             <li><b>Philosophy:</b> ethics and the rules we hand to AI</li>
           </ul>
         </div>
+      </div>
+    `},
+    { part:1, eyebrow:'Part 1 · Real Impact', title:'CS in Action: Three Real Results', html:`
+      <div class="case-grid">
+        <div class="case-card"><span class="case-year">1969</span><h3>Apollo Guidance Computer</h3><p>Margaret Hamilton's software caught a priority overload during the Moon landing and kept only the critical tasks running.</p><p class="result">Result: Apollo 11 landed safely — the first crewed Moon landing.</p></div>
+        <div class="case-card"><span class="case-year">1998</span><h3>PageRank</h3><p>Larry Page and Sergey Brin ranked web pages by who linked to them, not just by keyword count.</p><p class="result">Result: became the core of Google Search and founded the modern search industry.</p></div>
+        <div class="case-card"><span class="case-year">2020</span><h3>AlphaFold</h3><p>DeepMind trained a neural network to predict how a protein folds from its amino-acid sequence alone.</p><p class="result">Result: structures released for 200M+ proteins, accelerating biology and drug research.</p></div>
       </div>
     `},
     { part:1, eyebrow:'Part 1 · Software', title:'Software: The Instructions', html:`
@@ -290,21 +345,52 @@
         <tr><th>place value</th><td>8</td><td>4</td><td>2</td><td>1</td></tr>
         <tr><th>bit</th><td class="hi">1</td><td class="hi">0</td><td class="hi">1</td><td class="hi">1</td></tr>
       </table>
-      <div class="worked">1011₂ = (1×8) + (0×4) + (1×2) + (1×1) = <b>11</b></div>
+      <div class="worked">\\[ 1011_2 \\;=\\; (1\\times2^{3})+(0\\times2^{2})+(1\\times2^{1})+(1\\times2^{0}) \\;=\\; 8+0+2+1 \\;=\\; 11 \\]</div>
       <p class="prose" style="font-size:.9rem;color:var(--text-dim)">Powers of two to keep handy: 1, 2, 4, 8, 16, 32, 64, 128 …</p>
+    `},
+    { part:2, eyebrow:'Part 2 · Formalizing It', title:'The General Formula (Any Base)', html:`
+      <p class="prose">Binary, decimal and hex are all the <i>same</i> idea — a base <b>b</b> swapped in. One formula covers all of them:</p>
+      <div class="formula"><span class="f-label">Place value, any base b</span><div class="f-expr">\\[ N \\;=\\; \\sum_{i=0}^{k-1} d_i\\,b^{\\,i}, \\qquad d_i \\in \\{0,1,\\ldots,b-1\\} \\]</div></div>
+      <div class="formula"><span class="f-label">Binary special case (b = 2)</span><div class="f-expr">\\[ N \\;=\\; \\sum_{i=0}^{k-1} b_i\\,2^{\\,i}, \\qquad b_i \\in \\{0,1\\} \\]</div></div>
+      <div class="formula"><span class="f-label">Pulling out one digit</span><div class="f-expr">\\[ d_i \\;=\\; \\left\\lfloor \\frac{N}{b^{\\,i}} \\right\\rfloor \\bmod b \\]</div></div>
+      <div class="formula"><span class="f-label">Capacity of n bits</span><div class="f-expr">\\[ n \\text{ bits} \\;\\Longrightarrow\\; 2^{\\,n} \\text{ patterns}, \\qquad \\text{unsigned range } [\\,0,\\ 2^{n}-1\\,] \\]</div></div>
     `},
     { part:2, eyebrow:'Part 2 · Shorthand', title:'Hex &amp; Octal: Binary in Disguise', html:`
       <p class="prose">Raw binary is unreadable for humans, so programmers group bits: 4 bits = 1 <b>hex</b> digit (0&ndash;9, then A&ndash;F for 10&ndash;15). You'll meet hex in memory addresses and color codes like <code>#FF8800</code>.</p>
       <div class="worked">1111 0000₂  →  F0 (hex)</div>
+      <div class="formula"><span class="f-label">Why groups of 4 (hex) or 3 (octal)?</span><div class="f-expr">\\[ 16 = 2^{4} \\;\\Rightarrow\\; 1 \\text{ hex digit} = 4 \\text{ bits}, \\qquad 8 = 2^{3} \\;\\Rightarrow\\; 1 \\text{ octal digit} = 3 \\text{ bits} \\]</div></div>
       <p class="prose" style="font-size:.9rem;color:var(--text-dim)">Octal (base 8, groups of 3 bits) is the same trick, mostly seen today in old Unix file permissions.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · Signed Integers', title:"Negative Numbers: Two's Complement", html:`
+      <p class="prose">A plain sign bit gives you two zeros and clumsy arithmetic. <b>Two's complement</b> lets the same adder circuit handle positive and negative numbers.</p>
+      <div class="formula"><span class="f-label">n-bit signed integer</span><div class="f-expr">\\[ N \\;=\\; -\\,b_{n-1}\\cdot2^{\\,n-1} \\;+\\; \\sum_{i=0}^{n-2} b_i\\cdot2^{\\,i}, \\qquad N \\in \\big[-2^{n-1},\\ 2^{n-1}-1\\big] \\]</div></div>
+      <div class="worked">To write −5 in 8 bits: start with 5 = 00000101₂ → invert every bit → 11111010 → add 1 → <b>11111011₂ = −5</b></div>
+      <div class="worked">Verification: \\[ N = -1\\cdot2^{7} + \\big(2^{6}+2^{5}+2^{4}+2^{3}+2^{1}+2^{0}\\big) = -128+123 = -5 \\]</div>
     `},
     { part:2, eyebrow:'Part 2 · Decimals', title:'Representing Decimal Numbers', html:`
       <p class="prose">Whole numbers are easy in binary. Fractions are where it gets interesting.</p>
       <ul class="list">
         <li><b>Fixed-point:</b> reserve a set number of bits for the fractional part &mdash; simple, but limited range</li>
-        <li><b>Floating-point (IEEE&nbsp;754):</b> store a sign, an exponent and a mantissa &mdash; like scientific notation, in binary: ±1.mantissa × 2^exponent</li>
+        <li><b>Floating-point (IEEE&nbsp;754):</b> store a sign, an exponent and a mantissa &mdash; like scientific notation, in binary: \\(\\pm\\,1.\\text{mantissa} \\times 2^{\\text{exponent}}\\)</li>
       </ul>
-      <p class="callout">This is why <code>0.1 + 0.2</code> prints <code>0.30000000000000004</code> in most languages: 0.1 has no exact ending in binary &mdash; just like 1/3 has no exact ending in decimal.</p>
+      <p class="callout">This is why <code>0.1 + 0.2</code> prints <code>0.30000000000000004</code> in most languages: \\(0.1_{10} = 0.0\\overline{0011}_2\\) &mdash; an infinitely repeating binary fraction, just like \\(\\frac{1}{3} = 0.\\overline{3}_{10}\\) repeats forever in decimal.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · IEEE 754', title:'Floating-Point, Formally', html:`
+      <p class="prose">A float packs three fields &mdash; sign, exponent, mantissa &mdash; and reads back like scientific notation in binary:</p>
+      <div class="formula"><span class="f-label">IEEE 754, general form (p mantissa bits, given bias)</span><div class="f-expr">\\[ \\mathrm{value} \\;=\\; (-1)^{S} \\cdot \\left(1 + \\sum_{i=1}^{p} b_i\\cdot2^{-i}\\right) \\cdot 2^{\\,E-\\text{bias}} \\]</div></div>
+      <table class="place-table">
+        <tr><th>format</th><th>sign</th><th>exponent</th><th>mantissa (p)</th><th>bias</th></tr>
+        <tr><td>single (32-bit)</td><td>1</td><td>8</td><td class="hi">23</td><td class="hi">127</td></tr>
+        <tr><td>double (64-bit)</td><td>1</td><td>11</td><td class="hi">52</td><td class="hi">1023</td></tr>
+      </table>
+      <div class="worked">\\(0.5 = 1.0 \\times 2^{-1}\\) → sign 0, exponent 126 (=127−1), mantissa all zero:<br>0&nbsp;01111110&nbsp;00000000000000000000000</div>
+      <p class="prose" style="font-size:.9rem;color:var(--text-dim)">E = 0 and E = 255 (or 2047 for double) are reserved &mdash; they encode subnormals, ±∞ and NaN.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · Real Incidents', title:'When Representation Fails: Real Incidents', html:`
+      <div class="case-grid">
+        <div class="case-card" style="border-left-color:var(--accent-2)"><span class="case-year">1991 · Dhahran</span><h3>Patriot Missile Clock Drift</h3><p>The system's clock stored 1/10 second as an imprecise binary fraction; after ~100 hours running continuously, the rounding error had drifted by a third of a second.</p><p class="result">Result: the radar lost track of an incoming missile — the intercept failed.</p></div>
+        <div class="case-card" style="border-left-color:var(--accent-2)"><span class="case-year">1996 · Kourou</span><h3>Ariane 5 Flight 501</h3><p>A 64-bit velocity value was converted into a 16-bit integer with no overflow check; the value didn't fit, and the software misread the resulting error as a guidance fault.</p><p class="result">Result: the rocket self-destructed 37 seconds after launch.</p></div>
+      </div>
     `},
     { part:2, eyebrow:'Part 2 · Try It Yourself', title:'Problems: Whole Numbers', html:`
       <div class="problem">
@@ -314,7 +400,7 @@
           <button class="reveal-btn" data-target="p1-sol">Solution</button>
         </div>
         <div class="reveal" id="p1-hint" hidden><span class="reveal-tag">HINT</span>Find the biggest power of 2 that fits, subtract it, and repeat &mdash; or divide by 2 repeatedly and read the remainders bottom-to-top.</div>
-        <div class="reveal" id="p1-sol" hidden><span class="reveal-tag">SOLUTION</span>45 = 32+8+4+1 = 2⁵+2³+2²+2⁰ → <b>101101₂</b></div>
+        <div class="reveal" id="p1-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(45 = 32+8+4+1 = 2^{5}+2^{3}+2^{2}+2^{0} \\;\\Longrightarrow\\; 101101_2\\)</div>
       </div>
       <div class="problem">
         <div class="problem-q"><span class="prompt">&gt;</span> Q2. Convert <b>101101₂</b> back to decimal.</div>
@@ -333,8 +419,8 @@
           <button class="reveal-btn" data-target="p3-hint">Hint</button>
           <button class="reveal-btn" data-target="p3-sol">Solution</button>
         </div>
-        <div class="reveal" id="p3-hint" hidden><span class="reveal-tag">HINT</span>Each hex digit is worth digit × 16^position. Remember F = 15.</div>
-        <div class="reveal" id="p3-sol" hidden><span class="reveal-tag">SOLUTION</span>(2×16) + (15×1) = 32+15 = <b>47</b></div>
+        <div class="reveal" id="p3-hint" hidden><span class="reveal-tag">HINT</span>Each hex digit is worth \\(\\text{digit} \\times 16^{\\text{position}}\\). Remember \\(F_{16} = 15\\).</div>
+        <div class="reveal" id="p3-sol" hidden><span class="reveal-tag">SOLUTION</span>\\((2\\times16^{1}) + (15\\times16^{0}) = 32+15 = 47\\)</div>
       </div>
       <div class="problem">
         <div class="problem-q"><span class="prompt">&gt;</span> Q4. Why isn't <b>0.1 + 0.2</b> exactly <b>0.3</b> on a computer?</div>
@@ -343,7 +429,27 @@
           <button class="reveal-btn" data-target="p4-sol">Solution</button>
         </div>
         <div class="reveal" id="p4-hint" hidden><span class="reveal-tag">HINT</span>Think about how 1/3 looks in decimal: 0.333&hellip; forever. Now picture 0.1 written in binary.</div>
-        <div class="reveal" id="p4-sol" hidden><span class="reveal-tag">SOLUTION</span>0.1 and 0.2 can't be written exactly in binary, so they're stored as the closest approximation &mdash; adding two tiny rounding errors together makes the leftover visible.</div>
+        <div class="reveal" id="p4-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(0.1_{10} = 0.0\\overline{0011}_2\\) never terminates, so it's stored as the closest approximation &mdash; adding two tiny rounding errors together makes the leftover visible.</div>
+      </div>
+    `},
+    { part:2, eyebrow:'Part 2 · Try It Yourself', title:'Problems: Signed Integers', html:`
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q5. Represent <b>−20</b> in 8-bit two's complement.</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p5-hint">Hint</button>
+          <button class="reveal-btn" data-target="p5-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p5-hint" hidden><span class="reveal-tag">HINT</span>Write 20 in binary, invert every bit, then add 1.</div>
+        <div class="reveal" id="p5-sol" hidden><span class="reveal-tag">SOLUTION</span>20 = 00010100₂ → invert → 11101011 → +1 → <b>11101100₂ = −20</b></div>
+      </div>
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q6. What decimal value does the 8-bit two's complement <b>11110000</b> represent?</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p6-hint">Hint</button>
+          <button class="reveal-btn" data-target="p6-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p6-hint" hidden><span class="reveal-tag">HINT</span>The leftmost bit is worth −2⁷ = −128; add the remaining bits normally.</div>
+        <div class="reveal" id="p6-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(-1\\cdot2^{7} + (2^{6}+2^{5}+2^{4}) = -128+112 = -16\\)</div>
       </div>
     `},
     { part:3, variant:'divider', kicker:'03', title:'Your Toolkit for This Course', html:`
@@ -354,15 +460,37 @@
         <div class="tool-card"><span class="tool-tag">&gt;_ editor</span><h3>IDE</h3><p>Where you write, run and debug code in one window &mdash; syntax highlighting, autocomplete, a built-in terminal.</p></div>
         <div class="tool-card"><span class="tool-tag">&gt;_ translator</span><h3>Compiler / Interpreter</h3><p>Turns the code you write into instructions the machine runs &mdash; all at once (compiled) or line-by-line (interpreted).</p></div>
         <div class="tool-card"><span class="tool-tag">&gt;_ history</span><h3>Git</h3><p>Tracks every change to your code over time, so you can experiment, undo, and see exactly what changed and when.</p></div>
+        <div class="tool-card"><span class="tool-tag">&gt;_ shell</span><h3>Git Bash</h3><p>A Unix-style command line for Windows, bundled with Git &mdash; run the same bash and Git commands your Mac/Linux classmates use.</p></div>
         <div class="tool-card"><span class="tool-tag">&gt;_ hosting</span><h3>GitHub</h3><p>Hosts your Git projects online &mdash; where you'll submit assignments and collaborate with classmates.</p></div>
         <div class="tool-card"><span class="tool-tag">&gt;_ channel</span><h3>OBCP</h3><p>Our course's communication platform &mdash; announcements, Q&amp;A, and where you'll reach me and the TAs outside class.</p></div>
       </div>
     `},
+    { part:3, eyebrow:'Part 3 · See It Work', title:'See It Run: A Terminal Session', html:`
+      <p class="prose">Two real command sequences you'll type in the first week &mdash; a compile-and-run, then a first commit.</p>
+      <div class="terminal">
+        <div class="terminal-bar"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+        <div class="terminal-body">
+          <div class="cmd">gcc hello.c -o hello</div>
+          <div class="cmd">./hello</div>
+          <div class="out">Hello, PCP2026!</div>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="terminal-bar"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+        <div class="terminal-body">
+          <div class="cmd">git init</div>
+          <div class="cmd">git add hello.c</div>
+          <div class="cmd">git commit -m "first commit"</div>
+          <div class="cmd">git push origin main</div>
+          <div class="out">Branch 'main' set up to track 'origin/main'.</div>
+        </div>
+      </div>
+    `},
     { part:0, variant:'outro', title:'Lecture 1 &mdash; Recap', html:`
       <ul class="list">
-        <li><b>Part 1:</b> CS is the study of computation &mdash; and it took 200+ years to get from the abacus to AI</li>
-        <li><b>Part 2:</b> everything a computer touches is 0s and 1s underneath, with real math (and real rounding error) behind it</li>
-        <li><b>Part 3:</b> your IDE, Git, GitHub, a compiler, and OBCP are the everyday kit for the rest of this course</li>
+        <li><b>Part 1:</b> CS is the study of computation &mdash; 200+ years from the abacus to AI, with the Internet and the Web arriving as two separate inventions along the way</li>
+        <li><b>Part 2:</b> everything is 0s and 1s underneath &mdash; with real math (Σ formulas, two's complement, IEEE 754) and real failures (Patriot, Ariane 5) behind it</li>
+        <li><b>Part 3:</b> your IDE, Git, Git Bash, GitHub, a compiler, and OBCP are the everyday kit for the rest of this course</li>
       </ul>
       <p class="hint-line">root@PCP2026:~$ shutdown -r lecture_02<span class="cursor"></span></p>
     `},
@@ -445,6 +573,14 @@
   });
 
   render();
+
+  (function typesetMath(){
+    if (window.MathJax && MathJax.typesetPromise) {
+      MathJax.typesetPromise();
+    } else {
+      setTimeout(typesetMath, 60);
+    }
+  })();
 })();
 </script>
 </body>
