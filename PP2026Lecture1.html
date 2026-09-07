@@ -252,7 +252,7 @@
   <div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
   <header class="deck-chrome">
     <div class="brand">PP2026<span class="sep">·</span><em>Lecture 01</em></div>
-    <div class="slide-meta"><span id="partLabel">Intro</span><span class="sep">/</span><span id="counter">01 / 28</span></div>
+    <div class="slide-meta"><span id="partLabel">Intro</span><span class="sep">/</span><span id="counter">01 / 34</span></div>
   </header>
 
   <main class="stage" id="stage">
@@ -307,6 +307,7 @@
         <li><b>Object-Oriented</b> (C++, Java) &mdash; bundle data and behavior together into objects</li>
         <li><b>Functional</b> (Haskell, parts of Python/JS) &mdash; compute new values, never mutate old ones</li>
         <li><b>Declarative</b> (SQL, regex) &mdash; describe <i>what</i> you want, not <i>how</i> to get it</li>
+        <li><b>Concurrent / Parallel</b> (Go, Erlang) &mdash; coordinate many things happening at once, safely</li>
       </ul>
       <p class="callout">This course is about learning to recognize &mdash; and choose &mdash; the right lens for a problem. We start with C's lens: procedural.</p>
     `},
@@ -404,6 +405,30 @@ for (int i = 1; i &lt;= n; i++) {
       </div>
       <p class="callout">Never assume a size &mdash; always check with <code>sizeof()</code> on the system you're actually running on.</p>
     `},
+    { part:2, eyebrow:'Part 2 · The Big Picture', title:'How the CPU (the "Brain") Talks to Memory', html:`
+      <p class="prose">The CPU is the computer's "brain" &mdash; but it can only think about a handful of values at once. Everything else waits in memory until the CPU asks for it.</p>
+      <ul class="list">
+        <li><b>Registers</b> &mdash; a handful of tiny storage slots <i>inside</i> the CPU itself; the only place it can actually compute</li>
+        <li><b>ALU</b> (Arithmetic Logic Unit) &mdash; does the math and bitwise operations, one instruction at a time</li>
+        <li><b>Control Unit</b> &mdash; fetches the next instruction from memory and decides what to do with it</li>
+      </ul>
+      <div class="bitlab-row" style="align-items:stretch;gap:0;justify-content:center;flex-wrap:nowrap">
+        <div class="col" style="text-align:center;min-width:130px">
+          <h3>CPU</h3>
+          <p style="margin:0;font-size:.8rem;color:var(--text-dim)">registers<br>ALU<br>control unit</p>
+        </div>
+        <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;padding:0 1rem;font-family:var(--font-mono);font-size:.72rem;color:var(--text-dim);white-space:nowrap">
+          address bus →<br><br>← data bus →
+        </div>
+        <div class="col" style="text-align:center;min-width:130px">
+          <h3>RAM</h3>
+          <p style="margin:0;font-size:.8rem;color:var(--text-dim)">every variable,<br>every instruction</p>
+        </div>
+      </div>
+      <div class="formula"><span class="f-label">The fetch&ndash;decode&ndash;execute cycle</span><div class="f-expr">\\[ \\text{Fetch (from memory)} \\;\\to\\; \\text{Decode} \\;\\to\\; \\text{Execute (registers/ALU)} \\;\\to\\; \\text{repeat} \\]</div></div>
+      <p class="prose">Both your <b>instructions</b> and your <b>data</b> live in the same memory (RAM) &mdash; this is the <b>von Neumann architecture</b>, and it's why a program is really just data the CPU has agreed to treat as instructions.</p>
+      <p class="callout">Every variable you write in C ultimately means: "put this value in RAM, and let the CPU fetch it into a register when it needs to compute with it."</p>
+    `},
     { part:2, eyebrow:'Part 2 · Layout', title:"A C Program's Memory Map", html:`
       <p class="prose">When your program runs, the OS lays its memory out in predictable regions:</p>
       <div class="memmap">
@@ -415,8 +440,10 @@ for (int i = 1; i &lt;= n; i++) {
         <div class="memseg text"><span class="memseg-label">Text / Code</span><span class="memseg-note">compiled instructions (read-only)</span></div>
       </div>
       <p class="prose" style="font-size:.85rem;color:var(--text-dim)">High addresses at the top, low addresses at the bottom &mdash; the stack and heap grow toward each other.</p>
+      <p class="prose" style="font-size:.9rem">A concrete example &mdash; where each line below actually lives:</p>
+      <div class="worked">int global_x = 5;      // Data segment (initialized global)<br>int global_y;          // BSS segment (uninitialized global)<br>int main(void) {<br>&nbsp;&nbsp;int local_z = 10;    // Stack (local variable)<br>&nbsp;&nbsp;int *p = malloc(4);  // p itself is on the Stack, *p lives on the Heap<br>}</div>
     `},
-    { part:2, eyebrow:'Part 2 · Pointers', title:'Addresses &amp; Pointers', html:`
+    { part:2, eyebrow:'Part 2 · Pointers', title:'Pointers: An Address Stored in Memory', html:`
       <p class="prose">A pointer doesn't store a value &mdash; it stores an <b>address</b>. Here's a slice of memory, with one byte pointed to:</p>
       <div class="membytes">
         <div class="mbyte"><span class="mbyte-addr">0x1000</span><span class="mbyte-val">05</span></div>
@@ -425,6 +452,127 @@ for (int i = 1; i &lt;= n; i++) {
         <div class="mbyte"><span class="mbyte-addr">0x1003</span><span class="mbyte-val">08</span></div>
       </div>
       <div class="worked">int *ptr = &amp;arr[2];   // ptr holds the address 0x1002<br>*ptr;              // dereference &rarr; reads 0xFF</div>
+      <p class="prose" style="font-size:.9rem"><b>But where does <code>ptr</code> itself live?</b> Right next door, in its own memory cell &mdash; holding a number that happens to be an address:</p>
+      <div class="membytes">
+        <div class="mbyte"><span class="mbyte-addr">0x30F8</span><span class="mbyte-val">02</span></div>
+        <div class="mbyte"><span class="mbyte-addr">0x30F9</span><span class="mbyte-val">10</span></div>
+        <div class="mbyte"><span class="mbyte-addr">0x30FA</span><span class="mbyte-val">00</span></div>
+        <div class="mbyte"><span class="mbyte-addr">0x30FB</span><span class="mbyte-val">00</span></div>
+      </div>
+      <p class="prose" style="font-size:.85rem;color:var(--text-dim)"><code>ptr</code> lives at 0x30F8&ndash;0x30FB (4 bytes, little-endian) and its <i>contents</i> spell out <code>0x00001002</code> &mdash; the address it points to. A pointer is just an integer with a special meaning.</p>
+      <div class="formula"><span class="f-label">Every pointer, regardless of type, is the same size</span><div class="f-expr">\\[ \\text{sizeof(int*)} = \\text{sizeof(char*)} = \\text{sizeof(double*)} \\;=\\; \\text{address width (4 or 8 bytes)} \\]</div></div>
+    `},
+    { part:2, eyebrow:'Part 2 · Dynamic Memory', title:'Why Pointers Matter: Dynamic Memory', html:`
+      <p class="prose">Arrays declared normally have a size fixed at compile time. Often you don't know the size until the program is <i>running</i> &mdash; that's where <b>dynamic memory allocation</b> comes in.</p>
+      <p class="callout">Careful: "dynamic memory allocation" (this slide) is a different idea from the "Dynamic Programming" algorithm technique (memoization) you may meet later &mdash; same words, unrelated concepts.</p>
+      <ul class="list">
+        <li><code>malloc(size)</code> &mdash; asks the heap for <code>size</code> bytes, returns a <b>pointer</b> to them (or NULL if it fails)</li>
+        <li><code>free(ptr)</code> &mdash; gives that memory back once you're done with it</li>
+        <li>Without pointers, there would be no way to even <i>refer</i> to heap memory &mdash; it has no variable name, only an address</li>
+      </ul>
+      <div class="worked">int n = 5;<br>int *arr = malloc(n * sizeof(int));   // ask the heap for 5 ints<br>for (int i = 0; i &lt; n; i++) {<br>&nbsp;&nbsp;arr[i] = i * i;                     // 0, 1, 4, 9, 16<br>}<br>free(arr);                              // give the memory back</div>
+      <p class="prose" style="font-size:.9rem">Pointers are also the only way to build <b>self-referential structures</b> &mdash; a linked-list node holding a pointer to the next node, a tree node pointing to its children &mdash; and to let a function modify the caller's variable directly instead of a copy.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · Coding Tasks', title:'Coding Tasks: Pointers &amp; Addressing', html:`
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Task 1. Write <code>void swap(int *a, int *b)</code> that swaps two integers using pointers.</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="ct1-hint">Hint</button>
+          <button class="reveal-btn" data-target="ct1-sol">Solution</button>
+        </div>
+        <div class="reveal" id="ct1-hint" hidden><span class="reveal-tag">HINT</span>Pass the addresses with <code>&amp;x</code>, <code>&amp;y</code>; dereference (<code>*a</code>, <code>*b</code>) inside the function to reach the caller's actual variables. A plain <code>swap(int a, int b)</code> only swaps copies.</div>
+        <div class="reveal" id="ct1-sol" hidden><span class="reveal-tag">SOLUTION</span>
+          <pre class="code-block" style="margin:.5rem 0">void swap(int *a, int *b) {
+    int temp = *a;
+    *a = *b;
+    *b = temp;
+}
+// call:  swap(&amp;x, &amp;y);</pre>
+          Because <code>a</code> and <code>b</code> hold the <i>addresses</i> of x and y, writing through <code>*a</code> and <code>*b</code> changes x and y themselves &mdash; the swap is still visible after the function returns.
+        </div>
+      </div>
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Task 2. Write <code>int* find_max(int *arr, int n)</code> that returns a pointer to the largest element.</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="ct2-hint">Hint</button>
+          <button class="reveal-btn" data-target="ct2-sol">Solution</button>
+        </div>
+        <div class="reveal" id="ct2-hint" hidden><span class="reveal-tag">HINT</span>Keep a pointer <code>max</code> starting at <code>&amp;arr[0]</code>; each time you find a bigger element, reassign <code>max</code> to point <i>there</i> instead &mdash; don't just remember its value.</div>
+        <div class="reveal" id="ct2-sol" hidden><span class="reveal-tag">SOLUTION</span>
+          <pre class="code-block" style="margin:.5rem 0">int* find_max(int *arr, int n) {
+    int *max = arr;
+    for (int i = 1; i &lt; n; i++) {
+        if (arr[i] &gt; *max) {
+            max = &amp;arr[i];
+        }
+    }
+    return max;
+}</pre>
+          For <code>{3, 7, 2, 9, 4}</code>: max starts at &amp;arr[0] (value 3); at i=1, 7&gt;3 so max moves to &amp;arr[1]; at i=3, 9&gt;7 so max moves to &amp;arr[3]. Returns a pointer to the 9.
+        </div>
+      </div>
+    `},
+    { part:2, eyebrow:'Part 2 · Pointer Arithmetic', title:'Pointer Arithmetic', html:`
+      <p class="prose">Adding 1 to a pointer doesn't add one byte &mdash; it advances by one whole element, however big that element's type is.</p>
+      <div class="formula"><span class="f-label">Pointer arithmetic, formally</span><div class="f-expr">\\[ \\text{address}(p + i) \\;=\\; \\text{address}(p) + i \\times \\text{sizeof(type)} \\]</div></div>
+      <p class="prose" style="font-size:.9rem">For an <code>int*</code> (4 bytes each) starting at <code>0x1000</code>:</p>
+      <div class="membytes">
+        <div class="mbyte is-target"><span class="mbyte-addr">0x1000</span><span class="mbyte-val">p</span></div>
+        <div class="mbyte"><span class="mbyte-addr">0x1004</span><span class="mbyte-val">p+1</span></div>
+        <div class="mbyte"><span class="mbyte-addr">0x1008</span><span class="mbyte-val">p+2</span></div>
+        <div class="mbyte"><span class="mbyte-addr">0x100C</span><span class="mbyte-val">p+3</span></div>
+      </div>
+      <div class="formula"><span class="f-label">Array indexing is pointer arithmetic in disguise</span><div class="f-expr">\\[ \\text{arr}[i] \\;\\equiv\\; {*}(\\text{arr} + i) \\]</div></div>
+      <div class="cols">
+        <div class="col"><h3>Indexing</h3>
+          <pre class="code-block">for (int i = 0; i &lt; n; i++) {
+    printf("%d\\n", arr[i]);
+}</pre>
+        </div>
+        <div class="col"><h3>Pointer arithmetic</h3>
+          <pre class="code-block">for (int *p = arr; p &lt; arr + n; p++) {
+    printf("%d\\n", *p);
+}</pre>
+        </div>
+      </div>
+      <p class="callout">Pointer arithmetic only makes sense within (or one past the end of) an array &mdash; walking further is undefined behavior.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · Coding Tasks', title:'Coding Tasks: Pointer Arithmetic', html:`
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Task 3. Write <code>int my_strlen(char *s)</code> using ONLY pointer arithmetic &mdash; no indexing, no <code>strlen()</code>.</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="ct3-hint">Hint</button>
+          <button class="reveal-btn" data-target="ct3-sol">Solution</button>
+        </div>
+        <div class="reveal" id="ct3-hint" hidden><span class="reveal-tag">HINT</span>Keep a second pointer at the start. Advance a moving pointer one character at a time until it hits the null terminator <code>'\\0'</code>, then subtract the two pointers.</div>
+        <div class="reveal" id="ct3-sol" hidden><span class="reveal-tag">SOLUTION</span>
+          <pre class="code-block" style="margin:.5rem 0">int my_strlen(char *s) {
+    char *start = s;
+    while (*s != '\\0') {
+        s++;
+    }
+    return s - start;
+}</pre>
+          For <code>"Hi"</code>: s starts at 'H', steps past 'H' then 'i', and stops the instant it hits <code>'\\0'</code>. <code>s - start</code> is pointer subtraction &mdash; it counts <i>elements</i> between the two addresses, giving 2, not a byte offset.
+        </div>
+      </div>
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Task 4. Write <code>void print_array(int *arr, int n)</code> that prints every value <i>and</i> its address.</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="ct4-hint">Hint</button>
+          <button class="reveal-btn" data-target="ct4-sol">Solution</button>
+        </div>
+        <div class="reveal" id="ct4-hint" hidden><span class="reveal-tag">HINT</span>Use <code>arr + i</code> for the address and <code>*(arr + i)</code> for the value inside a loop.</div>
+        <div class="reveal" id="ct4-sol" hidden><span class="reveal-tag">SOLUTION</span>
+          <pre class="code-block" style="margin:.5rem 0">void print_array(int *arr, int n) {
+    for (int i = 0; i &lt; n; i++) {
+        printf("arr[%d] = %d  (address %p)\\n", i, *(arr + i), (void*)(arr + i));
+    }
+}</pre>
+          <div class="worked">arr[0] = 3  (address 0x7ffee4a1c000)<br>arr[1] = 7  (address 0x7ffee4a1c004)<br>arr[2] = 2  (address 0x7ffee4a1c008)</div>
+          Each address is exactly \\(\\text{sizeof(int)}=4\\) bytes after the last &mdash; matching the pointer-arithmetic formula above.
+        </div>
+      </div>
     `},
     { part:3, variant:'divider', kicker:'03', title:'Bitwise Operators', html:`
       <p class="prose">Working directly on the bits inside a byte &mdash; the fastest, most literal way to manipulate data.</p>
@@ -585,6 +733,41 @@ int g   = (rgb &gt;&gt; 8) &amp; 0xFF;         // unpack green</pre>
         <div class="reveal" id="pb6-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(\\text{0xFF6A00}\\gg8 = \\text{0xFF6A}\\) drops the blue byte; ANDing with \\(\\text{0xFF}\\) keeps only its last byte: \\(\\text{0xFF6A}\\wedge\\text{0xFF} = \\text{0x6A} = 106\\). In C: <code>(0xFF6A00 &gt;&gt; 8) &amp; 0xFF</code> &rarr; <code>106</code> &mdash; the green channel.</div>
       </div>
     `},
+    { part:3, eyebrow:'Part 3 · Coding Tasks', title:'Coding Tasks: Bitwise Operators', html:`
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Task 5. Write <code>int is_power_of_two(int n)</code> &mdash; no loops, no division.</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="ct5-hint">Hint</button>
+          <button class="reveal-btn" data-target="ct5-sol">Solution</button>
+        </div>
+        <div class="reveal" id="ct5-hint" hidden><span class="reveal-tag">HINT</span>A power of two has exactly one bit set (math \\(2^{k}\\)). What does math \\(n \\wedge (n-1)\\), C <code>n &amp; (n - 1)</code> do to that single bit?</div>
+        <div class="reveal" id="ct5-sol" hidden><span class="reveal-tag">SOLUTION</span>
+          <pre class="code-block" style="margin:.5rem 0">int is_power_of_two(int n) {
+    return n &gt; 0 &amp;&amp; (n &amp; (n - 1)) == 0;
+}</pre>
+          For n=8=00001000: n-1=00000111; ANDing them gives 00000000 &mdash; <b>is</b> a power of two. For n=10=00001010: n-1=00001001; ANDing gives 00001000&ne;0 &mdash; <b>not</b> a power of two. Subtracting 1 always flips the lowest set bit and everything below it, so the AND is zero only when there was exactly one bit to flip.
+        </div>
+      </div>
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Task 6. Write <code>int count_set_bits(unsigned int n)</code> that counts how many bits are 1.</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="ct6-hint">Hint</button>
+          <button class="reveal-btn" data-target="ct6-sol">Solution</button>
+        </div>
+        <div class="reveal" id="ct6-hint" hidden><span class="reveal-tag">HINT</span>Check the lowest bit with math \\(n \\wedge 1\\), C <code>n &amp; 1</code>, then shift right (math \\(n\\gg1\\), C <code>n &gt;&gt;= 1</code>) and repeat until n is 0.</div>
+        <div class="reveal" id="ct6-sol" hidden><span class="reveal-tag">SOLUTION</span>
+          <pre class="code-block" style="margin:.5rem 0">int count_set_bits(unsigned int n) {
+    int count = 0;
+    while (n) {
+        count += n &amp; 1;
+        n &gt;&gt;= 1;
+    }
+    return count;
+}</pre>
+          For n=13=1101: iteration 1 sees bit 1 (count=1), n becomes 110; iteration 2 sees bit 0 (count stays 1), n becomes 11; iteration 3 sees bit 1 (count=2), n becomes 1; iteration 4 sees bit 1 (count=3), n becomes 0 &mdash; loop stops. Result: 3 set bits.
+        </div>
+      </div>
+    `},
     { part:4, variant:'divider', kicker:'04', title:'Your Toolkit for This Course', html:`
       <p class="prose">The programs and habits every later lecture will assume you already have running.</p>
     `},
@@ -622,7 +805,7 @@ int g   = (rgb &gt;&gt; 8) &amp; 0xFF;         // unpack green</pre>
     { part:0, variant:'outro', title:'Lecture 1 &mdash; Recap', html:`
       <ul class="list">
         <li><b>Part 1:</b> C is a procedural language built from functions &mdash; not the same as the Functional Programming paradigm</li>
-        <li><b>Part 2:</b> bits build into bytes, bytes into memory, and memory into a program's stack, heap, data and code segments</li>
+        <li><b>Part 2:</b> bits build into bytes and letters, bytes into memory the CPU fetches and executes, and pointers &mdash; addresses stored in memory &mdash; are what make dynamic allocation and pointer arithmetic possible</li>
         <li><b>Part 3:</b> six bitwise operators (∧ ∨ ⊕ ¬ ≪ ≫) let you mask, set, toggle and pack bits directly &mdash; try the playground again anytime</li>
         <li><b>Part 4:</b> your IDE, a C compiler, Git, Git Bash, GitHub, and OBCP are the everyday kit for this course</li>
       </ul>
