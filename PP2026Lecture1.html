@@ -252,7 +252,7 @@
   <div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
   <header class="deck-chrome">
     <div class="brand">PP2026<span class="sep">·</span><em>Lecture 01</em></div>
-    <div class="slide-meta"><span id="partLabel">Intro</span><span class="sep">/</span><span id="counter">01 / 26</span></div>
+    <div class="slide-meta"><span id="partLabel">Intro</span><span class="sep">/</span><span id="counter">01 / 28</span></div>
   </header>
 
   <main class="stage" id="stage">
@@ -360,6 +360,50 @@ for (int i = 1; i &lt;= n; i++) {
       <div class="formula"><span class="f-label">A byte, formally</span><div class="f-expr">\\[ 1\\ \\text{byte} = 8\\ \\text{bits} \\;\\Rightarrow\\; 2^{8} = 256 \\text{ distinct values} \\]</div></div>
       <div class="formula"><span class="f-label">Bigger units (powers of 1024)</span><div class="f-expr">\\[ 1\\text{ KB}=2^{10}\\text{B}, \\quad 1\\text{ MB}=2^{20}\\text{B}, \\quad 1\\text{ GB}=2^{30}\\text{B} \\]</div></div>
     `},
+    { part:2, eyebrow:'Part 2 · Encoding', title:'Character Encoding: From Bits to Letters', html:`
+      <p class="prose">A byte doesn't "know" it's a letter &mdash; it's just a number. <b>Character encoding</b> is the agreed-upon table that maps numbers to symbols.</p>
+      <table class="place-table">
+        <tr><th>char</th><th>decimal</th><th>hex</th><th>binary</th></tr>
+        <tr><td>'A'</td><td>65</td><td>0x41</td><td class="hi">01000001</td></tr>
+        <tr><td>'a'</td><td>97</td><td>0x61</td><td class="hi">01100001</td></tr>
+        <tr><td>'0'</td><td>48</td><td>0x30</td><td class="hi">00110000</td></tr>
+        <tr><td>' ' (space)</td><td>32</td><td>0x20</td><td class="hi">00100000</td></tr>
+      </table>
+      <p class="prose" style="font-size:.9rem">This table is <b>ASCII</b> &mdash; 128 values (7 bits) covering English letters, digits and punctuation. A C <code>char</code> is exactly one byte, so it holds exactly one ASCII code.</p>
+      <p class="prose">A C string is just bytes in memory, one character each, ending in a zero byte &mdash; the <b>null terminator</b> <code>'\\0'</code>:</p>
+      <div class="membytes">
+        <div class="mbyte"><span class="mbyte-addr">0x2000</span><span class="mbyte-val">48</span></div>
+        <div class="mbyte"><span class="mbyte-addr">0x2001</span><span class="mbyte-val">69</span></div>
+        <div class="mbyte is-target"><span class="mbyte-addr">0x2002</span><span class="mbyte-val">00</span></div>
+      </div>
+      <div class="worked">char msg[] = "Hi";  // stored byte-by-byte: 0x48 'H', 0x69 'i', 0x00 '\\0'</div>
+      <p class="prose" style="font-size:.85rem;color:var(--text-dim)">Beyond English: <b>Unicode</b> (usually encoded as UTF-8) uses 1&ndash;4 bytes per character to cover every writing system and emoji &mdash; ASCII is just its first 128 values.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · Sizes', title:'How Big Is Each C Type?', html:`
+      <p class="prose">Every C variable's type decides exactly how many bits it reserves in memory:</p>
+      <table class="place-table">
+        <tr><th>type</th><th>bits</th><th>bytes</th><th>typical range / notes</th></tr>
+        <tr><td>char</td><td>8</td><td class="hi">1</td><td>&minus;128 to 127 (holds one ASCII byte)</td></tr>
+        <tr><td>short</td><td>16</td><td>2</td><td>&minus;32,768 to 32,767</td></tr>
+        <tr><td>int</td><td>32</td><td class="hi">4</td><td>~ ±2.1 billion, on most modern systems</td></tr>
+        <tr><td>long</td><td>32 or 64</td><td>4 or 8</td><td>platform-dependent!</td></tr>
+        <tr><td>long long</td><td>64</td><td>8</td><td>at least 64 bits, guaranteed since C99</td></tr>
+        <tr><td>float</td><td>32</td><td class="hi">4</td><td>IEEE&nbsp;754 single precision</td></tr>
+        <tr><td>double</td><td>64</td><td class="hi">8</td><td>IEEE&nbsp;754 double precision</td></tr>
+        <tr><td>pointer</td><td>32 or 64</td><td>4 or 8</td><td>matches the CPU's address width</td></tr>
+      </table>
+      <div class="terminal">
+        <div class="terminal-bar"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span><span class="terminal-title">bash &mdash; Linux</span></div>
+        <div class="terminal-body">
+          <div class="cmd">gcc sizes.c -o sizes</div>
+          <div class="cmd">./sizes</div>
+          <div class="out">char = 1 byte</div>
+          <div class="out">int = 4 bytes</div>
+          <div class="out">double = 8 bytes</div>
+        </div>
+      </div>
+      <p class="callout">Never assume a size &mdash; always check with <code>sizeof()</code> on the system you're actually running on.</p>
+    `},
     { part:2, eyebrow:'Part 2 · Layout', title:"A C Program's Memory Map", html:`
       <p class="prose">When your program runs, the OS lays its memory out in predictable regions:</p>
       <div class="memmap">
@@ -386,71 +430,81 @@ for (int i = 1; i &lt;= n; i++) {
       <p class="prose">Working directly on the bits inside a byte &mdash; the fastest, most literal way to manipulate data.</p>
     `},
     { part:3, eyebrow:'Part 3 · Reference', title:'The Six Operators, At a Glance', html:`
+      <p class="prose">Every operator below has a math form and a C form (shown in brackets) &mdash; you'll see both used together throughout this course.</p>
       <table class="place-table">
-        <tr><th>symbol</th><th>C syntax</th><th>name</th><th>example (a=12, b=10)</th></tr>
-        <tr><td>∧</td><td>&amp;</td><td>AND</td><td>a &amp; b = 8</td></tr>
-        <tr><td>∨</td><td>|</td><td>OR</td><td>a | b = 14</td></tr>
-        <tr><td>⊕</td><td>^</td><td>XOR</td><td>a ^ b = 6</td></tr>
-        <tr><td>¬</td><td>~</td><td>NOT</td><td>~a (8-bit) = 243</td></tr>
-        <tr><td>≪</td><td>&lt;&lt;</td><td>Left shift</td><td>a &lt;&lt; 1 = 24</td></tr>
-        <tr><td>≫</td><td>&gt;&gt;</td><td>Right shift</td><td>a &gt;&gt; 1 = 6</td></tr>
+        <tr><th>operator (math / C)</th><th>name</th><th>example (a=12, b=10)</th></tr>
+        <tr><td>\\(\\wedge\\) (<code>&amp;</code>)</td><td>AND</td><td>a &amp; b = 8</td></tr>
+        <tr><td>\\(\\vee\\) (<code>|</code>)</td><td>OR</td><td>a | b = 14</td></tr>
+        <tr><td>\\(\\oplus\\) (<code>^</code>)</td><td>XOR</td><td>a ^ b = 6</td></tr>
+        <tr><td>\\(\\neg\\) (<code>~</code>)</td><td>NOT</td><td>~a (8-bit) = 243</td></tr>
+        <tr><td>\\(\\ll\\) (<code>&lt;&lt;</code>)</td><td>Left shift</td><td>a &lt;&lt; 1 = 24</td></tr>
+        <tr><td>\\(\\gg\\) (<code>&gt;&gt;</code>)</td><td>Right shift</td><td>a &gt;&gt; 1 = 6</td></tr>
       </table>
-      <div class="formula"><span class="f-label">All six, at a glance</span><div class="f-expr">\\[ A\\wedge B, \\quad A\\vee B, \\quad A\\oplus B, \\quad \\neg A, \\quad A\\ll k, \\quad A\\gg k \\]</div></div>
     `},
     { part:3, eyebrow:'Part 3 · AND', title:'AND &mdash; Masking Bits Off', html:`
-      <p class="prose">AND keeps a bit only where <b>both</b> inputs have a 1 &mdash; it's how you <b>mask</b> (clear) bits.</p>
+      <p class="prose">AND (math \\(\\wedge\\), C <code>&amp;</code>) keeps a bit only where <b>both</b> inputs have a 1 &mdash; it's how you <b>mask</b> (clear) bits.</p>
       <div class="bitlab">
         <div class="bitlab-row"><span class="bitlab-label">A</span><div class="bitgrid readonly">${bitCells(12)}</div><span class="bitlab-dec">12</span></div>
         <div class="bitlab-row"><span class="bitlab-label">∧</span><div class="bitgrid readonly">${bitCells(10)}</div><span class="bitlab-dec">10</span></div>
         <div class="bitlab-row result"><span class="bitlab-label">=</span><div class="bitgrid readonly">${bitCells(12 & 10)}</div><span class="bitlab-dec">${12 & 10}</span></div>
       </div>
-      <p class="prose" style="font-size:.9rem">Real use: <code>x &amp; 0x0F</code> keeps only the low nibble; <code>flags &amp; PERM_READ</code> checks a single permission bit.</p>
+      <p class="prose" style="font-size:.9rem"><b>Process:</b> only bit 3 (value 8) is 1 in <i>both</i> rows, so it survives; every other column has at least one 0, so it's forced to 0. <b>Result:</b> \\(00001000_2 = 8\\).</p>
+      <p class="prose" style="font-size:.9rem">Real use: math \\(x \\wedge 00001111_2\\), C <code>x &amp; 0x0F</code> keeps only the low nibble; <code>flags &amp; PERM_READ</code> checks a single permission bit.</p>
     `},
     { part:3, eyebrow:'Part 3 · OR', title:'OR &mdash; Setting Bits On', html:`
-      <p class="prose">OR sets a bit if <b>either</b> input has a 1 &mdash; it's how you turn bits <b>on</b>.</p>
+      <p class="prose">OR (math \\(\\vee\\), C <code>|</code>) sets a bit if <b>either</b> input has a 1 &mdash; it's how you turn bits <b>on</b>.</p>
       <div class="bitlab">
         <div class="bitlab-row"><span class="bitlab-label">A</span><div class="bitgrid readonly">${bitCells(12)}</div><span class="bitlab-dec">12</span></div>
         <div class="bitlab-row"><span class="bitlab-label">∨</span><div class="bitgrid readonly">${bitCells(10)}</div><span class="bitlab-dec">10</span></div>
         <div class="bitlab-row result"><span class="bitlab-label">=</span><div class="bitgrid readonly">${bitCells(12 | 10)}</div><span class="bitlab-dec">${12 | 10}</span></div>
       </div>
-      <p class="prose" style="font-size:.9rem">Real use: <code>flags | PERM_WRITE</code> grants a permission without disturbing any other bit.</p>
+      <p class="prose" style="font-size:.9rem"><b>Process:</b> bits 1, 2 and 3 are 1 in at least one row, so they all survive; only bit 0 is 0 in both. <b>Result:</b> \\(00001110_2 = 14\\).</p>
+      <p class="prose" style="font-size:.9rem">Real use: math \\(x \\vee 00000001_2\\), C <code>flags | PERM_WRITE</code> grants a permission without disturbing any other bit.</p>
     `},
     { part:3, eyebrow:'Part 3 · XOR', title:'XOR &mdash; Toggling Bits', html:`
-      <p class="prose">XOR is 1 exactly where the inputs <b>differ</b> &mdash; it's how you <b>toggle</b> bits.</p>
+      <p class="prose">XOR (math \\(\\oplus\\), C <code>^</code>) is 1 exactly where the inputs <b>differ</b> &mdash; it's how you <b>toggle</b> bits.</p>
       <div class="bitlab">
         <div class="bitlab-row"><span class="bitlab-label">A</span><div class="bitgrid readonly">${bitCells(12)}</div><span class="bitlab-dec">12</span></div>
         <div class="bitlab-row"><span class="bitlab-label">⊕</span><div class="bitgrid readonly">${bitCells(10)}</div><span class="bitlab-dec">10</span></div>
         <div class="bitlab-row result"><span class="bitlab-label">=</span><div class="bitgrid readonly">${bitCells(12 ^ 10)}</div><span class="bitlab-dec">${12 ^ 10}</span></div>
       </div>
-      <p class="prose" style="font-size:.9rem">Famous trick &mdash; swap two variables with no temp: <code>a^=b; b^=a; a^=b;</code></p>
+      <p class="prose" style="font-size:.9rem"><b>Process:</b> bits 1 and 2 differ between the rows, so they flip on; bit 3 is 1 in both (not different), so it cancels to 0. <b>Result:</b> \\(00000110_2 = 6\\).</p>
+      <p class="prose" style="font-size:.9rem">Famous trick &mdash; swap two variables with no temp, math \\(a{=}a\\oplus b\\), C <code>a^=b; b^=a; a^=b;</code></p>
     `},
     { part:3, eyebrow:'Part 3 · NOT', title:'NOT &mdash; Flipping Every Bit', html:`
-      <p class="prose">NOT flips every bit. Combined with +1, this is exactly how two's-complement negation works.</p>
+      <p class="prose">NOT (math \\(\\neg\\), C <code>~</code>) flips every bit. Combined with +1, this is exactly how two's-complement negation works.</p>
       <div class="bitlab">
         <div class="bitlab-row"><span class="bitlab-label">A</span><div class="bitgrid readonly">${bitCells(12)}</div><span class="bitlab-dec">12</span></div>
         <div class="bitlab-row result"><span class="bitlab-label">¬A</span><div class="bitgrid readonly">${bitCells((~12) & 0xFF)}</div><span class="bitlab-dec">${(~12) & 0xFF}</span></div>
       </div>
+      <p class="prose" style="font-size:.9rem"><b>Process:</b> every 0 becomes 1 and every 1 becomes 0. <b>Result:</b> \\(00001100_2 \\to 11110011_2 = 243\\) read as unsigned, or \\(-13\\) if that same byte is read as an 8-bit signed two's-complement value.</p>
       <div class="formula"><span class="f-label">The two's-complement connection</span><div class="f-expr">\\[ \\neg x + 1 \\;=\\; -x \\]</div></div>
+      <p class="prose" style="font-size:.85rem;color:var(--text-dim)">In C this is written <code>~x + 1</code> &mdash; literally how the unary minus operator is implemented in hardware.</p>
     `},
     { part:3, eyebrow:'Part 3 · Shifts', title:'Shifts &mdash; Sliding Bits', html:`
-      <p class="prose">Shifting slides every bit left or right &mdash; the fastest way to multiply or divide by a power of two.</p>
+      <p class="prose">Shifting (math \\(\\ll\\) / \\(\\gg\\), C <code>&lt;&lt;</code> / <code>&gt;&gt;</code>) slides every bit left or right &mdash; the fastest way to multiply or divide by a power of two.</p>
       <div class="bitlab">
         <div class="bitlab-row"><span class="bitlab-label">A</span><div class="bitgrid readonly">${bitCells(12)}</div><span class="bitlab-dec">12</span></div>
         <div class="bitlab-row result"><span class="bitlab-label">≪1</span><div class="bitgrid readonly">${bitCells((12 << 1) & 0xFF)}</div><span class="bitlab-dec">${(12 << 1) & 0xFF}</span></div>
       </div>
+      <p class="prose" style="font-size:.9rem"><b>Process:</b> every bit moves one place left; a 0 fills in on the right. Bit 7 of 12 was already 0, so nothing falls off. <b>Result:</b> \\(00001100_2 \\to 00011000_2 = 24\\).</p>
       <div class="bitlab">
         <div class="bitlab-row"><span class="bitlab-label">A</span><div class="bitgrid readonly">${bitCells(12)}</div><span class="bitlab-dec">12</span></div>
         <div class="bitlab-row result"><span class="bitlab-label">≫1</span><div class="bitgrid readonly">${bitCells(12 >> 1)}</div><span class="bitlab-dec">${12 >> 1}</span></div>
       </div>
+      <p class="prose" style="font-size:.9rem"><b>Process:</b> every bit moves one place right; a 0 fills in on the left, and the bit that falls off the right (here, 0) is lost. <b>Result:</b> \\(00001100_2 \\to 00000110_2 = 6\\).</p>
       <div class="formula"><span class="f-label">Shift ↔ multiply/divide</span><div class="f-expr">\\[ x \\ll k \\;=\\; x\\times2^{k}, \\qquad x \\gg k \\;=\\; \\left\\lfloor \\frac{x}{2^{k}} \\right\\rfloor \\]</div></div>
     `},
     { part:3, eyebrow:'Part 3 · Real Example', title:'Packing a Color into One Integer', html:`
-      <p class="prose">Shifts and OR let you pack several small values into one integer &mdash; exactly how a 24-bit color works.</p>
+      <p class="prose">Shifts and OR (math \\(\\ll\\), \\(\\vee\\); C <code>&lt;&lt;</code>, <code>|</code>) let you pack several small values into one integer &mdash; exactly how a 24-bit color works.</p>
       <div class="bitlab-row" style="align-items:center;gap:1rem">
         <div class="swatch" style="background:#FF6A00"></div>
-        <div class="prose" style="font-size:.9rem;margin:0">R=255, G=106, B=0 &mdash; packed as <code>0xFF6A00</code></div>
+        <div class="prose" style="font-size:.9rem;margin:0">R=255, G=106, B=0</div>
       </div>
       <div class="formula"><span class="f-label">Packing three bytes into one integer</span><div class="f-expr">\\[ \\text{RGB} \\;=\\; (R\\ll16)\\ \\vee\\ (G\\ll8)\\ \\vee\\ B \\]</div></div>
+      <p class="prose" style="font-size:.9rem"><b>Process, step by step (in hex):</b></p>
+      <div class="worked">R = 255 = 0xFF  &rarr;  R≪16 (C: R&lt;&lt;16) = 0xFF0000<br>G = 106 = 0x6A  &rarr;  G≪8  (C: G&lt;&lt;8)  = 0x006A00<br>B = 0   = 0x00  &rarr;  B≪0  (C: B)       = 0x000000<br>OR them together (math ∨, C |):  0xFF0000 ∨ 0x006A00 ∨ 0x000000 = <b>0xFF6A00</b></div>
+      <p class="prose" style="font-size:.9rem"><b>Result:</b> <code>0xFF6A00</code> = 16,738,816 in decimal &mdash; one plain integer carrying all three color channels, shown as the swatch above.</p>
       <pre class="code-block">int rgb = (r &lt;&lt; 16) | (g &lt;&lt; 8) | b;   // pack
 int g   = (rgb &gt;&gt; 8) &amp; 0xFF;         // unpack green</pre>
     `},
@@ -467,27 +521,28 @@ int g   = (rgb &gt;&gt; 8) &amp; 0xFF;         // unpack green</pre>
           <button class="op-btn" data-op="SHL">A ≪ 1</button>
           <button class="op-btn" data-op="SHR">A ≫ 1</button>
         </div>
+        <p class="hint-line">∧ = <code>&amp;</code>  &nbsp; ∨ = <code>|</code>  &nbsp; ⊕ = <code>^</code>  &nbsp; ¬ = <code>~</code>  &nbsp; ≪ = <code>&lt;&lt;</code>  &nbsp; ≫ = <code>&gt;&gt;</code></p>
         <div class="bitlab-row result"><span class="bitlab-label">=</span><div class="bitgrid readonly" id="bitsR">${bitCells(202 & 15, {group:'R'})}</div><span class="bitlab-dec" id="decR">10</span></div>
       </div>
     `},
     { part:3, eyebrow:'Part 3 · Try It Yourself', title:'Problems: AND &amp; OR', html:`
       <div class="problem">
-        <div class="problem-q"><span class="prompt">&gt;</span> Q1. Compute <b>10101100</b>₂ ∧ <b>00001111</b>₂.</div>
+        <div class="problem-q"><span class="prompt">&gt;</span> Q1. Compute <b>10101100</b>₂ AND (math \\(\\wedge\\), C <code>&amp;</code>) <b>00001111</b>₂.</div>
         <div class="problem-actions">
           <button class="reveal-btn" data-target="pb1-hint">Hint</button>
           <button class="reveal-btn" data-target="pb1-sol">Solution</button>
         </div>
-        <div class="reveal" id="pb1-hint" hidden><span class="reveal-tag">HINT</span>\\(x \\wedge 00001111_2\\) keeps only the last 4 bits of \\(x\\) &mdash; this is called a mask.</div>
-        <div class="reveal" id="pb1-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(10101100_2 \\wedge 00001111_2 = 00001100_2 = 12\\)</div>
+        <div class="reveal" id="pb1-hint" hidden><span class="reveal-tag">HINT</span>Math \\(x \\wedge 00001111_2\\), C <code>x &amp; 0x0F</code> &mdash; both keep only the last 4 bits of x. This is called a mask.</div>
+        <div class="reveal" id="pb1-sol" hidden><span class="reveal-tag">SOLUTION</span>The last 4 bits of 10101100 are 1100; ANDed with 1111 they pass through unchanged. The first 4 bits are ANDed with 0000, so they're forced to 0. \\(10101100_2 \\wedge 00001111_2 = 00001100_2 = 12\\). In C: <code>0b10101100 &amp; 0x0F</code> &rarr; <code>12</code>.</div>
       </div>
       <div class="problem">
-        <div class="problem-q"><span class="prompt">&gt;</span> Q2. Compute <b>10101100</b>₂ ∨ <b>00001111</b>₂.</div>
+        <div class="problem-q"><span class="prompt">&gt;</span> Q2. Compute <b>10101100</b>₂ OR (math \\(\\vee\\), C <code>|</code>) <b>00001111</b>₂.</div>
         <div class="problem-actions">
           <button class="reveal-btn" data-target="pb2-hint">Hint</button>
           <button class="reveal-btn" data-target="pb2-sol">Solution</button>
         </div>
-        <div class="reveal" id="pb2-hint" hidden><span class="reveal-tag">HINT</span>\\(x \\vee 00001111_2\\) forces the last 4 bits to 1, whatever they were.</div>
-        <div class="reveal" id="pb2-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(10101100_2 \\vee 00001111_2 = 10101111_2 = 175\\)</div>
+        <div class="reveal" id="pb2-hint" hidden><span class="reveal-tag">HINT</span>Math \\(x \\vee 00001111_2\\), C <code>x | 0x0F</code> &mdash; both force the last 4 bits to 1, whatever they were.</div>
+        <div class="reveal" id="pb2-sol" hidden><span class="reveal-tag">SOLUTION</span>The last 4 bits become 1 regardless of the original value (1100 OR 1111 = 1111); the first 4 bits are untouched (1010 OR 0000 = 1010). \\(10101100_2 \\vee 00001111_2 = 10101111_2 = 175\\). In C: <code>0b10101100 | 0x0F</code> &rarr; <code>175</code>.</div>
       </div>
     `},
     { part:3, eyebrow:'Part 3 · Try It Yourself', title:'Problems: XOR &amp; Parity', html:`
@@ -497,11 +552,11 @@ int g   = (rgb &gt;&gt; 8) &amp; 0xFF;         // unpack green</pre>
           <button class="reveal-btn" data-target="pb3-hint">Hint</button>
           <button class="reveal-btn" data-target="pb3-sol">Solution</button>
         </div>
-        <div class="reveal" id="pb3-hint" hidden><span class="reveal-tag">HINT</span>Compute \\(x \\wedge 1\\) &mdash; it isolates bit 0.</div>
-        <div class="reveal" id="pb3-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(37 = 100101_2\\), so \\(37 \\wedge 1 = 1\\) &mdash; <b>odd</b>. In general \\(x\\wedge1=0\\) means even, \\(=1\\) means odd.</div>
+        <div class="reveal" id="pb3-hint" hidden><span class="reveal-tag">HINT</span>Compute math \\(x \\wedge 1\\), C <code>x &amp; 1</code> &mdash; it isolates bit 0.</div>
+        <div class="reveal" id="pb3-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(37 = 100101_2\\), so \\(37 \\wedge 1 = 1\\) (C: <code>37 &amp; 1</code> &rarr; <code>1</code>) &mdash; <b>odd</b>. In general \\(x\\wedge1=0\\) means even, \\(=1\\) means odd.</div>
       </div>
       <div class="problem">
-        <div class="problem-q"><span class="prompt">&gt;</span> Q4. Trace the classic XOR swap: <code>a^=b; b^=a; a^=b;</code> starting from <b>a=6, b=11</b>.</div>
+        <div class="problem-q"><span class="prompt">&gt;</span> Q4. Trace the classic XOR (math \\(\\oplus\\)) swap: <code>a^=b; b^=a; a^=b;</code> starting from <b>a=6, b=11</b>.</div>
         <div class="problem-actions">
           <button class="reveal-btn" data-target="pb4-hint">Hint</button>
           <button class="reveal-btn" data-target="pb4-sol">Solution</button>
@@ -512,13 +567,13 @@ int g   = (rgb &gt;&gt; 8) &amp; 0xFF;         // unpack green</pre>
     `},
     { part:3, eyebrow:'Part 3 · Try It Yourself', title:'Problems: Shifts &amp; Color Packing', html:`
       <div class="problem">
-        <div class="problem-q"><span class="prompt">&gt;</span> Q5. What is <b>5 &lt;&lt; 3</b>?</div>
+        <div class="problem-q"><span class="prompt">&gt;</span> Q5. What is <b>5 &lt;&lt; 3</b> (math \\(5\\ll3\\))?</div>
         <div class="problem-actions">
           <button class="reveal-btn" data-target="pb5-hint">Hint</button>
           <button class="reveal-btn" data-target="pb5-sol">Solution</button>
         </div>
-        <div class="reveal" id="pb5-hint" hidden><span class="reveal-tag">HINT</span>\\(x \\ll k = x \\times 2^{k}\\).</div>
-        <div class="reveal" id="pb5-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(5 \\ll 3 = 5 \\times 2^{3} = 40\\)</div>
+        <div class="reveal" id="pb5-hint" hidden><span class="reveal-tag">HINT</span>Math \\(x \\ll k = x \\times 2^{k}\\), C <code>x &lt;&lt; k</code>.</div>
+        <div class="reveal" id="pb5-sol" hidden><span class="reveal-tag">SOLUTION</span>Shifting left by 3 multiplies by \\(2^{3}=8\\): \\(5 \\ll 3 = 5 \\times 2^{3} = 40\\). In C: <code>5 &lt;&lt; 3</code> &rarr; <code>40</code>.</div>
       </div>
       <div class="problem">
         <div class="problem-q"><span class="prompt">&gt;</span> Q6. The color <code>0xFF6A00</code> packs (R,G,B) into one integer. Extract the <b>green</b> channel.</div>
@@ -526,8 +581,8 @@ int g   = (rgb &gt;&gt; 8) &amp; 0xFF;         // unpack green</pre>
           <button class="reveal-btn" data-target="pb6-hint">Hint</button>
           <button class="reveal-btn" data-target="pb6-sol">Solution</button>
         </div>
-        <div class="reveal" id="pb6-hint" hidden><span class="reveal-tag">HINT</span>Shift right to drop the blue byte, then mask with \\(\\text{0xFF}\\): \\((\\text{RGB}\\gg8)\\wedge\\text{0xFF}\\).</div>
-        <div class="reveal" id="pb6-sol" hidden><span class="reveal-tag">SOLUTION</span>\\((\\text{0xFF6A00}\\gg8)\\wedge\\text{0xFF} = \\text{0x6A} = 106\\) &mdash; the green channel.</div>
+        <div class="reveal" id="pb6-hint" hidden><span class="reveal-tag">HINT</span>Shift right to drop the blue byte, then mask with 0xFF. Math: \\((\\text{RGB}\\gg8)\\wedge\\text{0xFF}\\). C: <code>(rgb &gt;&gt; 8) &amp; 0xFF</code>.</div>
+        <div class="reveal" id="pb6-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(\\text{0xFF6A00}\\gg8 = \\text{0xFF6A}\\) drops the blue byte; ANDing with \\(\\text{0xFF}\\) keeps only its last byte: \\(\\text{0xFF6A}\\wedge\\text{0xFF} = \\text{0x6A} = 106\\). In C: <code>(0xFF6A00 &gt;&gt; 8) &amp; 0xFF</code> &rarr; <code>106</code> &mdash; the green channel.</div>
       </div>
     `},
     { part:4, variant:'divider', kicker:'04', title:'Your Toolkit for This Course', html:`
