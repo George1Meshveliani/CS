@@ -3,6 +3,9 @@
 ## PCP2026
 - [`Lecture 1 — Foundations: History, Number Representation & Toolkit`](https://george1meshveliani.github.io/CS/PCP2026Lecture1)
 
+## PP2026
+- [`Lecture 1 — C, the Procedural Paradigm, Bits/Bytes/Memory & Bitwise Operators`](https://george1meshveliani.github.io/CS/PP2026Lecture1)
+
 ## Introduction
 - [`Introduction. Overview of Computer Science and Computer Organization`](https://george1meshveliani.github.io/CS/Introduction)
 - [`Arrays, Structs and Sorting`](https://george1meshveliani.github.io/CS/ArraysStructsSorting)
