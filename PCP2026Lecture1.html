@@ -201,7 +201,8 @@
 
   /* terminal */
   .terminal{ background:#0B0D12; border:1px solid #262B36; border-radius:6px; overflow:hidden; font-family:var(--font-mono); font-size:.85rem; }
-  .terminal-bar{ display:flex; gap:.4rem; padding:.5rem .7rem; background:#151923; }
+  .terminal-bar{ display:flex; align-items:center; gap:.4rem; padding:.5rem .7rem; background:#151923; }
+  .terminal-title{ margin-left:.5rem; font-size:.72rem; color:#7C8494; }
   .terminal-dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
   .terminal-dot.red{ background:#E4626F; } .terminal-dot.yellow{ background:#E8B95F; } .terminal-dot.green{ background:#66C08A; }
   .terminal-body{ padding:.8rem 1rem; display:flex; flex-direction:column; gap:.15rem; }
@@ -399,7 +400,7 @@
           <button class="reveal-btn" data-target="p1-hint">Hint</button>
           <button class="reveal-btn" data-target="p1-sol">Solution</button>
         </div>
-        <div class="reveal" id="p1-hint" hidden><span class="reveal-tag">HINT</span>Find the biggest power of 2 that fits, subtract it, and repeat &mdash; or divide by 2 repeatedly and read the remainders bottom-to-top.</div>
+        <div class="reveal" id="p1-hint" hidden><span class="reveal-tag">HINT</span>Find the biggest power of 2 that fits, subtract it, and repeat &mdash; or apply \\(d_i = \\lfloor N/2^{i} \\rfloor \\bmod 2\\) repeatedly and read the remainders bottom-to-top.</div>
         <div class="reveal" id="p1-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(45 = 32+8+4+1 = 2^{5}+2^{3}+2^{2}+2^{0} \\;\\Longrightarrow\\; 101101_2\\)</div>
       </div>
       <div class="problem">
@@ -408,8 +409,8 @@
           <button class="reveal-btn" data-target="p2-hint">Hint</button>
           <button class="reveal-btn" data-target="p2-sol">Solution</button>
         </div>
-        <div class="reveal" id="p2-hint" hidden><span class="reveal-tag">HINT</span>Line the bits up under 32&nbsp;16&nbsp;8&nbsp;4&nbsp;2&nbsp;1 and add only the columns with a 1.</div>
-        <div class="reveal" id="p2-sol" hidden><span class="reveal-tag">SOLUTION</span>32+8+4+1 = <b>45</b> &mdash; matches Q1, as it should.</div>
+        <div class="reveal" id="p2-hint" hidden><span class="reveal-tag">HINT</span>Line the bits up under \\(2^{5},2^{4},2^{3},2^{2},2^{1},2^{0}\\) and add only the columns with a 1.</div>
+        <div class="reveal" id="p2-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(101101_2 = 2^{5}+2^{3}+2^{2}+2^{0} = 32+8+4+1 = 45\\) &mdash; matches Q1, as it should.</div>
       </div>
     `},
     { part:2, eyebrow:'Part 2 · Try It Yourself', title:'Problems: Hex &amp; Floating Point', html:`
@@ -428,7 +429,7 @@
           <button class="reveal-btn" data-target="p4-hint">Hint</button>
           <button class="reveal-btn" data-target="p4-sol">Solution</button>
         </div>
-        <div class="reveal" id="p4-hint" hidden><span class="reveal-tag">HINT</span>Think about how 1/3 looks in decimal: 0.333&hellip; forever. Now picture 0.1 written in binary.</div>
+        <div class="reveal" id="p4-hint" hidden><span class="reveal-tag">HINT</span>Think about how \\(\\frac{1}{3} = 0.\\overline{3}_{10}\\) repeats forever in decimal. Now picture \\(0.1_{10}\\) written in binary.</div>
         <div class="reveal" id="p4-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(0.1_{10} = 0.0\\overline{0011}_2\\) never terminates, so it's stored as the closest approximation &mdash; adding two tiny rounding errors together makes the leftover visible.</div>
       </div>
     `},
@@ -439,8 +440,8 @@
           <button class="reveal-btn" data-target="p5-hint">Hint</button>
           <button class="reveal-btn" data-target="p5-sol">Solution</button>
         </div>
-        <div class="reveal" id="p5-hint" hidden><span class="reveal-tag">HINT</span>Write 20 in binary, invert every bit, then add 1.</div>
-        <div class="reveal" id="p5-sol" hidden><span class="reveal-tag">SOLUTION</span>20 = 00010100₂ → invert → 11101011 → +1 → <b>11101100₂ = −20</b></div>
+        <div class="reveal" id="p5-hint" hidden><span class="reveal-tag">HINT</span>Write \\(20 = 2^{4}+2^{2} = 00010100_2\\), invert every bit, then add 1.</div>
+        <div class="reveal" id="p5-sol" hidden><span class="reveal-tag">SOLUTION</span>20 = 00010100₂ → invert → 11101011 → +1 → <b>11101100₂ = −20</b>. Check: \\(-1\\cdot2^{7}+(2^{6}+2^{5}+2^{3}+2^{2}) = -128+108 = -20\\)</div>
       </div>
       <div class="problem">
         <div class="problem-q"><span class="prompt">&gt;</span> Q6. What decimal value does the 8-bit two's complement <b>11110000</b> represent?</div>
@@ -448,7 +449,7 @@
           <button class="reveal-btn" data-target="p6-hint">Hint</button>
           <button class="reveal-btn" data-target="p6-sol">Solution</button>
         </div>
-        <div class="reveal" id="p6-hint" hidden><span class="reveal-tag">HINT</span>The leftmost bit is worth −2⁷ = −128; add the remaining bits normally.</div>
+        <div class="reveal" id="p6-hint" hidden><span class="reveal-tag">HINT</span>The leftmost bit is worth \\(-2^{7} = -128\\); add the remaining bits normally.</div>
         <div class="reveal" id="p6-sol" hidden><span class="reveal-tag">SOLUTION</span>\\(-1\\cdot2^{7} + (2^{6}+2^{5}+2^{4}) = -128+112 = -16\\)</div>
       </div>
     `},
@@ -466,17 +467,19 @@
       </div>
     `},
     { part:3, eyebrow:'Part 3 · See It Work', title:'See It Run: A Terminal Session', html:`
-      <p class="prose">Two real command sequences you'll type in the first week &mdash; a compile-and-run, then a first commit.</p>
+      <p class="prose">Two real command sequences you'll type in the first week, on a Linux (or Git Bash) shell &mdash; a compile-and-run, then a first commit.</p>
       <div class="terminal">
-        <div class="terminal-bar"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+        <div class="terminal-bar"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span><span class="terminal-title">bash &mdash; Linux</span></div>
         <div class="terminal-body">
+          <div class="cmd">uname -a</div>
+          <div class="out">Linux pcp2026 6.8.0-generic x86_64 GNU/Linux</div>
           <div class="cmd">gcc hello.c -o hello</div>
           <div class="cmd">./hello</div>
           <div class="out">Hello, PCP2026!</div>
         </div>
       </div>
       <div class="terminal">
-        <div class="terminal-bar"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span></div>
+        <div class="terminal-bar"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span><span class="terminal-title">bash &mdash; Linux</span></div>
         <div class="terminal-body">
           <div class="cmd">git init</div>
           <div class="cmd">git add hello.c</div>
