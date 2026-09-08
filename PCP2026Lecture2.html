@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PCP2026 · Lecture 2</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<script>
+  window.MathJax = {
+    tex: { inlineMath: [['\\(', '\\)']], displayMath: [['\\[', '\\]']] },
+    svg: { fontCache: 'global' },
+    startup: { typeset: false }
+  };
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js" id="MathJax-script" async></script>
+<style>
+  :root{
+    --bg:#EDEFF0; --surface:#FFFFFF; --border:#D3D7DA;
+    --text:#1A1E27; --text-dim:#5B6270;
+    --accent:#D9720C; --accent-text:#9C5209; --accent-2:#1F6B63;
+    --on-accent:#1B1000;
+    --font-display:'IBM Plex Sans','Segoe UI',system-ui,sans-serif;
+    --font-mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#10131C; --surface:#171B27; --border:#2B3040;
+      --text:#E7E9EE; --text-dim:#9AA1B0;
+      --accent:#F2A340; --accent-text:#F2A340; --accent-2:#6FD6CB;
+      --on-accent:#1B1000;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#10131C; --surface:#171B27; --border:#2B3040;
+    --text:#E7E9EE; --text-dim:#9AA1B0;
+    --accent:#F2A340; --accent-text:#F2A340; --accent-2:#6FD6CB;
+    --on-accent:#1B1000;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--font-display);
+    background-image:
+      radial-gradient(circle, var(--border) 1px, transparent 1px);
+    background-size:26px 26px;
+  }
+  .deck{ position:relative; height:100vh; height:100dvh; min-height:520px; display:flex; flex-direction:column; }
+
+  .progress-rail{ height:3px; background:var(--border); flex:0 0 auto; }
+  .progress-fill{ height:100%; width:0%; background:var(--accent); transition:width .3s ease; }
+
+  .deck-chrome{
+    flex:0 0 auto; display:flex; align-items:center; justify-content:space-between;
+    padding:.85rem clamp(1rem,3vw,2.2rem); border-bottom:1px solid var(--border);
+  }
+  .brand{ font-family:var(--font-mono); font-weight:600; font-size:.85rem; letter-spacing:.02em; }
+  .brand em{ font-style:normal; color:var(--accent-text); }
+  .brand .sep{ color:var(--text-dim); margin:0 .35em; }
+  .slide-meta{ font-family:var(--font-mono); font-size:.8rem; color:var(--text-dim); display:flex; gap:.6em; align-items:center; font-variant-numeric:tabular-nums; }
+  #partLabel{ color:var(--accent-text); font-weight:600; }
+
+  .stage{ position:relative; flex:1 1 auto; overflow:hidden; }
+  .slide{
+    position:absolute; inset:0; display:flex; justify-content:center; align-items:stretch;
+    opacity:0; pointer-events:none; transform:translateY(10px);
+    transition:opacity .28s ease, transform .28s ease;
+  }
+  .slide.is-active{ opacity:1; pointer-events:auto; transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){ .slide{ transition:none; transform:none; } }
+
+  .slide-inner{
+    width:100%; max-width:980px; margin:0 auto; padding:clamp(1.2rem,3vw,2.6rem) clamp(1.2rem,4vw,2rem);
+    overflow-y:auto; display:flex; flex-direction:column; justify-content:center; gap:.9rem;
+  }
+  .slide-inner::-webkit-scrollbar{ width:8px; }
+  .slide-inner::-webkit-scrollbar-thumb{ background:var(--border); border-radius:4px; }
+
+  .eyebrow{
+    font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.14em;
+    font-size:.72rem; font-weight:600; color:var(--accent-text); margin:0;
+  }
+  .eyebrow::before{ content:"// "; color:var(--text-dim); }
+
+  .slide-title{ font-size:clamp(1.5rem,1.05rem+1.7vw,2.15rem); font-weight:700; line-height:1.12; margin:0; text-wrap:balance; }
+  .slide-title.is-hero{ font-size:clamp(2rem,1.1rem+3.4vw,3.5rem); letter-spacing:-.01em; }
+  .slide-sub{ font-size:1.02rem; color:var(--text-dim); max-width:62ch; margin:0; line-height:1.55; }
+
+  .prose{ max-width:66ch; font-size:1rem; line-height:1.6; color:var(--text); }
+  .prose strong{ color:var(--text); }
+
+  ul.list{ margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:.55rem; max-width:66ch; }
+  ul.list li{ padding-left:1.3em; position:relative; line-height:1.5; }
+  ul.list li::before{ content:"›"; position:absolute; left:0; color:var(--accent); font-weight:700; font-family:var(--font-mono); }
+  ul.list b{ color:var(--text); }
+
+  /* title slide */
+  .hero-tags{ display:flex; flex-wrap:wrap; gap:.5rem; margin-top:.4rem; }
+  .hero-tag{ font-family:var(--font-mono); font-size:.78rem; padding:.35em .75em; border:1px solid var(--border); border-radius:3px; color:var(--text-dim); }
+  .cursor{ display:inline-block; width:.55em; height:1em; background:var(--accent); vertical-align:-.15em; animation:blink 1.1s steps(1) infinite; }
+  @media (prefers-reduced-motion: reduce){ .cursor{ animation:none; } }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .hint-line{ font-family:var(--font-mono); font-size:.78rem; color:var(--text-dim); margin-top:.6rem; }
+
+  /* divider */
+  .divider-wrap{ display:flex; flex-direction:column; gap:.3rem; }
+  .part-number{ font-family:var(--font-mono); font-size:clamp(3.5rem,2rem+7vw,7rem); font-weight:700; color:var(--accent); line-height:1; letter-spacing:-.02em; }
+  .divider-wrap .slide-title{ font-size:clamp(1.6rem,1.1rem+2vw,2.4rem); }
+
+  /* timeline */
+  .timeline{ list-style:none; margin:0; padding:0; border-left:2px solid var(--border); display:flex; flex-direction:column; gap:1rem; max-width:70ch; }
+  .timeline li{ padding-left:1.2rem; position:relative; }
+  .timeline li::before{ content:""; position:absolute; left:-6px; top:.35em; width:10px; height:10px; border-radius:50%; background:var(--accent); border:2px solid var(--bg); }
+  .timeline .year{ font-family:var(--font-mono); color:var(--accent-text); font-weight:700; font-size:.85rem; font-variant-numeric:tabular-nums; }
+  .timeline .event{ font-weight:600; margin:.1em 0; }
+  .timeline .desc{ color:var(--text-dim); font-size:.92rem; line-height:1.45; }
+
+  /* split */
+  .cols{ display:grid; grid-template-columns:1fr 1fr; gap:1.4rem; }
+  @media (max-width:640px){ .cols{ grid-template-columns:1fr; } }
+  .col{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1.1rem 1.2rem; }
+  .col h3{ margin:0 0 .6rem; font-size:.95rem; font-family:var(--font-mono); text-transform:uppercase; letter-spacing:.08em; color:var(--accent-2); }
+  .col ul.list li::before{ color:var(--accent-2); }
+
+  /* math / data table */
+  .place-table{ border-collapse:collapse; font-family:var(--font-mono); font-size:.92rem; font-variant-numeric:tabular-nums; }
+  .place-table td,.place-table th{ border:1px solid var(--border); padding:.4em .7em; text-align:center; }
+  .place-table th{ color:var(--text-dim); font-weight:600; }
+  .place-table .hi{ color:var(--accent-text); font-weight:700; }
+  .legend-table{ width:100%; max-width:74ch; }
+  .legend-table td,.legend-table th{ text-align:left; }
+  .legend-table td:first-child,.legend-table th:first-child{ text-align:center; }
+  .worked{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.9rem 1.1rem; font-family:var(--font-mono); font-size:.92rem; line-height:1.6; max-width:66ch; overflow-x:auto; }
+  .worked mjx-container{ font-size:105%; }
+
+  /* pseudocode / code blocks */
+  .pseudocode{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.9rem 1.1rem; font-family:var(--font-mono); font-size:.88rem; line-height:1.65; max-width:66ch; overflow-x:auto; }
+  .pseudocode .ind1{ padding-left:1.6em; }
+  .pseudocode .ind2{ padding-left:3.2em; }
+  .pseudocode .cm{ color:var(--text-dim); }
+  .pseudocode .kw{ color:var(--accent-text); font-weight:600; }
+
+  /* flowcharts */
+  .flow{ display:flex; flex-direction:column; align-items:center; gap:.4rem; }
+  .flow-row{ display:flex; align-items:center; justify-content:center; gap:.5rem; flex-wrap:wrap; }
+  .flow-node{ background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:.55em 1em; font-family:var(--font-mono); font-size:.85rem; text-align:center; }
+  .flow-oval{ border-radius:999px; padding:.55em 1.3em; border-color:var(--accent); }
+  .flow-diamond{ background:var(--surface); border:1px solid var(--accent); clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%); padding:1.5em 1.7em; font-family:var(--font-mono); font-size:.8rem; text-align:center; }
+  .flow-arrow{ color:var(--text-dim); font-family:var(--font-mono); font-size:1.1rem; line-height:1; }
+  .flow-branch{ display:flex; gap:2.2rem; justify-content:center; align-items:flex-start; flex-wrap:wrap; }
+  .flow-col{ display:flex; flex-direction:column; align-items:center; gap:.4rem; }
+  .flow-label{ font-family:var(--font-mono); font-size:.72rem; color:var(--accent-text); font-weight:600; }
+  .shape-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:1rem; }
+  .shape-card{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1rem; display:flex; flex-direction:column; align-items:center; gap:.6rem; text-align:center; }
+  .shape-card p{ margin:0; color:var(--text-dim); font-size:.85rem; line-height:1.4; }
+  .shape-card h3{ margin:0; font-size:.9rem; }
+
+  /* problems */
+  .problem{ background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:4px; padding:.9rem 1.1rem; }
+  .problem + .problem{ margin-top:.7rem; }
+  .problem-q{ font-family:var(--font-mono); font-size:.95rem; }
+  .problem-q .prompt{ color:var(--accent-text); margin-right:.4em; }
+  .problem-actions{ display:flex; gap:.5rem; margin-top:.6rem; }
+  .reveal-btn{
+    font-family:var(--font-mono); font-size:.78rem; background:transparent; color:var(--accent-text);
+    border:1px solid var(--accent); border-radius:3px; padding:.35em .8em; cursor:pointer;
+  }
+  .reveal-btn:hover{ background:var(--accent); color:var(--on-accent); }
+  .reveal-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+  .reveal{ margin-top:.6rem; padding:.6rem .8rem; background:var(--bg); border:1px dashed var(--border); border-radius:3px; font-family:var(--font-mono); font-size:.87rem; line-height:1.55; }
+  .reveal[hidden]{ display:none; }
+  .reveal-tag{ color:var(--accent-2); font-weight:700; margin-right:.5em; }
+
+  /* tools grid */
+  .tool-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:1rem; }
+  .tool-card{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.3rem; }
+  .tool-tag{ font-family:var(--font-mono); font-size:.72rem; color:var(--text-dim); }
+  .tool-card h3{ margin:0; font-size:1.05rem; }
+  .tool-card p{ margin:0; color:var(--text-dim); font-size:.9rem; line-height:1.45; }
+
+  .callout{ border-left:3px solid var(--accent-2); padding:.5rem .9rem; color:var(--text-dim); font-size:.92rem; font-style:normal; max-width:62ch; }
+
+  .stub{ border:1px dashed var(--border); border-radius:6px; padding:1.4rem 1.2rem; color:var(--text-dim); font-family:var(--font-mono); font-size:.88rem; text-align:center; max-width:66ch; }
+
+  /* nav */
+  .nav-zone{ position:absolute; top:0; bottom:0; width:56px; background:transparent; border:0; cursor:pointer; z-index:2; }
+  .nav-zone:focus-visible{ outline:2px solid var(--accent); outline-offset:-4px; }
+  .nav-prev{ left:0; } .nav-next{ right:0; }
+  @media (max-width:700px){ .nav-zone{ width:34px; } }
+
+  .deck-controls{
+    flex:0 0 auto; display:flex; align-items:center; justify-content:space-between; gap:1rem;
+    padding:.7rem clamp(1rem,3vw,2.2rem); border-top:1px solid var(--border); background:var(--bg);
+  }
+  .ctrl-btn{
+    font-family:var(--font-mono); font-size:.85rem; background:var(--surface); color:var(--text);
+    border:1px solid var(--border); border-radius:4px; padding:.5em 1em; cursor:pointer;
+  }
+  .ctrl-btn:hover{ border-color:var(--accent); color:var(--accent-text); }
+  .ctrl-btn:disabled{ opacity:.35; cursor:default; }
+  .ctrl-btn:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  .dots{ display:flex; gap:.9rem; overflow-x:auto; max-width:60vw; padding:.2rem; }
+  .dot{ width:8px; height:8px; border-radius:50%; background:var(--border); border:0; padding:0; cursor:pointer; flex:0 0 auto; }
+  .dot.is-current{ background:var(--accent); transform:scale(1.35); }
+  .dot:focus-visible{ outline:2px solid var(--accent); outline-offset:2px; }
+
+  /* case studies */
+  .case-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(230px,1fr)); gap:1rem; }
+  .case-card{ background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--accent); border-radius:4px; padding:1rem 1.1rem; display:flex; flex-direction:column; gap:.35rem; }
+  .case-card .case-year{ font-family:var(--font-mono); font-size:.72rem; color:var(--text-dim); }
+  .case-card h3{ margin:0; font-size:1rem; }
+  .case-card p{ margin:0; font-size:.88rem; color:var(--text-dim); line-height:1.45; }
+  .case-card .result{ font-family:var(--font-mono); font-size:.78rem; color:var(--accent-2); margin:0; }
+
+  /* formulas */
+  .formula{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.85rem 1.1rem; overflow-x:auto; }
+  .formula .f-label{ display:block; font-size:.7rem; text-transform:uppercase; letter-spacing:.1em; color:var(--text-dim); margin-bottom:.35rem; font-family:var(--font-mono); }
+  .formula .f-expr{ color:var(--text); overflow-x:auto; }
+  .formula .f-expr mjx-container{ font-size:112%; }
+
+  /* terminal */
+  .terminal{ background:#0B0D12; border:1px solid #262B36; border-radius:6px; overflow:hidden; font-family:var(--font-mono); font-size:.85rem; }
+  .terminal-bar{ display:flex; align-items:center; gap:.4rem; padding:.5rem .7rem; background:#151923; }
+  .terminal-title{ margin-left:.5rem; font-size:.72rem; color:#7C8494; }
+  .terminal-dot{ width:9px; height:9px; border-radius:50%; display:inline-block; }
+  .terminal-dot.red{ background:#E4626F; } .terminal-dot.yellow{ background:#E8B95F; } .terminal-dot.green{ background:#66C08A; }
+  .terminal-body{ padding:.8rem 1rem; display:flex; flex-direction:column; gap:.15rem; }
+  .terminal-body .cmd{ color:#D7DBE0; }
+  .terminal-body .cmd::before{ content:"$ "; color:#6FD6CB; }
+  .terminal-body .out{ color:#7C8494; }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck" role="group" aria-roledescription="slideshow" aria-label="PCP2026 Lecture 2">
+  <div class="progress-rail"><div class="progress-fill" id="progressFill"></div></div>
+  <header class="deck-chrome">
+    <div class="brand">PCP2026<span class="sep">·</span><em>Lecture 02</em></div>
+    <div class="slide-meta"><span id="partLabel">Intro</span><span class="sep">/</span><span id="counter">01 / 37</span></div>
+  </header>
+
+  <main class="stage" id="stage">
+    <button class="nav-zone nav-prev" id="prevZone" aria-label="Previous slide"></button>
+    <button class="nav-zone nav-next" id="nextZone" aria-label="Next slide"></button>
+  </main>
+
+  <footer class="deck-controls">
+    <button class="ctrl-btn" id="btnPrev">‹ Prev</button>
+    <div class="dots" id="dots"></div>
+    <button class="ctrl-btn" id="btnNext">Next ›</button>
+  </footer>
+</div>
+
+<script>
+(function(){
+  const slides = [
+    { part:0, variant:'title', title:'Data, Algorithms &amp; What Actually Runs Them', html:`
+      <p class="eyebrow">root@PCP2026:~$ ./lecture_02 --init<span class="cursor"></span></p>
+      <p class="slide-sub">Data goes in, an algorithm chews on it, a program spells that out precisely, and a CPU grinds through it one step at a time. This is the recipe behind literally every app you've ever opened &mdash; including the one you're reading this in.</p>
+      <div class="hero-tags">
+        <span class="hero-tag">Part 1 · Data &amp; Algorithms</span>
+        <span class="hero-tag">Part 2 · Program Execution</span>
+        <span class="hero-tag">Part 3 · Arithmetic &amp; Logic</span>
+        <span class="hero-tag">Part 4 · Representing Algorithms</span>
+        <span class="hero-tag">Part 5 · Loops</span>
+      </div>
+      <p class="hint-line">Use ← → , tap the left/right edges, or the dots below to move.</p>
+    `},
+
+    { part:1, variant:'divider', kicker:'01', title:'Data Processing &amp; the Concept of an Algorithm', html:`
+      <p class="prose">Every app on your phone is really the same loop wearing a different outfit: take data in, do something exact and repeatable to it, hand back an answer. Let's take that loop apart.</p>
+    `},
+    { part:1, eyebrow:'Part 1 · The Big Picture', title:'What Is Data Processing?', html:`
+      <p class="prose"><b>Data processing</b> is the systematic sequence of operations performed on raw data to turn it into something actually usable &mdash; <b>information</b>.</p>
+      <div class="cols">
+        <div class="col"><h3>Data (in)</h3>
+          <ul class="list">
+            <li>Raw, unorganized facts &mdash; numbers, text, clicks, sensor readings</li>
+            <li>Example: every second you spend watching a video, logged one row at a time</li>
+          </ul>
+        </div>
+        <div class="col"><h3>Information (out)</h3>
+          <ul class="list">
+            <li>The same facts, organized and interpreted so they mean something</li>
+            <li>Example: "you watch cooking videos 40% more on Sundays"</li>
+          </ul>
+        </div>
+      </div>
+      <p class="callout">Data is raw ingredients. Information is dinner. Data processing is the cooking &mdash; and the recipe you cook it with is an algorithm.</p>
+    `},
+    { part:1, eyebrow:'Part 1 · The Three-Stage Cycle', title:'Input → Process → Output', html:`
+      <p class="prose">Almost every piece of data processing, no matter how fancy, breaks down into the same three stages:</p>
+      <div class="flow-row">
+        <div class="flow-node">Input<br><span style="color:var(--text-dim)">[78, 92, 85, 60]</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Process<br><span style="color:var(--text-dim)">sum ÷ count</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Output<br><span style="color:var(--text-dim)">78.75</span></div>
+      </div>
+      <p class="callout">Spotify's Discover Weekly is the exact same shape at a bigger scale: <b>input</b> = your listening history, <b>process</b> = a recommendation model, <b>output</b> = a fresh playlist every Monday.</p>
+    `},
+    { part:1, eyebrow:'Part 1 · Defining It', title:'What Exactly Is an Algorithm?', html:`
+      <p class="prose">An <b>algorithm</b> is a finite, ordered sequence of unambiguous, executable steps that transforms an input into an output. Formally, it needs all five of these:</p>
+      <ul class="list">
+        <li><b>Finiteness</b> &mdash; it must terminate after a finite number of steps. "Keep adding sugar forever" is not an algorithm.</li>
+        <li><b>Definiteness</b> &mdash; every step must be exact, with nothing left to guess. Not "add a pinch of salt" &mdash; "add 2 grams of salt."</li>
+        <li><b>Input</b> &mdash; zero or more well-defined inputs. ("Roll a standard die" needs no input beyond the die itself.)</li>
+        <li><b>Output</b> &mdash; one or more well-defined outputs. An algorithm that produces nothing has no reason to exist.</li>
+        <li><b>Effectiveness</b> &mdash; each step must be basic enough to actually be carried out, in principle by hand or by a machine.</li>
+      </ul>
+    `},
+    { part:1, eyebrow:'Part 1 · Etymology', title:'Where the Word "Algorithm" Actually Comes From', html:`
+      <ul class="timeline">
+        <li><span class="year">~820 CE</span><div class="event">Al-Khwarizmi, Baghdad</div><div class="desc">Persian mathematician at the House of Wisdom writes systematic, step-by-step methods for solving equations. His book title, "al-jabr," gives us <i>algebra</i>; a Latin mangling of his own name gives us <i>algorithm</i>.</div></li>
+        <li><span class="year">1936</span><div class="event">Turing Formalizes It</div><div class="desc">The Turing Machine (Lecture 1) gives "algorithm" a precise mathematical meaning: anything computable, one exact step at a time.</div></li>
+        <li><span class="year">Today</span><div class="event">"The Algorithm"</div><div class="desc">TikTok/Instagram slang for whatever decides your feed. Same 1,200-year-old word, same core idea &mdash; exact steps applied to your data &mdash; wildly different vibe.</div></li>
+      </ul>
+    `},
+    { part:1, eyebrow:'Part 1 · Everywhere, Not Just Code', title:'Algorithms You Already Run Every Day', html:`
+      <div class="tool-grid">
+        <div class="tool-card"><span class="tool-tag">&gt;_ kitchen</span><h3>A Recipe</h3><p>Input: water, noodles, heat. Steps timed and ordered exactly. Output: dinner.</p></div>
+        <div class="tool-card"><span class="tool-tag">&gt;_ navigation</span><h3>GPS Directions</h3><p>Input: current location + destination. Process: shortest-path search. Output: turn-by-turn steps.</p></div>
+        <div class="tool-card"><span class="tool-tag">&gt;_ habit</span><h3>Your Morning Routine</h3><p>Alarm triggers the same ordered steps &mdash; brush, shower, dress &mdash; every single day.</p></div>
+        <div class="tool-card"><span class="tool-tag">&gt;_ laundry</span><h3>Care-Label Symbols</h3><p>A tiny tag that is, literally, a step-by-step algorithm printed as icons.</p></div>
+      </div>
+    `},
+    { part:1, eyebrow:'Part 1 · Try It Yourself', title:'Problems: Spot the Algorithm', html:`
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q1. Which of these is <b>not</b> technically an algorithm?<br>(a) "Starting at 1, keep adding 1 forever and print each result."<br>(b) "Starting at 1, add 1 until you reach 100, printing each result."</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p1-hint">Hint</button>
+          <button class="reveal-btn" data-target="p1-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p1-hint" hidden><span class="reveal-tag">HINT</span>Check each option against the five properties &mdash; one of them clearly breaks a specific one.</div>
+        <div class="reveal" id="p1-sol" hidden><span class="reveal-tag">SOLUTION</span>(a) fails <b>finiteness</b> &mdash; it never stops. (b) is a genuine algorithm: it terminates at 100.</div>
+      </div>
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q2. A recipe says "add a pinch of salt." Which property does this violate, and how would you fix it?</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p2-hint">Hint</button>
+          <button class="reveal-btn" data-target="p2-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p2-hint" hidden><span class="reveal-tag">HINT</span>"A pinch" means something different to everyone &mdash; that's the giveaway.</div>
+        <div class="reveal" id="p2-sol" hidden><span class="reveal-tag">SOLUTION</span>It violates <b>definiteness</b>. Fix: "add 2 grams of salt" &mdash; exact, no room to guess.</div>
+      </div>
+    `},
+
+    { part:2, variant:'divider', kicker:'02', title:'Program Execution', html:`
+      <p class="prose">An algorithm is the idea. A program is that idea spelled out in a language a compiler understands. Here's what actually happens between hitting "run" and seeing output appear.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · The Pipeline', title:'From Algorithm to Running Program', html:`
+      <p class="prose">The idea in your head goes through several translations before a CPU ever touches it:</p>
+      <div class="flow-row">
+        <div class="flow-node">Algorithm<br><span style="color:var(--text-dim)">the idea</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Source code<br><span style="color:var(--text-dim)">C, Python…</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Compiler/<br>Interpreter</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">Machine code<br><span style="color:var(--text-dim)">0s and 1s</span></div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node">CPU executes</div>
+      </div>
+      <p class="callout">Remember from Lecture 1: it's all 0s and 1s underneath &mdash; this pipeline is exactly how you get there from an idea in English.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · Two Translators', title:'Compiled vs Interpreted Execution', html:`
+      <div class="cols">
+        <div class="col"><h3>Compiled</h3>
+          <ul class="list">
+            <li>e.g. C, C++, Go, Rust</li>
+            <li>The whole program is translated to machine code once, ahead of time, into a runnable file</li>
+            <li>Runs fast; you must recompile after every change</li>
+          </ul>
+        </div>
+        <div class="col"><h3>Interpreted</h3>
+          <ul class="list">
+            <li>e.g. Python, JavaScript</li>
+            <li>An interpreter reads and runs the source line by line, every single run</li>
+            <li>More flexible and portable; slower per run since translation happens every time</li>
+          </ul>
+        </div>
+      </div>
+      <p class="callout">Java-style languages hedge their bets: compile once to a portable "bytecode," then a Just-In-Time engine translates that on the fly.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · Inside the CPU', title:'The Fetch–Decode–Execute Cycle', html:`
+      <p class="prose">Once you have machine code, the CPU runs it by looping through the same four moves, billions of times a second:</p>
+      <ul class="list">
+        <li><b>Fetch</b> &mdash; the CPU reads the instruction sitting at the address stored in the <b>Program Counter (PC)</b>, a special register that always points at "what's next"</li>
+        <li><b>Decode</b> &mdash; the control unit figures out exactly which operation this instruction means</li>
+        <li><b>Execute</b> &mdash; the ALU (arithmetic/logic unit) or control unit actually performs it</li>
+        <li><b>Update PC</b> &mdash; the Program Counter moves to the next instruction, and the whole cycle repeats</li>
+      </ul>
+      <p class="callout">A CPU's clock speed &mdash; "3.5 GHz" &mdash; is literally how many times per second this four-step loop can spin.</p>
+    `},
+    { part:2, eyebrow:'Part 2 · Worked Trace', title:'Watching a Program Execute, Step by Step', html:`
+      <p class="prose">A tiny program that computes C = A + B, one fetch–decode–execute cycle per line:</p>
+      <table class="place-table">
+        <tr><th>PC</th><th>Instruction</th><th>Effect</th></tr>
+        <tr><td class="hi">100</td><td>LOAD A</td><td>Fetch A (= 7) into a register</td></tr>
+        <tr><td class="hi">101</td><td>ADD B</td><td>Add B (= 5) to the register → 12</td></tr>
+        <tr><td class="hi">102</td><td>STORE C</td><td>Write 12 into memory location C</td></tr>
+      </table>
+      <div class="worked">After exactly 3 fetch–decode–execute cycles, C now holds 12. This really is all program execution ever is: read an instruction, understand it, do it, repeat.</div>
+    `},
+    { part:2, eyebrow:'Part 2 · See It Run', title:'Compiled vs Interpreted, Side by Side', html:`
+      <p class="prose">Same program, same output, very different pipeline underneath:</p>
+      <div class="terminal">
+        <div class="terminal-bar"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span><span class="terminal-title">bash &mdash; compiled (C)</span></div>
+        <div class="terminal-body">
+          <div class="cmd">gcc hello.c -o hello</div>
+          <div class="cmd">./hello</div>
+          <div class="out">Hello, PCP2026!</div>
+        </div>
+      </div>
+      <div class="terminal">
+        <div class="terminal-bar"><span class="terminal-dot red"></span><span class="terminal-dot yellow"></span><span class="terminal-dot green"></span><span class="terminal-title">bash &mdash; interpreted (Python)</span></div>
+        <div class="terminal-body">
+          <div class="cmd">python3 hello.py</div>
+          <div class="out">Hello, PCP2026!</div>
+        </div>
+      </div>
+      <p class="prose" style="font-size:.9rem;color:var(--text-dim)">C's translation happens once, up front, into <code>hello</code>. Python's interpreter re-reads and re-translates <code>hello.py</code> from scratch on every run &mdash; there's no separate compile step to see.</p>
+    `},
+
+    { part:3, variant:'divider', kicker:'03', title:'Arithmetic &amp; Logical Commands', html:`
+      <p class="prose">The actual verbs a running program has available: do math on real values, and make exact yes/no decisions with them.</p>
+    `},
+    { part:3, eyebrow:'Part 3 · Doing Math', title:'Arithmetic Operators', html:`
+      <table class="place-table legend-table">
+        <tr><th>operator</th><th>meaning</th><th>example</th><th>result</th></tr>
+        <tr><td class="hi">+</td><td>addition</td><td>7 + 3</td><td>10</td></tr>
+        <tr><td class="hi">&minus;</td><td>subtraction</td><td>7 &minus; 3</td><td>4</td></tr>
+        <tr><td class="hi">*</td><td>multiplication</td><td>7 * 3</td><td>21</td></tr>
+        <tr><td class="hi">/</td><td>division</td><td>7 / 2</td><td>3 (integer) or 3.5 (float)</td></tr>
+        <tr><td class="hi">%</td><td>modulo &mdash; the remainder</td><td>7 % 2</td><td>1</td></tr>
+      </table>
+      <p class="callout"><b>Integer division truncates</b>: with integer types, 7 / 2 gives 3, not 3.5 &mdash; the fractional part is simply dropped (ties back to Lecture 1's fixed-point vs floating-point split).</p>
+      <p class="prose" style="font-size:.9rem;color:var(--text-dim)">Modulo shows up constantly: <code>n % 2 == 0</code> tests even/odd; clock arithmetic wraps with it too &mdash; 23:00 plus 3 hours is <code>(23 + 3) % 24 = 2</code>, i.e. 2:00 AM.</p>
+    `},
+    { part:3, eyebrow:'Part 3 · Comparing Values', title:'Relational (Comparison) Operators', html:`
+      <table class="place-table legend-table">
+        <tr><th>operator</th><th>meaning</th><th>example</th></tr>
+        <tr><td class="hi">==</td><td>equal to</td><td>age == 18</td></tr>
+        <tr><td class="hi">!=</td><td>not equal to</td><td>status != "banned"</td></tr>
+        <tr><td class="hi">&lt;</td><td>less than</td><td>price &lt; budget</td></tr>
+        <tr><td class="hi">&gt;</td><td>greater than</td><td>score &gt; 90</td></tr>
+        <tr><td class="hi">&lt;=</td><td>less than or equal to</td><td>attempts &lt;= 3</td></tr>
+        <tr><td class="hi">&gt;=</td><td>greater than or equal to</td><td>age &gt;= 18</td></tr>
+      </table>
+      <p class="callout">Careful: <code>=</code> assigns a value, <code>==</code> compares two values. Mixing these up is one of the most common beginner bugs in every language that uses this convention.</p>
+    `},
+    { part:3, eyebrow:'Part 3 · Making Decisions', title:'Logical Operators: AND, OR, NOT', html:`
+      <p class="prose">Logical operators combine true/false values (each row below is one possible combination of <b>p</b> and <b>q</b>):</p>
+      <table class="place-table">
+        <tr><th>p</th><th>q</th><th>NOT p</th><th>p AND q</th><th>p OR q</th></tr>
+        <tr><td>T</td><td>T</td><td>F</td><td class="hi">T</td><td class="hi">T</td></tr>
+        <tr><td>T</td><td>F</td><td>F</td><td class="hi">F</td><td class="hi">T</td></tr>
+        <tr><td>F</td><td>T</td><td>T</td><td class="hi">F</td><td class="hi">T</td></tr>
+        <tr><td>F</td><td>F</td><td>T</td><td class="hi">F</td><td class="hi">F</td></tr>
+      </table>
+      <p class="callout">Real example: "Can I get into this R-rated movie?" → <code>age &gt;= 17 OR accompanied_by_adult</code>. Real example #2: "Can I submit this form?" → <code>name_filled AND email_valid AND agreed_to_terms</code> &mdash; AND demands everything is true; OR is happy with just one.</p>
+    `},
+    { part:3, eyebrow:'Part 3 · Order Matters', title:'Precedence &amp; Short-Circuit Evaluation', html:`
+      <p class="prose">When operators mix in one expression, they're not evaluated left-to-right blindly &mdash; there's a pecking order: <b>arithmetic</b> first, then <b>relational</b> (<, ==, …), then <b>logical</b> (NOT binds tighter than AND, which binds tighter than OR).</p>
+      <div class="worked">x != 0 AND (10 / x &gt; 2)</div>
+      <p class="prose" style="font-size:.9rem;color:var(--text-dim)">If x is 0, the left side (<code>x != 0</code>) is already false. Most languages then <b>short-circuit</b>: they never even evaluate the right side, so <code>10 / x</code> is never attempted &mdash; no divide-by-zero crash. A tiny bit of the same discipline that would've helped Ariane 5 (Lecture 1).</p>
+    `},
+    { part:3, eyebrow:'Part 3 · Try It Yourself', title:'Problems: Arithmetic &amp; Logic', html:`
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q1. What does <b>17 % 5</b> evaluate to?</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p3-hint">Hint</button>
+          <button class="reveal-btn" data-target="p3-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p3-hint" hidden><span class="reveal-tag">HINT</span>Modulo is the leftover after doing integer division. How many whole times does 5 go into 17?</div>
+        <div class="reveal" id="p3-sol" hidden><span class="reveal-tag">SOLUTION</span>17 = 5×3 + 2, so <b>17 % 5 = 2</b>.</div>
+      </div>
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q2. Evaluate: <b>(5 &gt; 3) AND (4 == 4) OR (2 &gt; 10)</b></div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p4-hint">Hint</button>
+          <button class="reveal-btn" data-target="p4-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p4-hint" hidden><span class="reveal-tag">HINT</span>Resolve each comparison first, then apply AND before OR.</div>
+        <div class="reveal" id="p4-sol" hidden><span class="reveal-tag">SOLUTION</span>(True AND True) OR False → True OR False → <b>True</b>.</div>
+      </div>
+    `},
+
+    { part:4, variant:'divider', kicker:'04', title:'Ways of Representing an Algorithm', html:`
+      <p class="prose">Once you have the idea, you need a way to write it down &mdash; sometimes several ways, for different audiences &mdash; before it ever becomes runnable code.</p>
+    `},
+    { part:4, eyebrow:'Part 4 · Four Options', title:'Four Ways to Write Down the Same Algorithm', html:`
+      <div class="tool-grid">
+        <div class="tool-card"><span class="tool-tag">&gt;_ plain</span><h3>Natural Language</h3><p>Ordinary sentences. Easy for humans to read, but often vague or ambiguous.</p></div>
+        <div class="tool-card"><span class="tool-tag">&gt;_ structured</span><h3>Pseudocode</h3><p>Language-agnostic, structured steps. Precise and readable, but not directly runnable.</p></div>
+        <div class="tool-card"><span class="tool-tag">&gt;_ visual</span><h3>Flowchart</h3><p>Boxes and arrows. Great for seeing branches and loops at a glance; clunky for long algorithms.</p></div>
+        <div class="tool-card"><span class="tool-tag">&gt;_ runnable</span><h3>Program Code</h3><p>An actual language &mdash; C, Python, etc. The only one a computer can run directly.</p></div>
+      </div>
+    `},
+    { part:4, eyebrow:'Part 4 · Compare', title:'Natural Language vs Pseudocode', html:`
+      <p class="prose">Same algorithm &mdash; "find the largest of three numbers" &mdash; written two ways:</p>
+      <div class="cols">
+        <div class="col"><h3>Natural language</h3>
+          <p class="prose" style="font-size:.92rem">"Look at the three numbers. Whichever one is bigger than both of the others, that's the answer. If there's a tie... figure it out, I guess."</p>
+        </div>
+        <div class="col"><h3>Pseudocode</h3>
+          <div class="pseudocode">
+            <div><span class="kw">if</span> A &gt; B <span class="kw">and</span> A &gt; C:</div>
+            <div class="ind1">largest = A</div>
+            <div><span class="kw">else if</span> B &gt; C:</div>
+            <div class="ind1">largest = B</div>
+            <div><span class="kw">else</span>:</div>
+            <div class="ind1">largest = C</div>
+          </div>
+        </div>
+      </div>
+      <p class="callout">The pseudocode leaves zero ambiguity about ties or ordering. That precision is the entire point of writing it down this way.</p>
+    `},
+    { part:4, eyebrow:'Part 4 · The Classic Symbols', title:'Flowcharts: The Shape Language', html:`
+      <div class="shape-grid">
+        <div class="shape-card"><div class="flow-node flow-oval">Start / End</div><h3>Terminator</h3><p>Marks where the algorithm begins or ends.</p></div>
+        <div class="shape-card"><div class="flow-node">Do a step</div><h3>Process</h3><p>One concrete action or calculation.</p></div>
+        <div class="shape-card"><div class="flow-diamond">True /<br>False?</div><h3>Decision</h3><p>A branch point &mdash; splits the flow based on a condition.</p></div>
+        <div class="shape-card"><div class="flow-arrow">↓</div><h3>Arrow</h3><p>Shows which direction control flows next.</p></div>
+      </div>
+    `},
+    { part:4, eyebrow:'Part 4 · Worked Flowchart', title:'A Real Flowchart: Even or Odd?', html:`
+      <div class="flow">
+        <div class="flow-node flow-oval">Start</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node">Input N</div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-diamond">N % 2<br>== 0?</div>
+        <div class="flow-branch">
+          <div class="flow-col">
+            <span class="flow-label">YES</span>
+            <div class="flow-node">Print "Even"</div>
+          </div>
+          <div class="flow-col">
+            <span class="flow-label">NO</span>
+            <div class="flow-node">Print "Odd"</div>
+          </div>
+        </div>
+        <div class="flow-arrow">↓</div>
+        <div class="flow-node flow-oval">End</div>
+      </div>
+    `},
+    { part:4, eyebrow:'Part 4 · The Fourth Way', title:'Program Code: The Only One a Computer Can Run', html:`
+      <p class="prose">Same algorithm, same flowchart, same pseudocode &mdash; now expressed as C that <code>gcc</code> can actually turn into machine code:</p>
+      <div class="pseudocode">
+        <div>#include &lt;stdio.h&gt;</div>
+        <div>int main() {</div>
+        <div class="ind1">int n;</div>
+        <div class="ind1">scanf("%d", &amp;n);</div>
+        <div class="ind1"><span class="kw">if</span> (n % 2 == 0) {</div>
+        <div class="ind2">printf("Even\\n");</div>
+        <div class="ind1">} <span class="kw">else</span> {</div>
+        <div class="ind2">printf("Odd\\n");</div>
+        <div class="ind1">}</div>
+        <div class="ind1"><span class="kw">return</span> 0;</div>
+        <div>}</div>
+      </div>
+      <p class="callout">Four representations, one idea: this is why the flowchart, the pseudocode and this C program should never disagree with each other.</p>
+    `},
+    { part:4, eyebrow:'Part 4 · Try It Yourself', title:'Problems: Represent It Yourself', html:`
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q1. Write pseudocode for "find the <b>smallest</b> of three numbers."</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p5-hint">Hint</button>
+          <button class="reveal-btn" data-target="p5-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p5-hint" hidden><span class="reveal-tag">HINT</span>Take the "largest of three" pseudocode from earlier and flip every comparison.</div>
+        <div class="reveal" id="p5-sol" hidden><span class="reveal-tag">SOLUTION</span><code>if A &lt; B and A &lt; C: smallest = A / else if B &lt; C: smallest = B / else: smallest = C</code></div>
+      </div>
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q2. In a flowchart, which shape asks "Is the password correct?", and which shows "Access Granted"?</div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p6-hint">Hint</button>
+          <button class="reveal-btn" data-target="p6-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p6-hint" hidden><span class="reveal-tag">HINT</span>One of them branches the flow in two directions; the other just does one thing.</div>
+        <div class="reveal" id="p6-sol" hidden><span class="reveal-tag">SOLUTION</span>The question is a <b>diamond</b> (decision) &mdash; it branches. "Access Granted" is a <b>rectangle</b> (process/output) &mdash; a single action.</div>
+      </div>
+    `},
+
+    { part:5, variant:'divider', kicker:'05', title:'Iterative Structures', html:`
+      <p class="prose">Computers are extremely good at doing the exact same thing over and over without complaining. Loops are how you tell them to.</p>
+    `},
+    { part:5, eyebrow:'Part 5 · Why Bother', title:'Why Loops? The Alternative Is Insane', html:`
+      <p class="prose">Printing "Hello" 100 times without a loop means writing the same line 100 times:</p>
+      <div class="pseudocode">
+        <div>print("Hello")</div>
+        <div>print("Hello")</div>
+        <div>print("Hello")</div>
+        <div class="cm">... 97 more lines ...</div>
+      </div>
+      <p class="prose">A loop says the same thing in three lines:</p>
+      <div class="pseudocode">
+        <div><span class="kw">for</span> i = 1 to 100:</div>
+        <div class="ind1">print("Hello")</div>
+      </div>
+      <p class="callout">This is the "Don't Repeat Yourself" (DRY) principle in its most literal form: an <b>iterative structure</b> repeats a block of steps without repeating the code that describes them.</p>
+    `},
+    { part:5, eyebrow:'Part 5 · Pretest Loop', title:'The while Loop: Check First, Then Maybe Run', html:`
+      <div class="pseudocode">
+        <div>sum = 0</div>
+        <div>i = 1</div>
+        <div><span class="kw">while</span> i &lt;= 5:</div>
+        <div class="ind1">sum = sum + i</div>
+        <div class="ind1">i = i + 1</div>
+        <div>print(sum)</div>
+      </div>
+      <p class="prose">Trace it, one pass at a time:</p>
+      <table class="place-table">
+        <tr><th>pass</th><th>i (before)</th><th>i &le; 5?</th><th>sum (after)</th><th>i (after)</th></tr>
+        <tr><td>1</td><td>1</td><td class="hi">true</td><td>1</td><td>2</td></tr>
+        <tr><td>2</td><td>2</td><td class="hi">true</td><td>3</td><td>3</td></tr>
+        <tr><td>3</td><td>3</td><td class="hi">true</td><td>6</td><td>4</td></tr>
+        <tr><td>4</td><td>4</td><td class="hi">true</td><td>10</td><td>5</td></tr>
+        <tr><td>5</td><td>5</td><td class="hi">true</td><td>15</td><td>6</td></tr>
+        <tr><td>6</td><td>6</td><td>false</td><td>&mdash;</td><td>stop</td></tr>
+      </table>
+      <p class="callout">Final <code>sum = 15</code> (1+2+3+4+5). The condition is checked <b>before</b> the body every time &mdash; if it starts false, the body never runs at all.</p>
+    `},
+    { part:5, eyebrow:'Part 5 · Posttest Loop', title:'The do…while Loop: Run First, Check After', html:`
+      <div class="pseudocode">
+        <div><span class="kw">do</span>:</div>
+        <div class="ind1">print("Enter a number 1-10: ")</div>
+        <div class="ind1">n = read_input()</div>
+        <div><span class="kw">while</span> n &lt; 1 or n &gt; 10</div>
+      </div>
+      <div class="cols">
+        <div class="col"><h3>while (pretest)</h3>
+          <ul class="list"><li>Condition checked <b>before</b> the body</li><li>If false immediately, runs <b>0</b> times</li><li>Good for: "process each item I already have"</li></ul>
+        </div>
+        <div class="col"><h3>do…while (posttest)</h3>
+          <ul class="list"><li>Condition checked <b>after</b> the body</li><li>Always runs <b>at least 1</b> time</li><li>Good for: "ask at least once, keep re-asking until valid" &mdash; menus, input validation</li></ul>
+        </div>
+      </div>
+    `},
+    { part:5, eyebrow:'Part 5 · Counter-Controlled', title:'The for Loop: When You Know How Many Times', html:`
+      <p class="prose">A <code>for</code> loop bundles three things up front: where to start, when to stop, and how to move.</p>
+      <div class="pseudocode">
+        <div><span class="kw">for</span> i = 0 to 4:</div>
+        <div class="ind1">print(i)</div>
+      </div>
+      <p class="prose" style="font-size:.9rem;color:var(--text-dim)">Prints 0, 1, 2, 3, 4 &mdash; five values, since it's inclusive of both ends here. i is the loop counter; the loop stops once i would need to reach 5.</p>
+      <p class="callout">Any <code>for</code> loop is really a <code>while</code> loop wearing a tuxedo:</p>
+      <div class="pseudocode">
+        <div>i = 0</div>
+        <div><span class="kw">while</span> i &lt; 5:</div>
+        <div class="ind1">print(i)</div>
+        <div class="ind1">i = i + 1</div>
+      </div>
+    `},
+    { part:5, eyebrow:'Part 5 · Going Deeper', title:'Nested Loops &amp; the Infinite Loop Trap', html:`
+      <p class="prose">A loop inside a loop runs the inner one completely for every single pass of the outer one. A 3×3 multiplication table (i = row, j = column, printing i×j):</p>
+      <table class="place-table">
+        <tr><th>i \\ j</th><th>1</th><th>2</th><th>3</th></tr>
+        <tr><th>1</th><td>1</td><td>2</td><td>3</td></tr>
+        <tr><th>2</th><td>2</td><td>4</td><td>6</td></tr>
+        <tr><th>3</th><td>3</td><td>6</td><td>9</td></tr>
+      </table>
+      <p class="callout">Classic bug: forget <code>i = i + 1</code> inside a <code>while</code> loop, and <code>i &lt;= 5</code> is <i>always</i> true &mdash; the program hangs forever and has to be force-killed. It's the runtime version of failing <b>finiteness</b> from Part 1.</p>
+    `},
+    { part:5, eyebrow:'Part 5 · Try It Yourself', title:'Problems: Trace the Loop', html:`
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q1. What does this print?</div>
+        <div class="pseudocode" style="margin:.5rem 0">
+          <div>i = 3</div>
+          <div><span class="kw">while</span> i &gt; 0:</div>
+          <div class="ind1">print(i)</div>
+          <div class="ind1">i = i - 1</div>
+        </div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p7-hint">Hint</button>
+          <button class="reveal-btn" data-target="p7-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p7-hint" hidden><span class="reveal-tag">HINT</span>Trace i's value on each pass &mdash; this one counts down.</div>
+        <div class="reveal" id="p7-sol" hidden><span class="reveal-tag">SOLUTION</span>Prints <b>3</b>, then <b>2</b>, then <b>1</b> &mdash; stops once i becomes 0.</div>
+      </div>
+      <div class="problem">
+        <div class="problem-q"><span class="prompt">&gt;</span> Q2. This loop never stops. What's the bug?</div>
+        <div class="pseudocode" style="margin:.5rem 0">
+          <div>i = 1</div>
+          <div><span class="kw">while</span> i &lt;= 5:</div>
+          <div class="ind1">print(i)</div>
+        </div>
+        <div class="problem-actions">
+          <button class="reveal-btn" data-target="p8-hint">Hint</button>
+          <button class="reveal-btn" data-target="p8-sol">Solution</button>
+        </div>
+        <div class="reveal" id="p8-hint" hidden><span class="reveal-tag">HINT</span>Compare against the correct while-loop example a few slides back &mdash; what line is missing?</div>
+        <div class="reveal" id="p8-sol" hidden><span class="reveal-tag">SOLUTION</span>It never updates i &mdash; missing <code>i = i + 1</code>. i stays 1 forever, so <code>i &lt;= 5</code> is always true: an infinite loop.</div>
+      </div>
+    `},
+
+    { part:6, variant:'divider', kicker:'06', title:'Obligatory Literature', html:`
+      <p class="prose">Required reading for this lecture.</p>
+    `},
+    { part:6, eyebrow:'Part 6 · Required Reading', title:"This Lecture's Required Reading", html:`
+      <div class="stub">— to be added —<br>Insert this lecture's required readings/textbook chapters here before class.</div>
+    `},
+
+    { part:0, variant:'outro', title:'Lecture 2 &mdash; Recap', html:`
+      <ul class="list">
+        <li><b>Part 1:</b> data processing turns raw data into information; an algorithm is a finite, precise, effective recipe with input and output &mdash; the same word Al-Khwarizmi's math gave us 1,200 years ago</li>
+        <li><b>Part 2:</b> a program is an algorithm translated into a language a compiler or interpreter understands, then run by the CPU's fetch–decode–execute cycle</li>
+        <li><b>Part 3:</b> arithmetic operators do the math, relational operators compare values, and logical operators (AND/OR/NOT) combine true/false into decisions</li>
+        <li><b>Part 4:</b> the same algorithm can be written four ways &mdash; natural language, pseudocode, flowchart, program code &mdash; and all four must agree</li>
+        <li><b>Part 5:</b> <code>while</code>, <code>do…while</code> and <code>for</code> loops repeat steps without repeating code &mdash; and forgetting to update the loop variable is the classic way to break finiteness at runtime</li>
+      </ul>
+      <p class="hint-line">root@PCP2026:~$ shutdown -r lecture_03<span class="cursor"></span></p>
+    `},
+  ];
+
+  const stage = document.getElementById('stage');
+  const dotsWrap = document.getElementById('dots');
+  const counter = document.getElementById('counter');
+  const partLabel = document.getElementById('partLabel');
+  const progressFill = document.getElementById('progressFill');
+  const total = slides.length;
+  let current = 0;
+
+  slides.forEach((s, i) => {
+    const el = document.createElement('section');
+    el.className = 'slide';
+    el.dataset.index = i;
+    let inner = '<div class="slide-inner">';
+    if (s.variant === 'divider') {
+      inner += `<div class="divider-wrap"><p class="eyebrow">Part ${s.kicker}</p><div class="part-number">${s.kicker}</div><h2 class="slide-title">${s.title}</h2></div>`;
+    } else {
+      if (s.eyebrow) inner += `<p class="eyebrow">${s.eyebrow}</p>`;
+      if (s.title) inner += `<h2 class="slide-title${s.variant === 'title' ? ' is-hero' : ''}">${s.title}</h2>`;
+    }
+    inner += s.html + '</div>';
+    el.innerHTML = inner;
+    stage.appendChild(el);
+  });
+
+  const dotEls = [];
+  slides.forEach((s, i) => {
+    const dot = document.createElement('button');
+    dot.className = 'dot';
+    dot.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+    dot.addEventListener('click', () => go(i));
+    dotsWrap.appendChild(dot);
+    dotEls.push(dot);
+  });
+
+  function partName(p) {
+    return p === 0 ? 'Lecture 2' : 'Part ' + p;
+  }
+
+  function render() {
+    document.querySelectorAll('.slide').forEach((el, i) => {
+      el.classList.toggle('is-active', i === current);
+    });
+    dotEls.forEach((d, i) => d.classList.toggle('is-current', i === current));
+    counter.textContent = String(current + 1).padStart(2, '0') + ' / ' + total;
+    partLabel.textContent = partName(slides[current].part);
+    progressFill.style.width = ((current) / (total - 1)) * 100 + '%';
+    document.getElementById('btnPrev').disabled = current === 0;
+    document.getElementById('btnNext').disabled = current === total - 1;
+    dotEls[current].scrollIntoView({ block: 'nearest', inline: 'center' });
+  }
+
+  function go(i) {
+    current = Math.max(0, Math.min(total - 1, i));
+    render();
+  }
+
+  document.getElementById('btnPrev').addEventListener('click', () => go(current - 1));
+  document.getElementById('btnNext').addEventListener('click', () => go(current + 1));
+  document.getElementById('prevZone').addEventListener('click', () => go(current - 1));
+  document.getElementById('nextZone').addEventListener('click', () => go(current + 1));
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') { go(current + 1); e.preventDefault(); }
+    if (e.key === 'ArrowLeft') { go(current - 1); e.preventDefault(); }
+  });
+
+  stage.addEventListener('click', (e) => {
+    const btn = e.target.closest('.reveal-btn');
+    if (!btn) return;
+    const panel = document.getElementById(btn.dataset.target);
+    if (!panel) return;
+    if (!btn.dataset.label) btn.dataset.label = btn.textContent;
+    panel.hidden = !panel.hidden;
+    btn.textContent = panel.hidden ? btn.dataset.label : 'Hide ' + btn.dataset.label;
+  });
+
+  render();
+
+  (function typesetMath(){
+    if (window.MathJax && MathJax.typesetPromise) {
+      MathJax.typesetPromise();
+    } else {
+      setTimeout(typesetMath, 60);
+    }
+  })();
+})();
+</script>
+</body>
+</html>

@@ -128,6 +128,9 @@
   .place-table td,.place-table th{ border:1px solid var(--border); padding:.4em .7em; text-align:center; }
   .place-table th{ color:var(--text-dim); font-weight:600; }
   .place-table .hi{ color:var(--accent-text); font-weight:700; }
+  .legend-table{ width:100%; max-width:74ch; }
+  .legend-table td,.legend-table th{ text-align:left; }
+  .legend-table td:first-child,.legend-table th:first-child{ text-align:center; }
   .worked{ background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:.9rem 1.1rem; font-family:var(--font-mono); font-size:.92rem; line-height:1.6; max-width:66ch; overflow-x:auto; }
   .worked mjx-container{ font-size:105%; }
 
@@ -349,12 +352,29 @@
       <div class="worked">\\[ 1011_2 \\;=\\; (1\\times2^{3})+(0\\times2^{2})+(1\\times2^{1})+(1\\times2^{0}) \\;=\\; 8+0+2+1 \\;=\\; 11 \\]</div>
       <p class="prose" style="font-size:.9rem;color:var(--text-dim)">Powers of two to keep handy: 1, 2, 4, 8, 16, 32, 64, 128 …</p>
     `},
+    { part:2, eyebrow:'Part 2 · Notation', title:'Reading the Formulas: What Each Symbol Means', html:`
+      <p class="prose">Every formula in this section reuses the same handful of letters. Learn them once here and the rest reads itself &mdash; and note that <b>b</b> and <b>d<sub>i</sub></b> are never the same thing, even though they look similar.</p>
+      <table class="place-table legend-table">
+        <tr><th>symbol</th><th>meaning</th><th>example</th></tr>
+        <tr><td class="hi">N</td><td>the value being represented, in ordinary base-10 terms</td><td>N = 45</td></tr>
+        <tr><td class="hi">b</td><td>the <b>base</b> (radix): how many distinct symbols each digit can hold</td><td>b = 2 (binary), b = 16 (hex), b = 10 (decimal)</td></tr>
+        <tr><td class="hi">k</td><td>how many digits it takes to write this particular N in base b</td><td>45 in binary is 101101₂ → k = 6</td></tr>
+        <tr><td class="hi">i</td><td>a digit's <b>position</b>, counted from 0 at the rightmost (least-significant) digit upward</td><td>in 101101₂, positions run i = 5,4,3,2,1,0 left→right</td></tr>
+        <tr><td class="hi">d<sub>i</sub></td><td>the <b>digit</b> sitting at position i &mdash; a "bit" is just the name for d<sub>i</sub> when b = 2</td><td>in 101101₂: d₅=1, d₄=0, d₃=1, d₂=1, d₁=0, d₀=1</td></tr>
+        <tr><td class="hi">n</td><td>a <i>fixed</i> storage width in bits, chosen by the hardware &mdash; independent of any one N</td><td>n = 8 for a byte, n = 32 for an int</td></tr>
+      </table>
+      <p class="callout">Reused for one topic later (IEEE&nbsp;754): <b>S</b> = sign bit, <b>E</b> = stored exponent, <b>bias</b> = fixed offset, <b>p</b> = mantissa width, <b>m<sub>i</sub></b> = i-th mantissa bit. Defined again on that slide so you don't need to hold them in memory yet.</p>
+    `},
     { part:2, eyebrow:'Part 2 · Formalizing It', title:'The General Formula (Any Base)', html:`
       <p class="prose">Binary, decimal and hex are all the <i>same</i> idea — a base <b>b</b> swapped in. One formula covers all of them:</p>
       <div class="formula"><span class="f-label">Place value, any base b</span><div class="f-expr">\\[ N \\;=\\; \\sum_{i=0}^{k-1} d_i\\,b^{\\,i}, \\qquad d_i \\in \\{0,1,\\ldots,b-1\\} \\]</div></div>
-      <div class="formula"><span class="f-label">Binary special case (b = 2)</span><div class="f-expr">\\[ N \\;=\\; \\sum_{i=0}^{k-1} b_i\\,2^{\\,i}, \\qquad b_i \\in \\{0,1\\} \\]</div></div>
+      <div class="worked">Worked in base 16 (hex): "2F"<sub>16</sub> has k = 2 digits, d₁ = 2, d₀ = F = 15 → \\(N = d_1\\cdot16^{1} + d_0\\cdot16^{0} = (2\\times16)+(15\\times1) = 47\\)</div>
+      <div class="formula"><span class="f-label">Binary special case (b = 2)</span><div class="f-expr">\\[ N \\;=\\; \\sum_{i=0}^{k-1} d_i\\,2^{\\,i}, \\qquad d_i \\in \\{0,1\\} \\]</div></div>
+      <p class="prose" style="font-size:.9rem;color:var(--text-dim)">Same formula as above with b locked to 2 &mdash; a "bit" is just the name we give \\(d_i\\) once the base is 2. Worked in Part 2's binary slide: \\(N=11\\), \\(k=4\\) digits, \\(d_3d_2d_1d_0 = 1011\\).</p>
       <div class="formula"><span class="f-label">Pulling out one digit</span><div class="f-expr">\\[ d_i \\;=\\; \\left\\lfloor \\frac{N}{b^{\\,i}} \\right\\rfloor \\bmod b \\]</div></div>
+      <div class="worked">Worked: N = 45, b = 10, i = 0 → \\(\\lfloor45/1\\rfloor \\bmod 10 = 5\\) (the units digit). i = 1 → \\(\\lfloor45/10\\rfloor \\bmod 10 = 4\\) (the tens digit).</div>
       <div class="formula"><span class="f-label">Capacity of n bits</span><div class="f-expr">\\[ n \\text{ bits} \\;\\Longrightarrow\\; 2^{\\,n} \\text{ patterns}, \\qquad \\text{unsigned range } [\\,0,\\ 2^{n}-1\\,] \\]</div></div>
+      <p class="prose" style="font-size:.9rem;color:var(--text-dim)">Worked: n = 8 (a byte) → \\(2^{8}=256\\) patterns, range 0&ndash;255. Note n &ne; k: n is the fixed width the hardware reserves; k is however many digits one particular N actually needs &mdash; the rest are leading zeros.</p>
     `},
     { part:2, eyebrow:'Part 2 · Shorthand', title:'Hex &amp; Octal: Binary in Disguise', html:`
       <p class="prose">Raw binary is unreadable for humans, so programmers group bits: 4 bits = 1 <b>hex</b> digit (0&ndash;9, then A&ndash;F for 10&ndash;15). You'll meet hex in memory addresses and color codes like <code>#FF8800</code>.</p>
@@ -364,9 +384,10 @@
     `},
     { part:2, eyebrow:'Part 2 · Signed Integers', title:"Negative Numbers: Two's Complement", html:`
       <p class="prose">A plain sign bit gives you two zeros and clumsy arithmetic. <b>Two's complement</b> lets the same adder circuit handle positive and negative numbers.</p>
-      <div class="formula"><span class="f-label">n-bit signed integer</span><div class="f-expr">\\[ N \\;=\\; -\\,b_{n-1}\\cdot2^{\\,n-1} \\;+\\; \\sum_{i=0}^{n-2} b_i\\cdot2^{\\,i}, \\qquad N \\in \\big[-2^{n-1},\\ 2^{n-1}-1\\big] \\]</div></div>
-      <div class="worked">To write −5 in 8 bits: start with 5 = 00000101₂ → invert every bit → 11111010 → add 1 → <b>11111011₂ = −5</b></div>
-      <div class="worked">Verification: \\[ N = -1\\cdot2^{7} + \\big(2^{6}+2^{5}+2^{4}+2^{3}+2^{1}+2^{0}\\big) = -128+123 = -5 \\]</div>
+      <div class="formula"><span class="f-label">n-bit signed integer</span><div class="f-expr">\\[ N \\;=\\; -\\,d_{n-1}\\cdot2^{\\,n-1} \\;+\\; \\sum_{i=0}^{n-2} d_i\\cdot2^{\\,i}, \\qquad N \\in \\big[-2^{n-1},\\ 2^{n-1}-1\\big] \\]</div></div>
+      <p class="prose" style="font-size:.9rem;color:var(--text-dim)">Same d<sub>i</sub> bits as before, just with the leftmost one, d<sub>n&minus;1</sub>, given a <i>negative</i> weight instead of a positive one &mdash; every other bit keeps its usual \\(2^i\\) weight.</p>
+      <div class="worked">To write −5 in 8 bits (n = 8): start with 5 = 00000101₂ → invert every bit → 11111010 → add 1 → <b>11111011₂ = −5</b></div>
+      <div class="worked">Verification, reading off d₇…d₀ = 1,1,1,1,1,0,1,1: \\[ N = -1\\cdot2^{7} + \\big(2^{6}+2^{5}+2^{4}+2^{3}+2^{1}+2^{0}\\big) = -128+123 = -5 \\]</div>
     `},
     { part:2, eyebrow:'Part 2 · Decimals', title:'Representing Decimal Numbers', html:`
       <p class="prose">Whole numbers are easy in binary. Fractions are where it gets interesting.</p>
@@ -378,13 +399,14 @@
     `},
     { part:2, eyebrow:'Part 2 · IEEE 754', title:'Floating-Point, Formally', html:`
       <p class="prose">A float packs three fields &mdash; sign, exponent, mantissa &mdash; and reads back like scientific notation in binary:</p>
-      <div class="formula"><span class="f-label">IEEE 754, general form (p mantissa bits, given bias)</span><div class="f-expr">\\[ \\mathrm{value} \\;=\\; (-1)^{S} \\cdot \\left(1 + \\sum_{i=1}^{p} b_i\\cdot2^{-i}\\right) \\cdot 2^{\\,E-\\text{bias}} \\]</div></div>
+      <div class="formula"><span class="f-label">IEEE 754, general form (p mantissa bits mᵢ, given bias)</span><div class="f-expr">\\[ \\mathrm{value} \\;=\\; (-1)^{S} \\cdot \\left(1 + \\sum_{i=1}^{p} m_i\\cdot2^{-i}\\right) \\cdot 2^{\\,E-\\text{bias}} \\]</div></div>
+      <p class="prose" style="font-size:.9rem;color:var(--text-dim)"><b>S</b> = sign bit (0 or 1, stored directly) &middot; <b>E</b> = the stored exponent field, an unsigned integer &mdash; <i>not</i> the true exponent &middot; <b>bias</b> = fixed offset that shifts E back to a signed exponent (127 or 1023 below) &middot; <b>p</b> = how many mantissa bits are stored (23 or 52) &middot; <b>m<sub>i</sub></b> = the i-th mantissa bit, weighted \\(2^{-i}\\) &mdash; deliberately a different letter from d<sub>i</sub>, since these sit after an implicit leading "1." rather than being ordinary place-value digits.</p>
       <table class="place-table">
         <tr><th>format</th><th>sign</th><th>exponent</th><th>mantissa (p)</th><th>bias</th></tr>
         <tr><td>single (32-bit)</td><td>1</td><td>8</td><td class="hi">23</td><td class="hi">127</td></tr>
         <tr><td>double (64-bit)</td><td>1</td><td>11</td><td class="hi">52</td><td class="hi">1023</td></tr>
       </table>
-      <div class="worked">\\(0.5 = 1.0 \\times 2^{-1}\\) → sign 0, exponent 126 (=127−1), mantissa all zero:<br>0&nbsp;01111110&nbsp;00000000000000000000000</div>
+      <div class="worked">Worked: 0.5 as a single-precision float. \\(0.5 = 1.0 \\times 2^{-1}\\), so S = 0, every m<sub>i</sub> = 0, and we need E &minus; 127 = &minus;1 → E = 126 = 01111110₂:<br>0&nbsp;01111110&nbsp;00000000000000000000000<br>Check against the formula: \\((-1)^{0}\\cdot(1+0)\\cdot2^{126-127} = 1\\times2^{-1} = 0.5\\) ✓</div>
       <p class="prose" style="font-size:.9rem;color:var(--text-dim)">E = 0 and E = 255 (or 2047 for double) are reserved &mdash; they encode subnormals, ±∞ and NaN.</p>
     `},
     { part:2, eyebrow:'Part 2 · Real Incidents', title:'When Representation Fails: Real Incidents', html:`

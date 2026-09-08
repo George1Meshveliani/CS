@@ -2,6 +2,7 @@
 
 ## PCP2026
 - [`Lecture 1 — Foundations: History, Number Representation & Toolkit`](https://george1meshveliani.github.io/CS/PCP2026Lecture1)
+- [`Lecture 2 — Data Processing, Algorithms, Program Execution & Loops`](https://george1meshveliani.github.io/CS/PCP2026Lecture2)
 
 ## PP2026
 - [`Lecture 1 — C, the Procedural Paradigm, Bits/Bytes/Memory & Bitwise Operators`](https://george1meshveliani.github.io/CS/PP2026Lecture1)
